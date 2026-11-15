@@ -30,6 +30,7 @@
             background-color: #1a1525;
             overflow: hidden;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            container-type: size; /* Container Queries 활성화 */
         }
         canvas {
             display: block;
@@ -140,6 +141,19 @@
         .tut-dot.inactive {
             background-color: rgba(90, 66, 49, 0.4);
         }
+
+        /* 커스텀 스크롤바 (게임 오버 통계창 용) */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 1.5cqh;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 1cqh;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 1cqh;
+        }
     </style>
 </head>
 <body>
@@ -202,37 +216,52 @@
             </div>
         </div>
 
-        <!-- 게임 오버 오버레이 -->
-        <div id="game-over" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col pointer-events-auto transition-opacity duration-500">
-            <h2 class="text-[clamp(30px,10vw,60px)] font-black text-white mb-2 drop-shadow-2xl">GAME OVER</h2>
-            <p class="text-slate-300 mb-6 text-[clamp(14px,4vw,20px)] font-medium">더 이상 빈 칸이 없습니다!</p>
+        <!-- 게임 오버 오버레이 (모바일 맞춤형 2열 레이아웃) -->
+        <div id="game-over" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex-col pointer-events-auto transition-opacity duration-500 p-[4cqh] pt-[5cqh]">
             
-            <div class="mb-8 w-full max-w-xs sm:max-w-sm px-6 flex flex-col gap-3">
-                <div class="flex justify-between items-center text-slate-300">
-                    <span class="text-[clamp(14px,4vw,18px)] font-bold">배양 점수</span>
-                    <span id="cultivation-score" class="text-[clamp(16px,4.5vw,22px)] font-black text-white">0</span>
+            <!-- 상단 제목 -->
+            <div class="w-full text-center flex-shrink-0 mb-[4cqh]">
+                <h2 class="font-black text-white drop-shadow-2xl leading-none" style="font-size: 10cqh;">GAME OVER</h2>
+                <p class="text-slate-300 font-medium leading-none mt-[2cqh]" style="font-size: 4cqh;">더 이상 빈 칸이 없습니다!</p>
+            </div>
+            
+            <!-- 메인 컨텐츠 영역 (좌측 통계 / 우측 점수) -->
+            <div class="flex-1 w-full flex flex-row gap-[4cqw] min-h-0 pb-[2cqh]">
+                
+                <!-- 좌측: 통계 박스 -->
+                <div class="flex-1 bg-slate-800/60 rounded-[3cqh] border-2 border-slate-600 p-[3cqh] overflow-y-auto custom-scrollbar relative">
+                    <div id="stats-container" class="w-full flex flex-col gap-[3cqh]">
+                        <!-- JS에서 통계 내용이 삽입됩니다. -->
+                    </div>
                 </div>
-                <div class="flex justify-between items-center text-slate-300 border-b border-slate-600 pb-3">
-                    <span class="text-[clamp(14px,4vw,18px)] font-bold">결산 점수</span>
-                    <span id="settlement-score" class="text-[clamp(16px,4.5vw,22px)] font-black text-white">0</span>
-                </div>
-                <div class="flex justify-between items-end pt-1">
-                    <span class="text-slate-400 text-[clamp(16px,4.5vw,20px)] font-bold mb-1">최종 점수</span>
-                    <span id="final-score" class="text-[clamp(32px,10vw,48px)] leading-none font-black text-yellow-400 drop-shadow-md">0</span>
+                
+                <!-- 우측: 점수 결산 및 버튼 -->
+                <div class="flex-1 flex flex-col justify-end">
+                    <div class="w-full flex flex-col gap-[3.5cqh] mb-[4cqh]">
+                        <div class="flex justify-between items-center text-slate-300 px-[2cqw]">
+                            <span class="font-bold" style="font-size: 5cqh;">배양 점수</span>
+                            <span id="cultivation-score" class="font-black text-white leading-none" style="font-size: 5cqh;">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-300 px-[2cqw] border-b-2 border-slate-600 pb-[3.5cqh]">
+                            <span class="font-bold" style="font-size: 5cqh;">결산 점수</span>
+                            <span id="settlement-score" class="font-black text-white leading-none" style="font-size: 5cqh;">0</span>
+                        </div>
+                        <div class="flex justify-between items-end px-[2cqw]">
+                            <span class="text-slate-400 font-bold mb-[0.5cqh]" style="font-size: 5cqh;">최종 점수</span>
+                            <span id="final-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 7cqh;">0</span>
+                        </div>
+                    </div>
+
+                    <button id="restart-btn" class="w-full bg-white text-slate-900 font-black rounded-[4cqh] shadow-2xl hover:bg-slate-100 active:scale-90 transition-transform flex items-center justify-center flex-shrink-0" style="height: 12cqh; font-size: 5cqh;">
+                        다시 시작
+                    </button>
                 </div>
             </div>
-
-            <button id="restart-btn" class="px-8 py-3 sm:px-12 sm:py-5 bg-white text-slate-900 font-black text-[clamp(16px,5vw,24px)] rounded-3xl shadow-2xl hover:bg-slate-100 active:scale-90 transition-transform">
-                다시 시작
-            </button>
         </div>
 
         <!-- 도감 오버레이 -->
         <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
             <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-4 overflow-hidden">
-                <button id="dictionary-close-btn" class="absolute top-2 right-2 bg-[#dca773] text-white rounded-full font-black flex items-center justify-center active:scale-90 transition-transform touch-manipulation z-20 shadow-md" style="width: calc(var(--tile-w, 60px) * 0.4); height: calc(var(--tile-w, 60px) * 0.4); font-size: calc(var(--tile-w, 60px) * 0.2);">
-                    ✕
-                </button>
 
                 <!-- 왼쪽 페이지 넘김 영역 -->
                 <div id="dict-prev-area" class="absolute left-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors">
@@ -245,15 +274,15 @@
                 </div>
 
                 <!-- 도감 책 뼈대 -->
-                <div class="flex w-full h-full relative border-l-2 border-r-2 border-[#dca773]/30 mx-[5%]">
+                <div class="flex w-full h-full relative border-l-2 border-r-2 border-[#dca773]/30 mx-[5%] pointer-events-none">
                     <!-- 중앙 제본선 -->
                     <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-r from-[#dca773]/20 via-[#8b5a2b]/20 to-[#dca773]/20 -translate-x-1/2 z-0"></div>
                     <div class="absolute left-1/2 top-0 bottom-0 w-px bg-[#5a4231]/10 -translate-x-1/2 z-0"></div>
 
                     <!-- 좌측 페이지 -->
-                    <div id="dict-page-left" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0"></div>
+                    <div id="dict-page-left" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0 pointer-events-auto"></div>
                     <!-- 우측 페이지 -->
-                    <div id="dict-page-right" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0"></div>
+                    <div id="dict-page-right" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0 pointer-events-auto"></div>
                 </div>
             </div>
         </div>
@@ -334,25 +363,21 @@
                 const data = await response.json();
                 
                 if (data.pages && data.pages.length > 0) {
-                    // 단락 0 적용
                     if (data.pages[0]) {
                         document.getElementById('tut-title-0').innerText = data.pages[0].title;
                         document.getElementById('tut-desc-0').innerText = data.pages[0].description;
                     }
-                    // 단락 1 적용
                     if (data.pages[1]) {
                         document.getElementById('tut-title-1').innerText = data.pages[1].title;
                         document.getElementById('tut-desc-1').innerText = data.pages[1].description;
                     }
-                    // 단락 2 적용
                     if (data.pages[2]) {
                         document.getElementById('tut-title-2').innerText = data.pages[2].title;
                         document.getElementById('tut-desc-2').innerText = data.pages[2].description;
                         
-                        // 스킬 리스트 생성
                         if (data.pages[2].skills) {
                             const skillContainer = document.getElementById('tut-skills-container');
-                            skillContainer.innerHTML = ''; // 기본값 텍스트 지우기
+                            skillContainer.innerHTML = ''; 
                             data.pages[2].skills.forEach(skill => {
                                 const div = document.createElement('div');
                                 div.className = 'flex items-start';
@@ -400,9 +425,18 @@
         let particles = [];
         let floatingTexts = [];
 
+        // 통계 데이터를 저장하는 객체
+        const gameStats = {
+            spawnCount: 0,
+            skillUsage: { pin: 0, hammer: 0, swap: 0 },
+            cultivationCount: {},
+            settlementCount: {}
+        };
+
+        // 최신 정산 점수 적용
         const SETTLEMENT_SCORES = {
-            1: 100, 2: 200, 3: 400, 4: 800, 5: 1600,
-            6: 4000, 7: 10000, 8: 25000, 9: 62500, 10: 250000
+            1: 0, 2: 150, 3: 400, 4: 1200, 5: 3200,
+            6: 9600, 7: 25600, 8: 64000, 9: 192000, 10: 512000
         };
 
         const MINERAL_COLORS = {
@@ -417,6 +451,15 @@
             9:  { name: '에메랄드', base: '#4ADE80', point: '#22C55E', shadow: '#16A34A', highlight: '#86EFAC', highlight2: '#BBF7D0', highlight3: '#DCFCE7' },
             10: { name: '다이아몬드', base: '#F0F9FF', point: '#FBBF24', shadow: '#E0F2FE', highlight: '#FFFFFF', highlight2: '#FFFFFF', highlight3: '#FFFFFF' },
         };
+
+        function resetStats() {
+            gameStats.spawnCount = 0;
+            gameStats.skillUsage = { pin: 0, hammer: 0, swap: 0 };
+            for (let i = 1; i <= MAX_LEVEL; i++) {
+                gameStats.cultivationCount[i] = 0;
+                gameStats.settlementCount[i] = 0;
+            }
+        }
 
         function drawMineral(targetCtx, x, y, radius, level, isUnknown = false) {
             const baseColor = MINERAL_COLORS[level] || MINERAL_COLORS[1];
@@ -490,6 +533,8 @@
             isGameOver = false;
             score = 0;
             
+            resetStats();
+
             targetedSpawnCooldown = 6;
             targetedIsFirstUse = true;
             isAwaitingTargetSelection = false;
@@ -552,7 +597,6 @@
             const yellowText = 'text-[#fff9c4]';
             const whiteText = 'text-white';
 
-            // 📌 핀
             if (targetedSpawnCooldown > 0) {
                 pinBtn.classList.add('pointer-events-none');
                 pinOverlayUI.classList.remove('hidden');
@@ -585,7 +629,6 @@
                 }
             }
 
-            // ⛏️ 곡괭이
             if (removeSkillCooldown > 0) {
                 hammerBtn.classList.add('pointer-events-none');
                 hammerOverlayUI.classList.remove('hidden');
@@ -618,7 +661,6 @@
                 }
             }
 
-            // 🔁 교체
             if (swapSkillCooldown > 0) {
                 swapBtn.classList.add('pointer-events-none');
                 swapOverlayUI.classList.remove('hidden');
@@ -747,6 +789,10 @@
             
             discoveredMinerals.add(nextSpawnLevel);
 
+            if (!isTargeted) {
+                gameStats.spawnCount++; // 생성 횟수 통계 업데이트
+            }
+
             generateNextSpawn();
 
             if (isTargeted) {
@@ -766,6 +812,78 @@
             }
         }
 
+        function renderStats() {
+            const container = document.getElementById('stats-container');
+            container.innerHTML = '';
+            
+            // 통계 목차 및 수치 텍스트 크기 비율 조정 (점수 텍스트(5cqh) 기준 90%, 70%)
+            const headerSize = '4.5cqh';
+            const valueSize = '3.5cqh';
+            
+            const createSec = (title) => {
+                const sec = document.createElement('div');
+                sec.className = 'flex flex-col gap-[1cqh]';
+                
+                const h3 = document.createElement('h3');
+                h3.className = 'text-yellow-400 font-black border-b-2 border-slate-600/50 pb-[0.5cqh]';
+                h3.style.fontSize = headerSize;
+                h3.innerText = title;
+                sec.appendChild(h3);
+                
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-2 gap-x-[3cqw] gap-y-[0.5cqh]';
+                sec.appendChild(grid);
+                
+                return {sec, grid};
+            };
+            
+            const createRow = (label, val) => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center';
+                div.style.fontSize = valueSize;
+                
+                const l = document.createElement('span');
+                l.className = 'text-slate-300 font-bold';
+                l.innerText = label;
+                
+                const v = document.createElement('span');
+                v.className = 'text-white font-black';
+                v.innerText = val;
+                
+                div.appendChild(l);
+                div.appendChild(v);
+                return div;
+            };
+
+            // 1. 기본 통계
+            const basic = createSec('기본 통계');
+            basic.grid.appendChild(createRow('생성 횟수', gameStats.spawnCount));
+            basic.grid.appendChild(createRow('📌 지정', gameStats.skillUsage.pin));
+            basic.grid.appendChild(createRow('⛏️ 파괴', gameStats.skillUsage.hammer));
+            basic.grid.appendChild(createRow('🔁 교체', gameStats.skillUsage.swap));
+            container.appendChild(basic.sec);
+            
+            // 2. 광물별 배양 횟수
+            const cult = createSec('광물별 배양 횟수');
+            for (let i = 1; i <= MAX_LEVEL; i++) {
+                if (gameStats.cultivationCount[i] > 0) {
+                    cult.grid.appendChild(createRow(MINERAL_COLORS[i].name, gameStats.cultivationCount[i]));
+                }
+            }
+            if (cult.grid.children.length > 0) container.appendChild(cult.sec);
+            
+            // 3. 결산 (갯수와 결산 점수 합을 함께 표시)
+            const sett = createSec('결산');
+            for (let i = 1; i <= MAX_LEVEL; i++) {
+                if (gameStats.settlementCount[i] > 0) {
+                    const cnt = gameStats.settlementCount[i];
+                    const pts = cnt * (SETTLEMENT_SCORES[i] || 0);
+                    sett.grid.appendChild(createRow(MINERAL_COLORS[i].name, `${cnt}개 (${pts.toLocaleString()})`));
+                }
+            }
+            if (sett.grid.children.length > 0) container.appendChild(sett.sec);
+        }
+
         function triggerGameOver() {
             isGameOver = true;
             selectedCell = null;
@@ -774,11 +892,16 @@
             for (let r = 0; r < GRID_SIZE; r++) {
                 for (let c = 0; c < GRID_SIZE; c++) {
                     const level = grid[r][c].level;
-                    if (level > 0 && SETTLEMENT_SCORES[level]) {
-                        settlementScore += SETTLEMENT_SCORES[level];
+                    if (level > 0) {
+                        gameStats.settlementCount[level]++; // 결산 갯수 업데이트
+                        if (SETTLEMENT_SCORES[level]) {
+                            settlementScore += SETTLEMENT_SCORES[level];
+                        }
                     }
                 }
             }
+            
+            renderStats(); // 통계 렌더링
             
             const finalTotalScore = score + settlementScore;
             
@@ -822,12 +945,14 @@
 
             if (isAdjacent && isSameLevel) {
                 const newLevel = firstCell.level + 1;
-                const n = newLevel; 
                 
                 if (newLevel <= MAX_LEVEL) {
-                    const gainedScore = 100 * Math.pow(2, n - 1);
+                    // 최신 배양 점수 적용 공식: 0, 100, 200, 400, 800 ...
+                    const gainedScore = newLevel === 1 ? 0 : 100 * Math.pow(2, newLevel - 2);
                     score += gainedScore;
                     updateScoreDisplay();
+
+                    gameStats.cultivationCount[newLevel]++; // 배양 통계 업데이트
 
                     cell.level = newLevel;
                     cell.bounce = 1.5;
@@ -1161,34 +1286,30 @@
         const dictContent = document.getElementById('dictionary-content');
 
         let dictCurrentSpread = 0;
-        const maxSpreads = 5; // 0~4 페이지 세트 (총 10개 광물)
+        const maxSpreads = 5;
 
         function renderDictionaryPage(container, mineralLevel) {
             container.innerHTML = '';
             if (mineralLevel > MAX_LEVEL) return;
 
             const popupHeight = dictContent.clientHeight;
-            
             const isDiscovered = discoveredMinerals.has(mineralLevel);
             const colorInfo = MINERAL_COLORS[mineralLevel];
 
-            // 여백 및 사이즈 설정
             const topGap = popupHeight * 0.05;
             const mineralSize = popupHeight * 0.30;
             const midGap = popupHeight * 0.05;
             
-            // 텍스트 사이즈 (비율 조정)
             const nameFontSize = popupHeight * 0.06; 
             const scoreFontSize = popupHeight * 0.042;
-            const descFontSize = scoreFontSize * 0.9; // 설명 텍스트 크기
+            const descFontSize = scoreFontSize * 0.9; // 설명 텍스트 크기: 점수 텍스트의 90%
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'w-full h-full flex flex-col items-center relative';
             contentDiv.style.paddingTop = `${topGap}px`;
 
-            // 광물 렌더링 (비율 유지)
             const canvasWrapper = document.createElement('div');
-            canvasWrapper.className = 'flex justify-center items-center shrink-0';
+            canvasWrapper.className = 'flex justify-center items-center shrink-0 pointer-events-none';
             canvasWrapper.style.width = '100%';
             canvasWrapper.style.height = `${mineralSize}px`;
 
@@ -1211,9 +1332,8 @@
             canvasWrapper.appendChild(tempCanvas);
             contentDiv.appendChild(canvasWrapper);
 
-            // 이름 및 점수 텍스트
             const textGroup = document.createElement('div');
-            textGroup.className = 'relative w-full flex flex-col items-center shrink-0';
+            textGroup.className = 'relative w-full flex flex-col items-center shrink-0 pointer-events-none';
             textGroup.style.marginTop = `${midGap}px`;
 
             const nameLabel = document.createElement('div');
@@ -1225,14 +1345,13 @@
             scoresDiv.className = 'absolute flex justify-between items-center z-0 opacity-80';
             scoresDiv.style.top = '50%';
             scoresDiv.style.transform = 'translateY(-50%)';
-            
-            // 점수 텍스트 간격 20% 축소 (width 좁혀서 간격 좁히기)
             scoresDiv.style.width = '68%'; 
             
             const cultScore = document.createElement('div');
             cultScore.className = 'font-bold text-[#8b5a2b] leading-none';
             cultScore.style.fontSize = `${scoreFontSize}px`;
-            const cScore = isDiscovered ? 100 * Math.pow(2, mineralLevel - 1) : '?';
+            // 최신 배양 점수 표시 
+            const cScore = isDiscovered ? (mineralLevel === 1 ? 0 : 100 * Math.pow(2, mineralLevel - 2)) : '?';
             cultScore.innerText = cScore;
 
             const settScore = document.createElement('div');
@@ -1248,9 +1367,8 @@
             textGroup.appendChild(scoresDiv);
             contentDiv.appendChild(textGroup);
 
-            // 설명 박스 (하단 남는 공간)
             const descBox = document.createElement('div');
-            descBox.className = 'mt-3 mb-8 w-[92%] bg-[#5a4231]/5 rounded-xl p-2 sm:p-3 border border-[#dca773]/40 overflow-y-auto flex-1';
+            descBox.className = 'mt-3 mb-8 w-[92%] bg-[#5a4231]/5 rounded-xl p-2 sm:p-3 border border-[#dca773]/40 overflow-y-auto flex-1 pointer-events-auto';
             
             const descText = document.createElement('p');
             descText.className = 'text-[#5a4231] font-bold leading-snug text-left break-keep';
@@ -1267,9 +1385,8 @@
             descBox.appendChild(descText);
             contentDiv.appendChild(descBox);
 
-            // 하단 중앙 페이지 번호
             const pageNum = document.createElement('div');
-            pageNum.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 font-black text-[#8b5a2b]/50';
+            pageNum.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 font-black text-[#8b5a2b]/50 pointer-events-none';
             pageNum.style.fontSize = `${popupHeight * 0.035}px`;
             pageNum.innerText = `- ${mineralLevel} -`;
             contentDiv.appendChild(pageNum);
@@ -1323,11 +1440,6 @@
             openDictionary();
         });
 
-        document.getElementById('dictionary-close-btn').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            closeDictionary();
-        });
-
         document.getElementById('dict-prev-area').addEventListener('pointerdown', (e) => {
             e.preventDefault();
             if (dictCurrentSpread > 0) {
@@ -1344,6 +1456,7 @@
             }
         });
 
+        // 바탕을 누르면 닫기 동작 유지
         dictModal.addEventListener('pointerdown', (e) => {
             if (e.target === dictModal) {
                 e.preventDefault();
@@ -1534,9 +1647,9 @@
             ctx.strokeStyle = '#000000';
             
             let textY = itemCy - itemRadius * 1.6;
-            ctx.strokeText('+200', rcx2, textY);
+            ctx.strokeText('+100', rcx2, textY);
             ctx.fillStyle = '#ffffff';
-            ctx.fillText('+200', rcx2, textY);
+            ctx.fillText('+100', rcx2, textY);
         }
 
         document.getElementById('help-btn').addEventListener('pointerdown', (e) => {
@@ -1617,6 +1730,7 @@
 
             if (isAwaitingTargetSelection) {
                 if (clickedR !== -1 && grid[clickedR][clickedC].level === 0) {
+                    gameStats.skillUsage.pin++;
                     executeSpawn(clickedR, clickedC, true);
                 }
                 return;
@@ -1624,6 +1738,7 @@
 
             if (isAwaitingRemoveSelection) {
                 if (clickedR !== -1 && grid[clickedR][clickedC].level > 0) {
+                    gameStats.skillUsage.hammer++;
                     const targetCell = grid[clickedR][clickedC];
                     const {x: tx, y: ty} = getScreenXY(clickedR, clickedC);
                     const itemRadius = tileW * 0.32 * targetCell.scale * targetCell.bounce;
@@ -1653,6 +1768,7 @@
                         if (swapFirstTarget.r === clickedR && swapFirstTarget.c === clickedC) {
                             swapFirstTarget = null;
                         } else if (clickedCell.level !== grid[swapFirstTarget.r][swapFirstTarget.c].level) {
+                            gameStats.skillUsage.swap++;
                             const tempLevel = clickedCell.level;
                             const tempScale = clickedCell.scale;
                             
@@ -1684,7 +1800,6 @@
         window.onload = () => {
             init();
             requestAnimationFrame(draw);
-            // 튜토리얼 텍스트 불러오기 (실패 시 HTML 기본값 유지)
             loadTutorialData();
             loadDictionaryData();
         };
