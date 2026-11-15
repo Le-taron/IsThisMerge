@@ -229,13 +229,31 @@
 
         <!-- 도감 오버레이 -->
         <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
-            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300 border-4">
-                <button id="dictionary-close-btn" class="absolute top-2 right-2 bg-[#dca773] text-white rounded-full font-black flex items-center justify-center active:scale-90 transition-transform touch-manipulation z-10" style="height: 10%; aspect-ratio: 1/1; font-size: clamp(10px, 3vh, 20px);">
+            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-4 overflow-hidden">
+                <button id="dictionary-close-btn" class="absolute top-2 right-2 bg-[#dca773] text-white rounded-full font-black flex items-center justify-center active:scale-90 transition-transform touch-manipulation z-20 shadow-md" style="width: calc(var(--tile-w, 60px) * 0.4); height: calc(var(--tile-w, 60px) * 0.4); font-size: calc(var(--tile-w, 60px) * 0.2);">
                     ✕
                 </button>
-                <h2 class="font-black text-[#5a4231] mb-2 text-center shrink-0 mt-1" style="line-height: 1;">광물 도감</h2>
-                <div id="dictionary-list" class="w-full flex-1 min-h-0 grid grid-cols-5 grid-rows-2 gap-1 p-1">
-                    <!-- JS 렌더링 영역 -->
+
+                <!-- 왼쪽 페이지 넘김 영역 -->
+                <div id="dict-prev-area" class="absolute left-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors">
+                    <span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px);">◀</span>
+                </div>
+                
+                <!-- 오른쪽 페이지 넘김 영역 -->
+                <div id="dict-next-area" class="absolute right-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors">
+                    <span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px);">▶</span>
+                </div>
+
+                <!-- 도감 책 뼈대 -->
+                <div class="flex w-full h-full relative border-l-2 border-r-2 border-[#dca773]/30 mx-[5%]">
+                    <!-- 중앙 제본선 -->
+                    <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-r from-[#dca773]/20 via-[#8b5a2b]/20 to-[#dca773]/20 -translate-x-1/2 z-0"></div>
+                    <div class="absolute left-1/2 top-0 bottom-0 w-px bg-[#5a4231]/10 -translate-x-1/2 z-0"></div>
+
+                    <!-- 좌측 페이지 -->
+                    <div id="dict-page-left" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0"></div>
+                    <!-- 우측 페이지 -->
+                    <div id="dict-page-right" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0"></div>
                 </div>
             </div>
         </div>
@@ -1128,72 +1146,162 @@
         });
 
         // ------------------ 도감 모달 관련 ------------------
+        let dictionaryData = {};
+        async function loadDictionaryData() {
+            try {
+                const response = await fetch('dictionary.json');
+                if (!response.ok) throw new Error('Failed to load JSON');
+                dictionaryData = await response.json();
+            } catch (error) {
+                console.log('dictionary.json을 불러오지 못했습니다. 기본 텍스트를 사용합니다.', error);
+            }
+        }
+
         const dictModal = document.getElementById('dictionary-modal');
         const dictContent = document.getElementById('dictionary-content');
 
-        function renderDictionary() {
-            const listEl = document.getElementById('dictionary-list');
-            listEl.innerHTML = '';
-            
+        let dictCurrentSpread = 0;
+        const maxSpreads = 5; // 0~4 페이지 세트 (총 10개 광물)
+
+        function renderDictionaryPage(container, mineralLevel) {
+            container.innerHTML = '';
+            if (mineralLevel > MAX_LEVEL) return;
+
             const popupHeight = dictContent.clientHeight;
-            const mineralSize = popupHeight * 0.25;
-            const listHeight = listEl.clientHeight;
             
-            const cellHeight = listHeight / 2;
-            const gapSpace = cellHeight - mineralSize;
-            
-            let nameFontSize = gapSpace * 0.392;
-            if (nameFontSize < 1) nameFontSize = 10;
-            const nameMarginTop = nameFontSize / 7;
+            const isDiscovered = discoveredMinerals.has(mineralLevel);
+            const colorInfo = MINERAL_COLORS[mineralLevel];
 
-            const titleEl = dictContent.querySelector('h2');
-            if (titleEl) {
-                titleEl.style.fontSize = `${nameFontSize * 1.1}px`;
+            // 여백 및 사이즈 설정
+            const topGap = popupHeight * 0.05;
+            const mineralSize = popupHeight * 0.30;
+            const midGap = popupHeight * 0.05;
+            
+            // 텍스트 사이즈 (비율 조정)
+            const nameFontSize = popupHeight * 0.06; 
+            const scoreFontSize = popupHeight * 0.042;
+            const descFontSize = scoreFontSize * 0.9; // 설명 텍스트 크기
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'w-full h-full flex flex-col items-center relative';
+            contentDiv.style.paddingTop = `${topGap}px`;
+
+            // 광물 렌더링 (비율 유지)
+            const canvasWrapper = document.createElement('div');
+            canvasWrapper.className = 'flex justify-center items-center shrink-0';
+            canvasWrapper.style.width = '100%';
+            canvasWrapper.style.height = `${mineralSize}px`;
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = mineralSize;
+            tempCanvas.height = mineralSize;
+            tempCanvas.style.width = `${mineralSize}px`;
+            tempCanvas.style.height = `${mineralSize}px`;
+            const tCtx = tempCanvas.getContext('2d');
+            
+            drawMineral(tCtx, mineralSize / 2, mineralSize / 2, mineralSize * 0.45, mineralLevel, !isDiscovered);
+            
+            if (!isDiscovered) {
+                tCtx.fillStyle = '#ffffff';
+                tCtx.font = `900 ${mineralSize * 0.35}px 'Inter', sans-serif`;
+                tCtx.textAlign = 'center';
+                tCtx.textBaseline = 'middle';
+                tCtx.fillText('?', mineralSize / 2, mineralSize / 2 + mineralSize * 0.05);
             }
+            canvasWrapper.appendChild(tempCanvas);
+            contentDiv.appendChild(canvasWrapper);
 
-            for (let i = 1; i <= MAX_LEVEL; i++) {
-                const colorInfo = MINERAL_COLORS[i];
-                const isDiscovered = discoveredMinerals.has(i);
+            // 이름 및 점수 텍스트
+            const textGroup = document.createElement('div');
+            textGroup.className = 'relative w-full flex flex-col items-center shrink-0';
+            textGroup.style.marginTop = `${midGap}px`;
 
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'flex flex-col items-center justify-center relative min-h-0';
-                
-                const canvasWrapper = document.createElement('div');
-                canvasWrapper.className = 'w-full flex items-center justify-center relative';
-                canvasWrapper.style.height = `${mineralSize}px`;
-                
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = mineralSize;
-                tempCanvas.height = mineralSize;
-                tempCanvas.className = 'object-contain';
-                const tCtx = tempCanvas.getContext('2d');
-                
-                const drawRadius = mineralSize * 0.45;
-                drawMineral(tCtx, mineralSize / 2, mineralSize / 2, drawRadius, i, !isDiscovered);
-                
-                if (!isDiscovered) {
-                    tCtx.fillStyle = '#ffffff';
-                    tCtx.font = `900 ${drawRadius * 0.8}px 'Inter', sans-serif`;
-                    tCtx.textAlign = 'center';
-                    tCtx.textBaseline = 'middle';
-                    tCtx.fillText('?', mineralSize / 2, mineralSize / 2 + drawRadius * 0.1);
+            const nameLabel = document.createElement('div');
+            nameLabel.className = 'font-black text-[#5a4231] tracking-tighter leading-none relative z-10';
+            nameLabel.style.fontSize = `${nameFontSize}px`;
+            nameLabel.innerText = isDiscovered ? colorInfo.name : '???';
+            
+            const scoresDiv = document.createElement('div');
+            scoresDiv.className = 'absolute flex justify-between items-center z-0 opacity-80';
+            scoresDiv.style.top = '50%';
+            scoresDiv.style.transform = 'translateY(-50%)';
+            
+            // 점수 텍스트 간격 20% 축소 (width 좁혀서 간격 좁히기)
+            scoresDiv.style.width = '68%'; 
+            
+            const cultScore = document.createElement('div');
+            cultScore.className = 'font-bold text-[#8b5a2b] leading-none';
+            cultScore.style.fontSize = `${scoreFontSize}px`;
+            const cScore = isDiscovered ? 100 * Math.pow(2, mineralLevel - 1) : '?';
+            cultScore.innerText = cScore;
+
+            const settScore = document.createElement('div');
+            settScore.className = 'font-bold text-[#8b5a2b] leading-none';
+            settScore.style.fontSize = `${scoreFontSize}px`;
+            const sScore = isDiscovered ? SETTLEMENT_SCORES[mineralLevel] : '?';
+            settScore.innerText = sScore;
+
+            scoresDiv.appendChild(cultScore);
+            scoresDiv.appendChild(settScore);
+
+            textGroup.appendChild(nameLabel);
+            textGroup.appendChild(scoresDiv);
+            contentDiv.appendChild(textGroup);
+
+            // 설명 박스 (하단 남는 공간)
+            const descBox = document.createElement('div');
+            descBox.className = 'mt-3 mb-8 w-[92%] bg-[#5a4231]/5 rounded-xl p-2 sm:p-3 border border-[#dca773]/40 overflow-y-auto flex-1';
+            
+            const descText = document.createElement('p');
+            descText.className = 'text-[#5a4231] font-bold leading-snug text-left break-keep';
+            descText.style.fontSize = `${descFontSize}px`;
+            
+            let descContent = '???';
+            if (isDiscovered) {
+                if (dictionaryData && dictionaryData.minerals && dictionaryData.minerals[mineralLevel]) {
+                    descContent = dictionaryData.minerals[mineralLevel];
                 }
+            }
+            descText.innerText = descContent;
+            
+            descBox.appendChild(descText);
+            contentDiv.appendChild(descBox);
 
-                canvasWrapper.appendChild(tempCanvas);
-                
-                const label = document.createElement('div');
-                label.className = 'font-black text-[#5a4231] whitespace-nowrap tracking-tighter shrink-0 leading-none';
-                label.style.fontSize = `${nameFontSize}px`;
-                label.style.marginTop = `${nameMarginTop}px`;
-                label.innerText = isDiscovered ? colorInfo.name : '???';
-                
-                itemDiv.appendChild(canvasWrapper);
-                itemDiv.appendChild(label);
-                listEl.appendChild(itemDiv);
+            // 하단 중앙 페이지 번호
+            const pageNum = document.createElement('div');
+            pageNum.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 font-black text-[#8b5a2b]/50';
+            pageNum.style.fontSize = `${popupHeight * 0.035}px`;
+            pageNum.innerText = `- ${mineralLevel} -`;
+            contentDiv.appendChild(pageNum);
+
+            container.appendChild(contentDiv);
+        }
+
+        function renderDictionary() {
+            const leftPage = document.getElementById('dict-page-left');
+            const rightPage = document.getElementById('dict-page-right');
+            
+            const leftMineral = dictCurrentSpread * 2 + 1;
+            const rightMineral = dictCurrentSpread * 2 + 2;
+
+            renderDictionaryPage(leftPage, leftMineral);
+            renderDictionaryPage(rightPage, rightMineral);
+            
+            const prevArea = document.getElementById('dict-prev-area');
+            const nextArea = document.getElementById('dict-next-area');
+            
+            if (prevArea) {
+                prevArea.style.opacity = dictCurrentSpread === 0 ? '0.3' : '1';
+                prevArea.style.pointerEvents = dictCurrentSpread === 0 ? 'none' : 'auto';
+            }
+            if (nextArea) {
+                nextArea.style.opacity = dictCurrentSpread === maxSpreads - 1 ? '0.3' : '1';
+                nextArea.style.pointerEvents = dictCurrentSpread === maxSpreads - 1 ? 'none' : 'auto';
             }
         }
 
         function openDictionary() {
+            dictCurrentSpread = 0;
             dictModal.classList.remove('hidden');
             void dictModal.offsetWidth;
             renderDictionary();
@@ -1218,6 +1326,22 @@
         document.getElementById('dictionary-close-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
             closeDictionary();
+        });
+
+        document.getElementById('dict-prev-area').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (dictCurrentSpread > 0) {
+                dictCurrentSpread--;
+                renderDictionary();
+            }
+        });
+
+        document.getElementById('dict-next-area').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (dictCurrentSpread < maxSpreads - 1) {
+                dictCurrentSpread++;
+                renderDictionary();
+            }
         });
 
         dictModal.addEventListener('pointerdown', (e) => {
@@ -1562,6 +1686,7 @@
             requestAnimationFrame(draw);
             // 튜토리얼 텍스트 불러오기 (실패 시 HTML 기본값 유지)
             loadTutorialData();
+            loadDictionaryData();
         };
     </script>
 </body>
