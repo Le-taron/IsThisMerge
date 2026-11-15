@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Is This Merge?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 177.78vh; /* 16:9 비율 유지 */
+            aspect-ratio: 16 / 9;
+            max-height: 100vh;
+            background-color: #1a1525;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 양피지 색상 테마 클래스 */
+        .parchment-theme {
+            background-color: #f4e4bc;
+            border-color: #dca773;
+            color: #5a4231;
+        }
+
+        /* 반응형 UI 크기 조절용 클래스 */
+        .dynamic-ui-top {
+            top: calc(var(--tile-w, 60px) * 0.3);
+            right: calc(var(--tile-w, 60px) * 0.3);
+            height: calc(var(--tile-h, 30px) * 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .dynamic-ui-top-left-group {
+            top: calc(var(--tile-w, 60px) * 0.3);
+            left: calc(var(--tile-w, 60px) * 0.3);
+            display: flex;
+            gap: calc(var(--tile-w, 60px) * 0.15);
+        }
+        .dynamic-top-btn {
+            width: calc(var(--tile-w, 60px) * 0.48);
+            height: calc(var(--tile-w, 60px) * 0.48);
+            font-size: calc(var(--tile-w, 60px) * 0.24);
+            border-radius: calc(var(--tile-w, 60px) * 0.16);
+        }
+
+        /* UI들을 타일 세로의 25%만큼 위로 올림 */
+        .dynamic-ui-bottom-left {
+            bottom: calc(var(--tile-w, 60px) * 0.3 + var(--tile-h, 30px) * 0.25);
+            left: calc(var(--tile-w, 60px) * 0.3);
+            gap: calc(var(--tile-w, 60px) * 0.15);
+        }
+        .dynamic-ui-bottom-right {
+            bottom: calc(var(--tile-w, 60px) * 0.3 + var(--tile-h, 30px) * 0.25);
+            right: calc(var(--tile-w, 60px) * 0.3);
+            gap: calc(var(--tile-w, 60px) * 0.2);
+        }
+        
+        .dynamic-ui-score-label { 
+            font-size: calc(var(--tile-h, 30px) * 0.25); 
+            line-height: 1; 
+            color: #f4e4bc; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        .dynamic-ui-score-val { 
+            font-size: calc(var(--tile-h, 30px) * 0.65); 
+            line-height: 1; 
+            color: white;
+            -webkit-text-stroke: 1.5px black;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .dynamic-spawn-btn {
+            height: calc(var(--tile-w, 60px) * 0.6);
+            padding: 0 calc(var(--tile-w, 60px) * 0.3);
+            font-size: calc(var(--tile-w, 60px) * 0.25);
+            border-radius: calc(var(--tile-w, 60px) * 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dynamic-skill-btn {
+            width: calc(var(--tile-w, 60px) * 0.54);
+            height: calc(var(--tile-w, 60px) * 0.54);
+            font-size: calc(var(--tile-w, 60px) * 0.25);
+            border-radius: calc(var(--tile-w, 60px) * 0.15);
+        }
+        
+        .dynamic-preview-box {
+            width: calc(var(--tile-w, 60px) * 0.45);
+            height: calc(var(--tile-w, 60px) * 0.45);
+            margin-bottom: calc(var(--tile-w, 60px) * -0.05);
+        }
+        .dynamic-next-label { 
+            font-size: calc(var(--tile-w, 60px) * 0.13); /* NEXT 폰트 사이즈 기준 */
+            margin-top: 0; 
+            color: #f4e4bc;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            font-weight: 900;
+        }
+
+        /* 튜토리얼 단락 전환 애니메이션 및 인디케이터 클래스 */
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tut-dot {
+            height: 26.65%; /* 기존 53.3%에서 50% 축소 */
+            aspect-ratio: 1/1;
+            border-radius: 9999px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        .tut-dot.active {
+            background-color: white;
+            transform: scale(1.25);
+        }
+        .tut-dot.inactive {
+            background-color: rgba(90, 66, 49, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- UI Layer -->
+        <div id="ui-layer" class="absolute inset-0 pointer-events-none z-10">
+            
+            <!-- 상단 좌측 그룹 (도감 버튼 + 도움말 버튼) -->
+            <div class="absolute pointer-events-auto dynamic-ui-top-left-group">
+                <button id="dictionary-btn" class="flex items-center justify-center parchment-theme shadow-lg transition-transform active:scale-90 border-2 touch-manipulation dynamic-top-btn">
+                    📖
+                </button>
+                <button id="help-btn" class="flex items-center justify-center parchment-theme shadow-lg transition-transform active:scale-90 border-2 touch-manipulation dynamic-top-btn">
+                    <span class="italic font-serif font-bold text-[#5a4231]">i</span>
+                </button>
+            </div>
+
+            <!-- 상단 우측 점수 -->
+            <div id="stats" class="absolute pointer-events-auto text-right dynamic-ui-top">
+                <span class="font-bold block dynamic-ui-score-label">배양 점수</span>
+                <span id="score-display" class="font-black dynamic-ui-score-val">0</span>
+            </div>
+
+            <!-- 하단 좌측 컨트롤 (스킬 버튼) -->
+            <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-left">
+                <!-- 📌 핀 -->
+                <button id="skill-pin-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                    <span>📌</span>
+                    <div id="skill-pin-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
+                    <div id="skill-pin-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">6</div>
+                </button>
+
+                <!-- ⛏️ 곡괭이 (파괴) -->
+                <button id="skill-hammer-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                    <span>⛏️</span>
+                    <div id="skill-hammer-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
+                    <div id="skill-hammer-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">8</div>
+                </button>
+
+                <!-- 🔁 교체 -->
+                <button id="skill-swap-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                    <span>🔁</span>
+                    <div id="skill-swap-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
+                    <div id="skill-swap-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">12</div>
+                </button>
+            </div>
+
+            <!-- 하단 우측 컨트롤 (생성 + NEXT) -->
+            <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-right">
+                <div class="flex flex-col items-center justify-end">
+                    <div id="preview-box" class="flex items-center justify-center transition-transform duration-300 transform hover:scale-105 dynamic-preview-box relative overflow-visible">
+                        <canvas id="preview-canvas" class="absolute inset-0 w-full h-full"></canvas>
+                    </div>
+                    <div class="dynamic-next-label tracking-widest leading-none">NEXT</div>
+                </div>
+                
+                <button id="spawn-btn" class="parchment-theme border-2 font-bold shadow-lg transition-transform active:scale-90 touch-manipulation dynamic-spawn-btn">
+                    생성
+                </button>
+            </div>
+        </div>
+
+        <!-- 게임 오버 오버레이 -->
+        <div id="game-over" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col pointer-events-auto transition-opacity duration-500">
+            <h2 class="text-[clamp(30px,10vw,60px)] font-black text-white mb-2 drop-shadow-2xl">GAME OVER</h2>
+            <p class="text-slate-300 mb-6 text-[clamp(14px,4vw,20px)] font-medium">더 이상 빈 칸이 없습니다!</p>
+            
+            <div class="mb-8 w-full max-w-xs sm:max-w-sm px-6 flex flex-col gap-3">
+                <div class="flex justify-between items-center text-slate-300">
+                    <span class="text-[clamp(14px,4vw,18px)] font-bold">배양 점수</span>
+                    <span id="cultivation-score" class="text-[clamp(16px,4.5vw,22px)] font-black text-white">0</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-300 border-b border-slate-600 pb-3">
+                    <span class="text-[clamp(14px,4vw,18px)] font-bold">결산 점수</span>
+                    <span id="settlement-score" class="text-[clamp(16px,4.5vw,22px)] font-black text-white">0</span>
+                </div>
+                <div class="flex justify-between items-end pt-1">
+                    <span class="text-slate-400 text-[clamp(16px,4.5vw,20px)] font-bold mb-1">최종 점수</span>
+                    <span id="final-score" class="text-[clamp(32px,10vw,48px)] leading-none font-black text-yellow-400 drop-shadow-md">0</span>
+                </div>
+            </div>
+
+            <button id="restart-btn" class="px-8 py-3 sm:px-12 sm:py-5 bg-white text-slate-900 font-black text-[clamp(16px,5vw,24px)] rounded-3xl shadow-2xl hover:bg-slate-100 active:scale-90 transition-transform">
+                다시 시작
+            </button>
+        </div>
+
+        <!-- 도감 오버레이 (h-[78%]) -->
+        <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
+            <div id="dictionary-content" class="parchment-theme w-[95%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300 border-4">
+                
+                <!-- 팝업 세로 길이의 10%를 차지하는 닫기 버튼 -->
+                <button id="dictionary-close-btn" class="absolute top-2 right-2 bg-[#dca773] text-white rounded-full font-black flex items-center justify-center active:scale-90 transition-transform touch-manipulation z-10" style="height: 10%; aspect-ratio: 1/1; font-size: clamp(10px, 3vh, 20px);">
+                    ✕
+                </button>
+                
+                <!-- 동적 텍스트 크기 조정을 위해 기존 크기 클래스 제거 -->
+                <h2 class="font-black text-[#5a4231] mb-2 text-center shrink-0 mt-1" style="line-height: 1;">광물 도감</h2>
+                <div id="dictionary-list" class="w-full flex-1 min-h-0 grid grid-cols-5 grid-rows-2 gap-1 p-1">
+                    <!-- JS 렌더링 영역 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 도움말(튜토리얼) 오버레이 -->
+        <div id="tutorial-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] flex items-center justify-center pointer-events-auto opacity-0 transition-opacity duration-300">
+            <div id="tutorial-content" class="parchment-theme w-[80%] h-[78%] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300 border-4">
+                
+                <!-- 단락 0: 게임 소개 -->
+                <div id="tut-page-0" class="tut-page flex flex-col items-center justify-center h-full text-center fade-in pb-10">
+                    <h2 class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">게임 소개</h2>
+                    <p class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed whitespace-nowrap">
+                        동굴 안에서 고가의 광물을 최대한 많이 발견하세요!
+                    </p>
+                </div>
+
+                <!-- 단락 1: 플레이 방법 -->
+                <div id="tut-page-1" class="tut-page hidden flex flex-col items-center justify-start h-full text-center fade-in pb-8">
+                    <h2 class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">플레이 방법</h2>
+                    <!-- NEXT 텍스트 사이즈 적용 (0.13 * 1.4 = 약 0.182) -->
+                    <p class="font-black mb-2 shrink-0 w-full" style="font-size: calc(var(--tile-w, 60px) * 0.182); color: #5a4231; text-shadow: none;">
+                        인접한 두 광물을 선택해 더 좋은 광물을 발견하세요!
+                    </p>
+                    <div class="w-full flex-1 min-h-0 relative flex items-center justify-center overflow-hidden">
+                        <canvas id="tutorial-canvas" class="max-w-full max-h-full object-contain"></canvas>
+                    </div>
+                </div>
+
+                <!-- 단락 2: 스킬 -->
+                <div id="tut-page-2" class="tut-page hidden flex flex-col items-center justify-start h-full fade-in pb-10">
+                    <h2 class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">스킬</h2>
+                    <p class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
+                        스킬 버튼을 눌러서 능력을 사용하세요!
+                    </p>
+                    <div class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
+                        <div class="flex items-start">
+                            <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">📌</span>
+                            <p class="leading-tight mt-0.5"><span class="font-black">지정:</span> 다음 광물을 원하는 위치에 놓을 수 있다.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">⛏️</span>
+                            <p class="leading-tight mt-0.5"><span class="font-black">파괴:</span> 원하는 광물을 제거할 수 있다.</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">🔁</span>
+                            <p class="leading-tight mt-0.5"><span class="font-black">교체:</span> 서로 다른 두 광물의 위치를 맞바꿀 수 있다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 튜토리얼 네비게이션 버튼 & 인디케이터 (높이를 팝업의 15%로 지정하여 내부 비율 계산) -->
+                <div class="absolute bottom-3 left-4 right-4 flex justify-between items-center z-10 pointer-events-none" style="height: 15%;">
+                    
+                    <!-- 이전 버튼: 네비게이션 컨테이너의 66.6% 높이 (팝업 전체의 약 10%) -->
+                    <button id="tut-prev-btn" class="bg-[#dca773] text-white rounded-full font-black flex items-center justify-center active:scale-90 transition-transform shadow-md pointer-events-auto opacity-0" style="height: 66.6%; aspect-ratio: 1/1; font-size: clamp(10px, 3vh, 20px);">
+                        ◀
+                    </button>
+                    
+                    <!-- 점 인디케이터 컨테이너 -->
+                    <div id="tut-dots" class="flex gap-2 sm:gap-3 absolute left-1/2 -translate-x-1/2 pointer-events-none items-center h-full">
+                        <div class="tut-dot active"></div>
+                        <div class="tut-dot inactive"></div>
+                        <div class="tut-dot inactive"></div>
+                    </div>
+                    
+                    <!-- 확인 버튼: 네비게이션 컨테이너의 100% 높이 (팝업 전체의 15%) -->
+                    <button id="tut-confirm-btn" class="hidden bg-[#5a4231] text-white rounded-xl font-black active:scale-90 transition-transform shadow-md pointer-events-auto ml-auto" style="height: 100%; padding: 0 1.25rem; font-size: clamp(12px, 3.5vh, 24px);">
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 게임 캔버스 -->
+        <canvas id="gameCanvas" class="absolute inset-0 z-0"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+
+        const GRID_SIZE = 6;
+        const MAX_LEVEL = 10;
+        let grid = [];
+        let nextSpawnLevel = 1;
+        let selectedCell = null;
+        let isGameOver = false;
+        let score = 0;
+
+        let discoveredMinerals = new Set();
+
+        let targetedSpawnCooldown = 6;
+        let targetedIsFirstUse = true;
+        let isAwaitingTargetSelection = false;
+        
+        let removeSkillCooldown = 8;
+        let removeIsFirstUse = true;
+        let isAwaitingRemoveSelection = false;
+        
+        let swapSkillCooldown = 12;
+        let isAwaitingSwapSelection = false;
+        let swapFirstTarget = null;
+
+        let tileW, tileH, originX, originY;
+        let particles = [];
+        let floatingTexts = [];
+
+        const SETTLEMENT_SCORES = {
+            1: 100,
+            2: 200,
+            3: 400,
+            4: 800,
+            5: 1600,
+            6: 4000,
+            7: 10000,
+            8: 25000,
+            9: 62500,
+            10: 250000
+        };
+
+        const MINERAL_COLORS = {
+            1:  { name: '돌', base: '#808080', point: '#505050', shadow: '#606060', highlight: '#999999', highlight2: '#B0B0B0', highlight3: '#C8C8C8' },
+            2:  { name: '구리', base: '#B87333', point: '#8B4513', shadow: '#965A20', highlight: '#D1884F', highlight2: '#DF9F6B', highlight3: '#EDC096' },
+            3:  { name: '은', base: '#C0C8D0', point: '#D0D8E0', shadow: '#A0A8B0', highlight: '#E0E8F0', highlight2: '#EEF4FA', highlight3: '#FFFFFF' },
+            4:  { name: '금', base: '#F59E0B', point: '#FEF08A', shadow: '#B45309', highlight: '#FDE047', highlight2: '#FEF08A', highlight3: '#FFFBEB' },
+            5:  { name: '감람석', base: '#A3E635', point: '#D9F99D', shadow: '#94D626', highlight: '#E4FC70', highlight2: '#EEFD98', highlight3: '#F7FECC' },
+            6:  { name: '자수정', base: '#A855F7', point: '#D946EF', shadow: '#7E22CE', highlight: '#E879F9', highlight2: '#F0ABFC', highlight3: '#F5D0FE' },
+            7:  { name: '사파이어', base: '#2563EB', point: '#60A5FA', shadow: '#1D4ED8', highlight: '#93C5FD', highlight2: '#BFDBFE', highlight3: '#DBEAFE' },
+            8:  { name: '루비', base: '#F43F5E', point: '#9F1239', shadow: '#E11D48', highlight: '#FB7185', highlight2: '#FDA4AF', highlight3: '#FECDD3' },
+            9:  { name: '에메랄드', base: '#4ADE80', point: '#22C55E', shadow: '#16A34A', highlight: '#86EFAC', highlight2: '#BBF7D0', highlight3: '#DCFCE7' },
+            10: { name: '다이아몬드', base: '#F0F9FF', point: '#FBBF24', shadow: '#E0F2FE', highlight: '#FFFFFF', highlight2: '#FFFFFF', highlight3: '#FFFFFF' },
+        };
+
+        function drawMineral(targetCtx, x, y, radius, level, isUnknown = false) {
+            const baseColor = MINERAL_COLORS[level] || MINERAL_COLORS[1];
+            const color = isUnknown ? {
+                base: '#2a2a2a', point: '#111111', shadow: '#1a1a1a', highlight: '#3a3a3a', highlight2: '#4a4a4a', highlight3: '#555555'
+            } : baseColor;
+            
+            targetCtx.save();
+            targetCtx.translate(x, y);
+            
+            const outerR = radius;
+            const innerR = radius * 0.45;
+            
+            const points = [];
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i - Math.PI / 2;
+                points.push({ x: Math.cos(angle) * outerR, y: Math.sin(angle) * outerR });
+            }
+            
+            const innerPoints = [];
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i - Math.PI / 2;
+                innerPoints.push({ x: Math.cos(angle) * innerR, y: Math.sin(angle) * innerR });
+            }
+            
+            for (let i = 0; i < 6; i++) {
+                const nextI = (i + 1) % 6;
+                targetCtx.beginPath();
+                targetCtx.moveTo(innerPoints[i].x, innerPoints[i].y);
+                targetCtx.lineTo(points[i].x, points[i].y);
+                targetCtx.lineTo(points[nextI].x, points[nextI].y);
+                targetCtx.lineTo(innerPoints[nextI].x, innerPoints[nextI].y);
+                targetCtx.closePath();
+                
+                if (i === 5) targetCtx.fillStyle = color.highlight;
+                else if (i === 0) targetCtx.fillStyle = color.highlight2;
+                else if (i === 1 || i === 4) targetCtx.fillStyle = color.base;
+                else targetCtx.fillStyle = color.shadow;
+                
+                targetCtx.fill();
+                
+                targetCtx.strokeStyle = color.point;
+                targetCtx.lineWidth = Math.max(1, radius * 0.06);
+                targetCtx.lineJoin = 'round';
+                targetCtx.stroke();
+            }
+            
+            targetCtx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                if (i === 0) targetCtx.moveTo(innerPoints[i].x, innerPoints[i].y);
+                else targetCtx.lineTo(innerPoints[i].x, innerPoints[i].y);
+            }
+            targetCtx.closePath();
+            targetCtx.fillStyle = color.highlight3;
+            targetCtx.fill();
+            targetCtx.stroke();
+            
+            targetCtx.restore();
+        }
+
+        function init() {
+            grid = [];
+            for (let r = 0; r < GRID_SIZE; r++) {
+                let row = [];
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    row.push({ level: 0, scale: 0, bounce: 1, errorFlash: 0 });
+                }
+                grid.push(row);
+            }
+            selectedCell = null;
+            isGameOver = false;
+            score = 0;
+            
+            targetedSpawnCooldown = 6;
+            targetedIsFirstUse = true;
+            isAwaitingTargetSelection = false;
+            
+            removeSkillCooldown = 8;
+            removeIsFirstUse = true;
+            isAwaitingRemoveSelection = false;
+            
+            swapSkillCooldown = 12;
+            isAwaitingSwapSelection = false;
+            swapFirstTarget = null;
+            
+            particles = [];
+            floatingTexts = [];
+            
+            updateScoreDisplay();
+            updateSkillUI();
+            
+            const gameOverUI = document.getElementById('game-over');
+            gameOverUI.classList.add('hidden');
+            gameOverUI.classList.remove('flex');
+            
+            generateNextSpawn();
+            
+            const randR = Math.floor(Math.random() * GRID_SIZE);
+            const randC = Math.floor(Math.random() * GRID_SIZE);
+            grid[randR][randC].level = 1;
+            grid[randR][randC].scale = 0;
+            
+            discoveredMinerals.add(1);
+
+            resize();
+        }
+
+        function updateScoreDisplay() {
+            const scoreEl = document.getElementById('score-display');
+            if (scoreEl) scoreEl.innerText = score.toLocaleString();
+        }
+
+        function updateSkillUI() {
+            const pinBtn = document.getElementById('skill-pin-btn');
+            const pinOverlayUI = document.getElementById('skill-pin-cooldown-overlay');
+            const pinCooldownUI = document.getElementById('skill-pin-cooldown');
+            
+            const hammerBtn = document.getElementById('skill-hammer-btn');
+            const hammerOverlayUI = document.getElementById('skill-hammer-cooldown-overlay');
+            const hammerCooldownUI = document.getElementById('skill-hammer-cooldown');
+            
+            const swapBtn = document.getElementById('skill-swap-btn');
+            const swapOverlayUI = document.getElementById('skill-swap-cooldown-overlay');
+            const swapCooldownUI = document.getElementById('skill-swap-cooldown');
+            
+            const spawnBtn = document.getElementById('spawn-btn');
+
+            const normalShadow = 'shadow-lg';
+            const yellowGlow = 'shadow-[0_0_20px_rgba(250,204,21,0.8)]';
+            const blueGlow = 'shadow-[0_0_20px_rgba(56,189,248,0.8)]';
+            const baseBorder = 'border-[#dca773]';
+            
+            const yellowText = 'text-[#fff9c4]';
+            const whiteText = 'text-white';
+
+            // 📌 핀
+            if (targetedSpawnCooldown > 0) {
+                pinBtn.classList.add('pointer-events-none');
+                pinOverlayUI.classList.remove('hidden');
+                pinCooldownUI.classList.remove('hidden');
+                pinCooldownUI.innerText = targetedSpawnCooldown;
+                
+                if (targetedIsFirstUse) {
+                    pinCooldownUI.classList.remove(whiteText);
+                    pinCooldownUI.classList.add(yellowText);
+                } else {
+                    pinCooldownUI.classList.remove(yellowText);
+                    pinCooldownUI.classList.add(whiteText);
+                }
+                
+                isAwaitingTargetSelection = false;
+                pinBtn.classList.remove(yellowGlow, blueGlow);
+                pinBtn.classList.add(baseBorder, normalShadow);
+            } else {
+                pinBtn.classList.remove('pointer-events-none');
+                pinOverlayUI.classList.add('hidden');
+                pinCooldownUI.classList.add('hidden');
+                pinBtn.classList.remove(baseBorder, normalShadow);
+                
+                if (isAwaitingTargetSelection) {
+                    pinBtn.classList.remove(yellowGlow);
+                    pinBtn.classList.add(blueGlow);
+                } else {
+                    pinBtn.classList.remove(blueGlow);
+                    pinBtn.classList.add(yellowGlow);
+                }
+            }
+
+            // ⛏️ 곡괭이
+            if (removeSkillCooldown > 0) {
+                hammerBtn.classList.add('pointer-events-none');
+                hammerOverlayUI.classList.remove('hidden');
+                hammerCooldownUI.classList.remove('hidden');
+                hammerCooldownUI.innerText = removeSkillCooldown;
+                
+                if (removeIsFirstUse) {
+                    hammerCooldownUI.classList.remove(whiteText);
+                    hammerCooldownUI.classList.add(yellowText);
+                } else {
+                    hammerCooldownUI.classList.remove(yellowText);
+                    hammerCooldownUI.classList.add(whiteText);
+                }
+
+                isAwaitingRemoveSelection = false;
+                hammerBtn.classList.remove(yellowGlow, blueGlow);
+                hammerBtn.classList.add(baseBorder, normalShadow);
+            } else {
+                hammerBtn.classList.remove('pointer-events-none');
+                hammerOverlayUI.classList.add('hidden');
+                hammerCooldownUI.classList.add('hidden');
+                hammerBtn.classList.remove(baseBorder, normalShadow);
+                
+                if (isAwaitingRemoveSelection) {
+                    hammerBtn.classList.remove(yellowGlow);
+                    hammerBtn.classList.add(blueGlow);
+                } else {
+                    hammerBtn.classList.remove(blueGlow);
+                    hammerBtn.classList.add(yellowGlow);
+                }
+            }
+
+            // 🔁 교체
+            if (swapSkillCooldown > 0) {
+                swapBtn.classList.add('pointer-events-none');
+                swapOverlayUI.classList.remove('hidden');
+                swapCooldownUI.classList.remove('hidden');
+                swapCooldownUI.innerText = swapSkillCooldown;
+                isAwaitingSwapSelection = false;
+                swapFirstTarget = null;
+                swapBtn.classList.remove(yellowGlow, blueGlow);
+                swapBtn.classList.add(baseBorder, normalShadow);
+            } else {
+                swapBtn.classList.remove('pointer-events-none');
+                swapOverlayUI.classList.add('hidden');
+                swapCooldownUI.classList.add('hidden');
+                swapBtn.classList.remove(baseBorder, normalShadow);
+                
+                if (isAwaitingSwapSelection) {
+                    swapBtn.classList.remove(yellowGlow);
+                    swapBtn.classList.add(blueGlow);
+                } else {
+                    swapBtn.classList.remove(blueGlow);
+                    swapBtn.classList.add(yellowGlow);
+                }
+            }
+
+            let anySkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
+            if (anySkillActive) {
+                spawnBtn.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                spawnBtn.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        function resize() {
+            const container = document.getElementById('game-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+
+            const targetGridHeight = canvas.height * 0.81;
+            tileH = targetGridHeight / GRID_SIZE;
+            tileW = (tileH / 1.1) * 2; 
+
+            container.style.setProperty('--tile-w', `${tileW}px`);
+            container.style.setProperty('--tile-h', `${tileH}px`);
+
+            originX = canvas.width / 2;
+            const totalGridHeight = GRID_SIZE * tileH;
+            originY = (canvas.height - totalGridHeight) / 2 + (tileH * 0.5); 
+        }
+
+        function getScreenXY(r, c) {
+            const x = originX + (c - r) * (tileW / 2);
+            const y = originY + (c + r) * (tileH / 2);
+            return { x, y };
+        }
+
+        function isPointInPoly(poly, pt) {
+            let c = false;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                if (((poly[i].y > pt.y) != (poly[j].y > pt.y)) &&
+                    (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)) {
+                    c = !c;
+                }
+            }
+            return c;
+        }
+
+        function generateNextSpawn() {
+            nextSpawnLevel = Math.random() < 0.75 ? 1 : 2;
+        }
+
+        function drawNextPreview() {
+            const previewCanvas = document.getElementById('preview-canvas');
+            if (!previewCanvas) return;
+            
+            const rect = previewCanvas.parentElement.getBoundingClientRect();
+            if (rect.width === 0) return;
+            
+            const dpr = window.devicePixelRatio || 1;
+            if (previewCanvas.width !== rect.width * dpr) {
+                previewCanvas.width = rect.width * dpr;
+                previewCanvas.height = rect.height * dpr;
+            }
+            
+            const pCtx = previewCanvas.getContext('2d');
+            pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            
+            const centerX = previewCanvas.width / 2;
+            const centerY = previewCanvas.height / 2;
+            const radius = Math.min(centerX, centerY) * 0.65;
+            
+            drawMineral(pCtx, centerX, centerY, radius, nextSpawnLevel);
+        }
+
+        function getEmptyCount() {
+            let count = 0;
+            for(let r=0; r<GRID_SIZE; r++) {
+                for(let c=0; c<GRID_SIZE; c++) {
+                    if (grid[r][c].level === 0) count++;
+                }
+            }
+            return count;
+        }
+
+        function spawnItem() {
+            if (isGameOver || isAwaitingTargetSelection) return;
+
+            const emptyCells = [];
+            for(let r=0; r<GRID_SIZE; r++) {
+                for(let c=0; c<GRID_SIZE; c++) {
+                    if (grid[r][c].level === 0) emptyCells.push({r, c});
+                }
+            }
+
+            if (emptyCells.length === 0) return;
+
+            const randIdx = Math.floor(Math.random() * emptyCells.length);
+            const {r, c} = emptyCells[randIdx];
+
+            executeSpawn(r, c, false);
+        }
+
+        function executeSpawn(r, c, isTargeted) {
+            grid[r][c].level = nextSpawnLevel;
+            grid[r][c].scale = 0;
+            grid[r][c].bounce = 1;
+            
+            discoveredMinerals.add(nextSpawnLevel);
+
+            generateNextSpawn();
+
+            if (isTargeted) {
+                targetedSpawnCooldown = 12;
+                targetedIsFirstUse = false;
+                isAwaitingTargetSelection = false;
+            } else {
+                if (!targetedIsFirstUse && targetedSpawnCooldown > 0) targetedSpawnCooldown--;
+            }
+
+            if (!removeIsFirstUse && removeSkillCooldown > 0) removeSkillCooldown--;
+            
+            updateSkillUI();
+
+            if (getEmptyCount() === 0) {
+                triggerGameOver();
+            }
+        }
+
+        function triggerGameOver() {
+            isGameOver = true;
+            selectedCell = null;
+            
+            // 결산 점수 계산
+            let settlementScore = 0;
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const level = grid[r][c].level;
+                    if (level > 0 && SETTLEMENT_SCORES[level]) {
+                        settlementScore += SETTLEMENT_SCORES[level];
+                    }
+                }
+            }
+            
+            const finalTotalScore = score + settlementScore;
+            
+            const cultivationScoreEl = document.getElementById('cultivation-score');
+            const settlementScoreEl = document.getElementById('settlement-score');
+            const finalScoreEl = document.getElementById('final-score');
+            
+            if (cultivationScoreEl) cultivationScoreEl.innerText = score.toLocaleString();
+            if (settlementScoreEl) settlementScoreEl.innerText = settlementScore.toLocaleString();
+            if (finalScoreEl) finalScoreEl.innerText = finalTotalScore.toLocaleString();
+
+            setTimeout(() => {
+                const gameOverUI = document.getElementById('game-over');
+                gameOverUI.classList.remove('hidden');
+                gameOverUI.classList.add('flex');
+            }, 300);
+        }
+
+        function handleCellInteraction(r, c) {
+            const cell = grid[r][c];
+
+            if (cell.level === 0) {
+                selectedCell = null;
+                return;
+            }
+
+            if (!selectedCell) {
+                selectedCell = {r, c};
+                return;
+            }
+
+            if (selectedCell.r === r && selectedCell.c === c) {
+                selectedCell = null;
+                return;
+            }
+
+            const firstCell = grid[selectedCell.r][selectedCell.c];
+            const dist = Math.abs(selectedCell.r - r) + Math.abs(selectedCell.c - c);
+            const isAdjacent = (dist === 1);
+            const isSameLevel = (firstCell.level === cell.level);
+
+            if (isAdjacent && isSameLevel) {
+                const newLevel = firstCell.level + 1;
+                const n = newLevel; 
+                
+                if (newLevel <= MAX_LEVEL) {
+                    const gainedScore = 100 * Math.pow(2, n - 1);
+                    score += gainedScore;
+                    updateScoreDisplay();
+
+                    cell.level = newLevel;
+                    cell.bounce = 1.5;
+                    
+                    discoveredMinerals.add(newLevel);
+                    
+                    const {x: tx, y: ty} = getScreenXY(r, c);
+                    const baseRadius = tileW * 0.32;
+                    const itemY = ty + tileH / 2 - baseRadius * 1.15;
+                    spawnParticles(tx, itemY, '#ffffff', 13, 1.7, 1.8);
+                    
+                    spawnFloatingText(tx, itemY - baseRadius * 0.8, `+${gainedScore}`);
+                    
+                    firstCell.level = 0;
+                    firstCell.scale = 0;
+                    selectedCell = null;
+                    
+                    if (targetedIsFirstUse && targetedSpawnCooldown > 0) targetedSpawnCooldown--;
+                    if (removeIsFirstUse && removeSkillCooldown > 0) removeSkillCooldown--;
+                    if (swapSkillCooldown > 0) swapSkillCooldown--;
+                    
+                    updateSkillUI();
+                } else {
+                    selectedCell = null;
+                }
+            } else {
+                selectedCell = {r, c};
+            }
+        }
+
+        function spawnParticles(x, y, color, baseCount = 8, speedMultiplier = 1, sizeMultiplier = 1) {
+            const count = baseCount + Math.floor(Math.random() * 3);
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = (Math.random() * (tileW * 0.04) + (tileW * 0.02)) * speedMultiplier;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - (tileH * 0.02),
+                    alpha: 1, life: 0,
+                    maxLife: Math.random() * 15 + 10,
+                    radius: (Math.random() * (tileW * 0.015) + (tileW * 0.01)) * sizeMultiplier,
+                    color: color
+                });
+            }
+        }
+
+        function updateAndDrawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.80;
+                p.vy *= 0.80;
+                p.vy += tileH * 0.004; 
+                p.life++;
+                
+                if (p.maxLife - p.life < 5) p.alpha = Math.max(0, (p.maxLife - p.life) / 5);
+                
+                if (p.life >= p.maxLife) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, Math.max(0.1, p.radius), 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function spawnFloatingText(x, y, text) {
+            floatingTexts.push({
+                x: x, y: y, text: text,
+                startTime: performance.now(),
+                duration: 1000
+            });
+        }
+
+        function updateAndDrawFloatingTexts() {
+            const now = performance.now();
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                const ft = floatingTexts[i];
+                const elapsed = now - ft.startTime;
+                
+                if (elapsed >= ft.duration) {
+                    floatingTexts.splice(i, 1);
+                    continue;
+                }
+                
+                const progress = elapsed / ft.duration;
+                const floatDistance = tileH * 0.4;
+                let currentY = ft.y;
+                
+                if (progress <= 0.2) {
+                    currentY -= floatDistance * (2.5 * progress);
+                } else if (progress <= 0.6) {
+                    const p2 = progress - 0.2;
+                    const distRatio = 0.5 + (2.5 * p2 - 3.125 * p2 * p2);
+                    currentY -= floatDistance * distRatio;
+                } else {
+                    currentY -= floatDistance;
+                }
+                
+                const alpha = progress > 0.6 ? Math.max(0, 1 - (progress - 0.6) / 0.4) : 1;
+                
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                const fontSize = tileW * 0.25;
+                ctx.font = `900 ${fontSize}px 'Inter', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                ctx.lineWidth = Math.max(1, fontSize * 0.048);
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = '#000000';
+                ctx.strokeText(ft.text, ft.x, currentY);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(ft.text, ft.x, currentY);
+                ctx.restore();
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#3a3246';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const isSkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
+            if (isSkillActive) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    drawTileAndItem(r, c);
+                }
+            }
+
+            updateAndDrawParticles();
+            updateAndDrawFloatingTexts();
+            drawNextPreview();
+
+            requestAnimationFrame(draw);
+        }
+
+        function drawTileAndItem(r, c) {
+            const {x, y} = getScreenXY(r, c);
+            const isSelected = selectedCell && selectedCell.r === r && selectedCell.c === c;
+            const cell = grid[r][c];
+            const isSkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
+            
+            if (isAwaitingRemoveSelection) {
+                ctx.filter = 'brightness(65%)';
+            } else if (isAwaitingTargetSelection && cell.level > 0) {
+                ctx.filter = 'brightness(65%)';
+            } else if (isAwaitingSwapSelection) {
+                let isSwapTarget = false;
+                if (!swapFirstTarget && cell.level > 0) isSwapTarget = true;
+                else if (swapFirstTarget) {
+                    if (swapFirstTarget.r === r && swapFirstTarget.c === c) isSwapTarget = true;
+                    else if (cell.level > 0 && cell.level !== grid[swapFirstTarget.r][swapFirstTarget.c].level) isSwapTarget = true;
+                }
+                ctx.filter = isSwapTarget ? 'none' : 'brightness(65%)';
+            } else {
+                ctx.filter = 'none';
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(x, y - tileH / 2);
+            ctx.lineTo(x + tileW / 2, y);
+            ctx.lineTo(x, y + tileH / 2);
+            ctx.lineTo(x - tileW / 2, y);
+            ctx.closePath();
+
+            ctx.fillStyle = (r + c) % 2 === 0 ? '#554a63' : '#5f536e';
+            ctx.fill();
+            ctx.strokeStyle = '#473d54';
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+
+            if (cell.level > 0) {
+                let isItemHighlighted = false;
+                if (isAwaitingRemoveSelection && cell.level > 0) isItemHighlighted = true;
+                else if (isAwaitingSwapSelection) {
+                    if (!swapFirstTarget) isItemHighlighted = true;
+                    else if (swapFirstTarget.r === r && swapFirstTarget.c === c) isItemHighlighted = true;
+                    else if (cell.level !== grid[swapFirstTarget.r][swapFirstTarget.c].level) isItemHighlighted = true;
+                }
+
+                if (isSkillActive && !isItemHighlighted) ctx.filter = 'brightness(65%)';
+                else ctx.filter = 'none';
+
+                cell.scale += (1 - cell.scale) * 0.15;
+                cell.bounce += (1 - cell.bounce) * 0.2;
+                
+                if (cell.errorFlash > 0) {
+                    cell.errorFlash -= 0.03;
+                    if (cell.errorFlash < 0) cell.errorFlash = 0;
+                }
+
+                const baseRadius = tileW * 0.32;
+                const radius = baseRadius * cell.scale * cell.bounce;
+                
+                if (radius <= 0.1) return;
+
+                const itemY = y + tileH / 2 - radius * 1.15;
+
+                ctx.beginPath();
+                ctx.ellipse(x, y + tileH * 0.1, radius, radius * 0.5, 0, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.15)';
+                ctx.fill();
+
+                const isSwapFirst = isAwaitingSwapSelection && swapFirstTarget && swapFirstTarget.r === r && swapFirstTarget.c === c;
+                const isSwapCandidate = isAwaitingSwapSelection && isItemHighlighted && !isSwapFirst;
+
+                const minGlow = radius * 0.10;
+                const maxGlow = radius * 0.55;
+                const sineWave = (Math.sin(Date.now() * 0.005) + 1) / 2;
+                const glowThickness = minGlow + (maxGlow - minGlow) * sineWave;
+
+                if (isSelected || isAwaitingRemoveSelection || isSwapFirst || isSwapCandidate) {
+                    let innerR = radius * 0.8; 
+                    let outerR = radius + glowThickness;
+                    let grad = ctx.createRadialGradient(x, itemY, innerR, x, itemY, outerR);
+                    let glowColor;
+
+                    if (isSelected || isSwapFirst) {
+                        glowColor = '255, 255, 255';
+                    } else if (isSwapCandidate) {
+                        glowColor = '74, 222, 128'; 
+                    } else if (isAwaitingRemoveSelection) {
+                        glowColor = '249, 115, 22'; 
+                    }
+                    
+                    grad.addColorStop(0, `rgba(${glowColor}, 0.8)`);
+                    grad.addColorStop(1, `rgba(${glowColor}, 0)`);
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, itemY, outerR, 0, Math.PI * 2);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                }
+
+                drawMineral(ctx, x, itemY, radius, cell.level);
+
+                if (cell.errorFlash > 0) {
+                    ctx.beginPath();
+                    ctx.arc(x, itemY, radius, 0, Math.PI * 2);
+                    ctx.lineWidth = 5;
+                    const flashAlpha = Math.abs(Math.sin(cell.errorFlash * Math.PI * 6));
+                    ctx.strokeStyle = `rgba(239, 68, 68, ${flashAlpha})`;
+                    ctx.stroke();
+                }
+            }
+            ctx.filter = 'none';
+        }
+
+        window.addEventListener('resize', resize);
+
+        // 스킬 버튼 이벤트
+        document.getElementById('skill-pin-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (targetedSpawnCooldown > 0) return;
+            isAwaitingTargetSelection = !isAwaitingTargetSelection;
+            if (isAwaitingTargetSelection) {
+                isAwaitingRemoveSelection = false;
+                isAwaitingSwapSelection = false;
+                selectedCell = null;
+            }
+            updateSkillUI();
+        });
+
+        document.getElementById('skill-hammer-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (removeSkillCooldown > 0) return;
+            isAwaitingRemoveSelection = !isAwaitingRemoveSelection;
+            if (isAwaitingRemoveSelection) {
+                isAwaitingTargetSelection = false;
+                isAwaitingSwapSelection = false;
+                selectedCell = null;
+                swapFirstTarget = null;
+            }
+            updateSkillUI();
+        });
+
+        document.getElementById('skill-swap-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (swapSkillCooldown > 0) return;
+            isAwaitingSwapSelection = !isAwaitingSwapSelection;
+            if (isAwaitingSwapSelection) {
+                isAwaitingTargetSelection = false;
+                isAwaitingRemoveSelection = false;
+                selectedCell = null;
+                swapFirstTarget = null;
+            } else {
+                swapFirstTarget = null;
+            }
+            updateSkillUI();
+        });
+
+        document.getElementById('spawn-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (grid.length === 0) return;
+            spawnItem();
+        });
+
+        document.getElementById('restart-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            init();
+        });
+
+        // ------------------ 도감 모달 관련 ------------------
+        const dictModal = document.getElementById('dictionary-modal');
+        const dictContent = document.getElementById('dictionary-content');
+
+        function renderDictionary() {
+            const listEl = document.getElementById('dictionary-list');
+            listEl.innerHTML = '';
+            
+            // 모달 크기에 맞춰 유동적으로 광물 크기(25%) 및 간격 기반 텍스트 크기 계산
+            const popupHeight = dictContent.clientHeight;
+            const mineralSize = popupHeight * 0.25;
+            const listHeight = listEl.clientHeight;
+            
+            // 위아래 두 광물 사이 간격 공간 (격자 셀의 높이에서 광물 이미지 크기 제외)
+            const cellHeight = listHeight / 2; // 2 rows
+            const gapSpace = cellHeight - mineralSize;
+            
+            // 기존 49%에서 20% 축소한 39.2% 적용
+            let nameFontSize = gapSpace * 0.392;
+            if (nameFontSize < 1) nameFontSize = 10; // Fallback 안전장치
+            const nameMarginTop = nameFontSize / 7;
+
+            // 도감 제목 크기를 이름 폰트의 110%로 설정
+            const titleEl = dictContent.querySelector('h2');
+            if (titleEl) {
+                titleEl.style.fontSize = `${nameFontSize * 1.1}px`;
+            }
+
+            for (let i = 1; i <= MAX_LEVEL; i++) {
+                const colorInfo = MINERAL_COLORS[i];
+                const isDiscovered = discoveredMinerals.has(i);
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'flex flex-col items-center justify-center relative min-h-0';
+                
+                const canvasWrapper = document.createElement('div');
+                canvasWrapper.className = 'w-full flex items-center justify-center relative';
+                canvasWrapper.style.height = `${mineralSize}px`;
+                
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = mineralSize;
+                tempCanvas.height = mineralSize;
+                tempCanvas.className = 'object-contain';
+                const tCtx = tempCanvas.getContext('2d');
+                
+                const drawRadius = mineralSize * 0.45;
+                drawMineral(tCtx, mineralSize / 2, mineralSize / 2, drawRadius, i, !isDiscovered);
+                
+                if (!isDiscovered) {
+                    tCtx.fillStyle = '#ffffff';
+                    tCtx.font = `900 ${drawRadius * 0.8}px 'Inter', sans-serif`;
+                    tCtx.textAlign = 'center';
+                    tCtx.textBaseline = 'middle';
+                    tCtx.fillText('?', mineralSize / 2, mineralSize / 2 + drawRadius * 0.1);
+                }
+
+                canvasWrapper.appendChild(tempCanvas);
+                
+                // 이름 폰트 크기 및 여백 동적 적용
+                const label = document.createElement('div');
+                label.className = 'font-black text-[#5a4231] whitespace-nowrap tracking-tighter shrink-0 leading-none';
+                label.style.fontSize = `${nameFontSize}px`;
+                label.style.marginTop = `${nameMarginTop}px`;
+                label.innerText = isDiscovered ? colorInfo.name : '???';
+                
+                itemDiv.appendChild(canvasWrapper);
+                itemDiv.appendChild(label);
+                listEl.appendChild(itemDiv);
+            }
+        }
+
+        function openDictionary() {
+            dictModal.classList.remove('hidden');
+            // hidden 제거 직후 레이아웃 계산을 강제하여 렌더링 시 정확한 높이(clientHeight)를 가져옵니다.
+            void dictModal.offsetWidth;
+            renderDictionary();
+            
+            dictModal.classList.remove('opacity-0');
+            dictContent.classList.remove('scale-95');
+            dictContent.classList.add('scale-100');
+        }
+
+        function closeDictionary() {
+            dictModal.classList.add('opacity-0');
+            dictContent.classList.remove('scale-100');
+            dictContent.classList.add('scale-95');
+            setTimeout(() => dictModal.classList.add('hidden'), 300);
+        }
+
+        document.getElementById('dictionary-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            openDictionary();
+        });
+
+        document.getElementById('dictionary-close-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            closeDictionary();
+        });
+
+        dictModal.addEventListener('pointerdown', (e) => {
+            if (e.target === dictModal) {
+                e.preventDefault();
+                closeDictionary();
+            }
+        });
+
+        // ------------------ 튜토리얼 모달 관련 ------------------
+        const tutModal = document.getElementById('tutorial-modal');
+        const tutPrevBtn = document.getElementById('tut-prev-btn');
+        const tutConfirmBtn = document.getElementById('tut-confirm-btn');
+        
+        let currentTutPage = 0;
+        const totalTutPages = 3;
+
+        function openTutorial() {
+            currentTutPage = 0;
+            updateTutorialView();
+            tutModal.classList.remove('hidden');
+            void tutModal.offsetWidth;
+            tutModal.classList.remove('opacity-0');
+        }
+
+        function closeTutorial() {
+            tutModal.classList.add('opacity-0');
+            setTimeout(() => tutModal.classList.add('hidden'), 300);
+        }
+
+        function updateTutorialView() {
+            // 단락 전환
+            for (let i = 0; i < totalTutPages; i++) {
+                const page = document.getElementById(`tut-page-${i}`);
+                if (i === currentTutPage) {
+                    page.classList.remove('hidden');
+                    page.classList.remove('fade-in');
+                    void page.offsetWidth;
+                    page.classList.add('fade-in');
+                } else {
+                    page.classList.add('hidden');
+                }
+            }
+
+            // 버튼 표시 제어
+            if (currentTutPage === 0) {
+                tutPrevBtn.classList.remove('pointer-events-auto');
+                tutPrevBtn.classList.add('opacity-0', 'pointer-events-none');
+            } else {
+                tutPrevBtn.classList.add('pointer-events-auto');
+                tutPrevBtn.classList.remove('opacity-0', 'pointer-events-none');
+            }
+
+            const dots = document.querySelectorAll('#tut-dots .tut-dot');
+            if (currentTutPage === totalTutPages - 1) {
+                tutConfirmBtn.classList.remove('hidden');
+            } else {
+                tutConfirmBtn.classList.add('hidden');
+            }
+            
+            // 점(인디케이터) 업데이트 (미리 정의된 CSS 클래스 활용)
+            dots.forEach((dot, idx) => {
+                if (idx === currentTutPage) {
+                    dot.className = 'tut-dot active';
+                } else {
+                    dot.className = 'tut-dot inactive';
+                }
+            });
+
+            // 페이지 1(두 번째 단락)일 때 캔버스 그리기
+            if (currentTutPage === 1) {
+                drawTutorialCanvas();
+            }
+        }
+
+        function drawTutorialCanvas() {
+            const tCanvas = document.getElementById('tutorial-canvas');
+            if(!tCanvas) return;
+            
+            const rect = tCanvas.parentElement.getBoundingClientRect();
+            tCanvas.width = rect.width;
+            tCanvas.height = rect.height;
+            
+            const ctx = tCanvas.getContext('2d');
+            ctx.clearRect(0,0, tCanvas.width, tCanvas.height);
+            
+            const w = tCanvas.width;
+            const h = tCanvas.height;
+
+            // 1. 인게임 배경색 박스 2개 설정 (가로 약 42%씩, 가운데 여백 10%)
+            const boxW = w * 0.43;
+            const boxH = h * 0.9;
+            const boxY = (h - boxH) / 2;
+            const leftBoxX = w * 0.02;
+            const rightBoxX = w * 0.98 - boxW;
+
+            // 둥근 사각형 그리기 헬퍼 함수
+            function drawRoundedRect(x, y, width, height, radius, bgColor) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+                ctx.fillStyle = bgColor;
+                ctx.fill();
+                ctx.strokeStyle = '#2a2432'; // 약간 더 어두운 테두리
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+
+            // 인게임 캔버스 배경색(#3a3246)으로 박스 렌더링
+            drawRoundedRect(leftBoxX, boxY, boxW, boxH, 12, '#3a3246');
+            drawRoundedRect(rightBoxX, boxY, boxW, boxH, 12, '#3a3246');
+
+            // 2. 가운데 연결 방향 화살표 (▶)
+            const arrowX = w / 2;
+            const arrowY = h / 2;
+            ctx.font = `900 ${Math.min(w * 0.08, 30)}px 'Inter', sans-serif`;
+            ctx.fillStyle = '#5a4231';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('▶', arrowX, arrowY);
+
+            // 박스 크기에 맞춰 아이템 반지름 유동적 조정
+            const itemRadius = Math.min(boxW * 0.22, boxH * 0.25);
+            
+            // 아이템 그리기 공통 함수
+            function drawTutItem(cx, cy, level, showGlow, isOnlyGlow = false) {
+                const itemY = cy; 
+                
+                // 그림자 (어두운 배경이므로 투명도를 살짝 높임)
+                if (!isOnlyGlow) {
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy + itemRadius * 0.35, itemRadius, itemRadius * 0.5, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                    ctx.fill();
+                }
+
+                // 하얀 후광 효과
+                if (showGlow || isOnlyGlow) {
+                    const glowThickness = itemRadius * 0.45;
+                    let innerR = itemRadius * 0.8;
+                    let outerR = itemRadius + glowThickness;
+                    let grad = ctx.createRadialGradient(cx, itemY, innerR, cx, itemY, outerR);
+                    const glowAlpha = isOnlyGlow ? 0.4 : 0.8;
+                    grad.addColorStop(0, `rgba(255, 255, 255, ${glowAlpha})`);
+                    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                    ctx.beginPath();
+                    ctx.arc(cx, itemY, outerR, 0, Math.PI * 2);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                }
+
+                if (!isOnlyGlow) {
+                    drawMineral(ctx, cx, itemY, itemRadius, level);
+                }
+            }
+
+            const itemCy = boxY + boxH * 0.65; // 박스 내 아이템의 Y 위치 (살짝 아래쪽)
+
+            // 3. 좌측 구역: 돌 2개 나열
+            const lcx1 = leftBoxX + boxW * 0.28;
+            const lcx2 = leftBoxX + boxW * 0.72;
+            
+            drawTutItem(lcx1, itemCy, 1, true);  // 왼쪽 돌 (선택된 후광 포함)
+            drawTutItem(lcx2, itemCy, 1, false); // 오른쪽 돌
+
+            // 오른쪽 돌 위에서 가리키는 노란 화살표
+            ctx.fillStyle = '#fde047';
+            ctx.beginPath();
+            let arrowTipY = itemCy - itemRadius * 1.3;
+            let arrowBaseY = arrowTipY - itemRadius * 1.0;
+            ctx.moveTo(lcx2, arrowTipY);
+            ctx.lineTo(lcx2 - itemRadius*0.4, arrowTipY - itemRadius*0.4);
+            ctx.lineTo(lcx2 - itemRadius*0.2, arrowTipY - itemRadius*0.4);
+            ctx.lineTo(lcx2 - itemRadius*0.2, arrowBaseY);
+            ctx.lineTo(lcx2 + itemRadius*0.2, arrowBaseY);
+            ctx.lineTo(lcx2 + itemRadius*0.2, arrowTipY - itemRadius*0.4);
+            ctx.lineTo(lcx2 + itemRadius*0.4, arrowTipY - itemRadius*0.4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // 4. 우측 구역: 구리 1개와 남은 흔적(후광) 및 점수 이펙트
+            const rcx1 = rightBoxX + boxW * 0.28; // 기존 돌이 있던 왼쪽 위치 (흔적)
+            const rcx2 = rightBoxX + boxW * 0.72; // 합쳐진 구리 위치
+            
+            drawTutItem(rcx1, itemCy, 0, false, true); // 왼쪽: 후광만 렌더링
+            drawTutItem(rcx2, itemCy, 2, false);       // 오른쪽: 구리 렌더링
+
+            // +200 텍스트 표시 (구리 위)
+            const fontSize = Math.max(10, itemRadius * 0.75);
+            ctx.font = `900 ${fontSize}px 'Inter', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.lineWidth = Math.max(2, fontSize * 0.15);
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#000000';
+            
+            let textY = itemCy - itemRadius * 1.6;
+            ctx.strokeText('+200', rcx2, textY);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('+200', rcx2, textY);
+        }
+
+        document.getElementById('help-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            openTutorial();
+        });
+
+        // 튜토리얼 모달 터치 이벤트
+        tutModal.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('#tut-prev-btn') || e.target.closest('#tut-confirm-btn')) {
+                return;
+            }
+            e.preventDefault();
+            if (currentTutPage < totalTutPages - 1) {
+                currentTutPage++;
+                updateTutorialView();
+            }
+        });
+
+        tutPrevBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (currentTutPage > 0) {
+                currentTutPage--;
+                updateTutorialView();
+            }
+        });
+
+        tutConfirmBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            closeTutorial();
+        });
+
+        // ------------------ 캔버스 클릭(게임 진행) ------------------
+        canvas.addEventListener('pointerdown', (e) => {
+            if (isGameOver || grid.length === 0) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const sx = (e.clientX - rect.left) * scaleX;
+            const sy = (e.clientY - rect.top) * scaleY;
+
+            let clickedR = -1;
+            let clickedC = -1;
+
+            for (let r = GRID_SIZE - 1; r >= 0; r--) {
+                for (let c = GRID_SIZE - 1; c >= 0; c--) {
+                    const {x, y} = getScreenXY(r, c);
+                    const cell = grid[r][c];
+
+                    if (cell.level > 0) {
+                        const radius = tileW * 0.32 * cell.scale * cell.bounce;
+                        const itemY = y + tileH / 2 - radius * 1.15; 
+                        const dx = sx - x;
+                        const dy = sy - itemY;
+                        
+                        if (dx * dx + dy * dy <= radius * radius) {
+                            clickedR = r;
+                            clickedC = c;
+                            break;
+                        }
+                    }
+
+                    const poly = [
+                        {x: x, y: y - tileH/2},
+                        {x: x + tileW/2, y: y},
+                        {x: x, y: y + tileH/2},
+                        {x: x - tileW/2, y: y}
+                    ];
+                    
+                    if (isPointInPoly(poly, {x: sx, y: sy})) {
+                        clickedR = r;
+                        clickedC = c;
+                        break;
+                    }
+                }
+                if (clickedR !== -1) break;
+            }
+
+            if (isAwaitingTargetSelection) {
+                if (clickedR !== -1 && grid[clickedR][clickedC].level === 0) {
+                    executeSpawn(clickedR, clickedC, true);
+                }
+                return;
+            }
+
+            if (isAwaitingRemoveSelection) {
+                if (clickedR !== -1 && grid[clickedR][clickedC].level > 0) {
+                    const targetCell = grid[clickedR][clickedC];
+                    const {x: tx, y: ty} = getScreenXY(clickedR, clickedC);
+                    const itemRadius = tileW * 0.32 * targetCell.scale * targetCell.bounce;
+                    const itemY = ty + tileH / 2 - itemRadius * 1.15;
+                    
+                    const particleColor = MINERAL_COLORS[targetCell.level].base;
+                    spawnParticles(tx, itemY, particleColor, 12, 1.7, 1.2);
+                    
+                    grid[clickedR][clickedC].level = 0;
+                    grid[clickedR][clickedC].scale = 0;
+                    
+                    removeSkillCooldown = 28;
+                    removeIsFirstUse = false;
+                    isAwaitingRemoveSelection = false;
+                    updateSkillUI();
+                }
+                return;
+            }
+
+            if (isAwaitingSwapSelection) {
+                if (clickedR !== -1 && grid[clickedR][clickedC].level > 0) {
+                    const clickedCell = grid[clickedR][clickedC];
+                    
+                    if (!swapFirstTarget) {
+                        swapFirstTarget = {r: clickedR, c: clickedC};
+                    } else {
+                        if (swapFirstTarget.r === clickedR && swapFirstTarget.c === clickedC) {
+                            swapFirstTarget = null;
+                        } else if (clickedCell.level !== grid[swapFirstTarget.r][swapFirstTarget.c].level) {
+                            const tempLevel = clickedCell.level;
+                            const tempScale = clickedCell.scale;
+                            
+                            grid[clickedR][clickedC].level = grid[swapFirstTarget.r][swapFirstTarget.c].level;
+                            grid[clickedR][clickedC].scale = grid[swapFirstTarget.r][swapFirstTarget.c].scale;
+                            grid[clickedR][clickedC].bounce = 1.5;
+
+                            grid[swapFirstTarget.r][swapFirstTarget.c].level = tempLevel;
+                            grid[swapFirstTarget.r][swapFirstTarget.c].scale = tempScale;
+                            grid[swapFirstTarget.r][swapFirstTarget.c].bounce = 1.5;
+                            
+                            swapSkillCooldown = 20; 
+                            isAwaitingSwapSelection = false;
+                            swapFirstTarget = null;
+                            updateSkillUI();
+                        }
+                    }
+                }
+                return;
+            }
+
+            if (clickedR !== -1) {
+                handleCellInteraction(clickedR, clickedC);
+            } else {
+                selectedCell = null;
+            }
+        });
+
+        window.onload = () => {
+            init();
+            requestAnimationFrame(draw);
+        };
+    </script>
+</body>
+</html>
