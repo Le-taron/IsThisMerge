@@ -115,7 +115,7 @@
             margin-bottom: calc(var(--tile-w, 60px) * -0.05);
         }
         .dynamic-next-label { 
-            font-size: calc(var(--tile-w, 60px) * 0.13); /* NEXT 폰트 사이즈 기준 */
+            font-size: calc(var(--tile-w, 60px) * 0.13);
             margin-top: 0; 
             color: #f4e4bc;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
@@ -127,7 +127,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .tut-dot {
-            height: 26.65%; /* 기존 53.3%에서 50% 축소 */
+            height: 26.65%;
             aspect-ratio: 1/1;
             border-radius: 9999px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -147,7 +147,7 @@
         <!-- UI Layer -->
         <div id="ui-layer" class="absolute inset-0 pointer-events-none z-10">
             
-            <!-- 상단 좌측 그룹 (도감 버튼 + 도움말 버튼) -->
+            <!-- 상단 좌측 그룹 -->
             <div class="absolute pointer-events-auto dynamic-ui-top-left-group">
                 <button id="dictionary-btn" class="flex items-center justify-center parchment-theme shadow-lg transition-transform active:scale-90 border-2 touch-manipulation dynamic-top-btn">
                     📖
@@ -227,16 +227,12 @@
             </button>
         </div>
 
-        <!-- 도감 오버레이 (h-[78%]) -->
+        <!-- 도감 오버레이 -->
         <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
-            <div id="dictionary-content" class="parchment-theme w-[95%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300 border-4">
-                
-                <!-- 팝업 세로 길이의 10%를 차지하는 닫기 버튼 -->
+            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300 border-4">
                 <button id="dictionary-close-btn" class="absolute top-2 right-2 bg-[#dca773] text-white rounded-full font-black flex items-center justify-center active:scale-90 transition-transform touch-manipulation z-10" style="height: 10%; aspect-ratio: 1/1; font-size: clamp(10px, 3vh, 20px);">
                     ✕
                 </button>
-                
-                <!-- 동적 텍스트 크기 조정을 위해 기존 크기 클래스 제거 -->
                 <h2 class="font-black text-[#5a4231] mb-2 text-center shrink-0 mt-1" style="line-height: 1;">광물 도감</h2>
                 <div id="dictionary-list" class="w-full flex-1 min-h-0 grid grid-cols-5 grid-rows-2 gap-1 p-1">
                     <!-- JS 렌더링 영역 -->
@@ -250,17 +246,16 @@
                 
                 <!-- 단락 0: 게임 소개 -->
                 <div id="tut-page-0" class="tut-page flex flex-col items-center justify-center h-full text-center fade-in pb-10">
-                    <h2 class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">게임 소개</h2>
-                    <p class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed whitespace-nowrap">
+                    <h2 id="tut-title-0" class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">게임 소개</h2>
+                    <p id="tut-desc-0" class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed whitespace-nowrap">
                         동굴 안에서 고가의 광물을 최대한 많이 발견하세요!
                     </p>
                 </div>
 
                 <!-- 단락 1: 플레이 방법 -->
                 <div id="tut-page-1" class="tut-page hidden flex flex-col items-center justify-start h-full text-center fade-in pb-8">
-                    <h2 class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">플레이 방법</h2>
-                    <!-- NEXT 텍스트 사이즈 적용 (0.13 * 1.4 = 약 0.182) -->
-                    <p class="font-black mb-2 shrink-0 w-full" style="font-size: calc(var(--tile-w, 60px) * 0.182); color: #5a4231; text-shadow: none;">
+                    <h2 id="tut-title-1" class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">플레이 방법</h2>
+                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full" style="font-size: calc(var(--tile-w, 60px) * 0.182); color: #5a4231; text-shadow: none;">
                         인접한 두 광물을 선택해 더 좋은 광물을 발견하세요!
                     </p>
                     <div class="w-full flex-1 min-h-0 relative flex items-center justify-center overflow-hidden">
@@ -270,11 +265,12 @@
 
                 <!-- 단락 2: 스킬 -->
                 <div id="tut-page-2" class="tut-page hidden flex flex-col items-center justify-start h-full fade-in pb-10">
-                    <h2 class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">스킬</h2>
-                    <p class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
+                    <h2 id="tut-title-2" class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">스킬</h2>
+                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
                         스킬 버튼을 눌러서 능력을 사용하세요!
                     </p>
-                    <div class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
+                    <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
+                        <!-- 기본값(Fallback) 텍스트 -->
                         <div class="flex items-start">
                             <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">📌</span>
                             <p class="leading-tight mt-0.5"><span class="font-black">지정:</span> 다음 광물을 원하는 위치에 놓을 수 있다.</p>
@@ -290,22 +286,16 @@
                     </div>
                 </div>
 
-                <!-- 튜토리얼 네비게이션 버튼 & 인디케이터 (높이를 팝업의 15%로 지정하여 내부 비율 계산) -->
+                <!-- 튜토리얼 네비게이션 버튼 & 인디케이터 -->
                 <div class="absolute bottom-3 left-4 right-4 flex justify-between items-center z-10 pointer-events-none" style="height: 15%;">
-                    
-                    <!-- 이전 버튼: 네비게이션 컨테이너의 66.6% 높이 (팝업 전체의 약 10%) -->
                     <button id="tut-prev-btn" class="bg-[#dca773] text-white rounded-full font-black flex items-center justify-center active:scale-90 transition-transform shadow-md pointer-events-auto opacity-0" style="height: 66.6%; aspect-ratio: 1/1; font-size: clamp(10px, 3vh, 20px);">
                         ◀
                     </button>
-                    
-                    <!-- 점 인디케이터 컨테이너 -->
                     <div id="tut-dots" class="flex gap-2 sm:gap-3 absolute left-1/2 -translate-x-1/2 pointer-events-none items-center h-full">
                         <div class="tut-dot active"></div>
                         <div class="tut-dot inactive"></div>
                         <div class="tut-dot inactive"></div>
                     </div>
-                    
-                    <!-- 확인 버튼: 네비게이션 컨테이너의 100% 높이 (팝업 전체의 15%) -->
                     <button id="tut-confirm-btn" class="hidden bg-[#5a4231] text-white rounded-xl font-black active:scale-90 transition-transform shadow-md pointer-events-auto ml-auto" style="height: 100%; padding: 0 1.25rem; font-size: clamp(12px, 3.5vh, 24px);">
                         확인
                     </button>
@@ -318,6 +308,51 @@
     </div>
 
     <script>
+        // ------------------ 외부 튜토리얼 텍스트 불러오기 ------------------
+        async function loadTutorialData() {
+            try {
+                const response = await fetch('tutorial.json');
+                if (!response.ok) throw new Error('Failed to load JSON');
+                const data = await response.json();
+                
+                if (data.pages && data.pages.length > 0) {
+                    // 단락 0 적용
+                    if (data.pages[0]) {
+                        document.getElementById('tut-title-0').innerText = data.pages[0].title;
+                        document.getElementById('tut-desc-0').innerText = data.pages[0].description;
+                    }
+                    // 단락 1 적용
+                    if (data.pages[1]) {
+                        document.getElementById('tut-title-1').innerText = data.pages[1].title;
+                        document.getElementById('tut-desc-1').innerText = data.pages[1].description;
+                    }
+                    // 단락 2 적용
+                    if (data.pages[2]) {
+                        document.getElementById('tut-title-2').innerText = data.pages[2].title;
+                        document.getElementById('tut-desc-2').innerText = data.pages[2].description;
+                        
+                        // 스킬 리스트 생성
+                        if (data.pages[2].skills) {
+                            const skillContainer = document.getElementById('tut-skills-container');
+                            skillContainer.innerHTML = ''; // 기본값 텍스트 지우기
+                            data.pages[2].skills.forEach(skill => {
+                                const div = document.createElement('div');
+                                div.className = 'flex items-start';
+                                div.innerHTML = `
+                                    <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">${skill.icon}</span>
+                                    <p class="leading-tight mt-0.5"><span class="font-black">${skill.name}:</span> ${skill.desc}</p>
+                                `;
+                                skillContainer.appendChild(div);
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('tutorial.json을 불러오지 못했습니다. 기존 HTML의 기본 텍스트를 사용합니다.', error);
+            }
+        }
+
+        // ------------------ 기존 게임 로직 ------------------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
 
@@ -348,16 +383,8 @@
         let floatingTexts = [];
 
         const SETTLEMENT_SCORES = {
-            1: 100,
-            2: 200,
-            3: 400,
-            4: 800,
-            5: 1600,
-            6: 4000,
-            7: 10000,
-            8: 25000,
-            9: 62500,
-            10: 250000
+            1: 100, 2: 200, 3: 400, 4: 800, 5: 1600,
+            6: 4000, 7: 10000, 8: 25000, 9: 62500, 10: 250000
         };
 
         const MINERAL_COLORS = {
@@ -725,7 +752,6 @@
             isGameOver = true;
             selectedCell = null;
             
-            // 결산 점수 계산
             let settlementScore = 0;
             for (let r = 0; r < GRID_SIZE; r++) {
                 for (let c = 0; c < GRID_SIZE; c++) {
@@ -1109,21 +1135,17 @@
             const listEl = document.getElementById('dictionary-list');
             listEl.innerHTML = '';
             
-            // 모달 크기에 맞춰 유동적으로 광물 크기(25%) 및 간격 기반 텍스트 크기 계산
             const popupHeight = dictContent.clientHeight;
             const mineralSize = popupHeight * 0.25;
             const listHeight = listEl.clientHeight;
             
-            // 위아래 두 광물 사이 간격 공간 (격자 셀의 높이에서 광물 이미지 크기 제외)
-            const cellHeight = listHeight / 2; // 2 rows
+            const cellHeight = listHeight / 2;
             const gapSpace = cellHeight - mineralSize;
             
-            // 기존 49%에서 20% 축소한 39.2% 적용
             let nameFontSize = gapSpace * 0.392;
-            if (nameFontSize < 1) nameFontSize = 10; // Fallback 안전장치
+            if (nameFontSize < 1) nameFontSize = 10;
             const nameMarginTop = nameFontSize / 7;
 
-            // 도감 제목 크기를 이름 폰트의 110%로 설정
             const titleEl = dictContent.querySelector('h2');
             if (titleEl) {
                 titleEl.style.fontSize = `${nameFontSize * 1.1}px`;
@@ -1159,7 +1181,6 @@
 
                 canvasWrapper.appendChild(tempCanvas);
                 
-                // 이름 폰트 크기 및 여백 동적 적용
                 const label = document.createElement('div');
                 label.className = 'font-black text-[#5a4231] whitespace-nowrap tracking-tighter shrink-0 leading-none';
                 label.style.fontSize = `${nameFontSize}px`;
@@ -1174,7 +1195,6 @@
 
         function openDictionary() {
             dictModal.classList.remove('hidden');
-            // hidden 제거 직후 레이아웃 계산을 강제하여 렌더링 시 정확한 높이(clientHeight)를 가져옵니다.
             void dictModal.offsetWidth;
             renderDictionary();
             
@@ -1229,7 +1249,6 @@
         }
 
         function updateTutorialView() {
-            // 단락 전환
             for (let i = 0; i < totalTutPages; i++) {
                 const page = document.getElementById(`tut-page-${i}`);
                 if (i === currentTutPage) {
@@ -1242,7 +1261,6 @@
                 }
             }
 
-            // 버튼 표시 제어
             if (currentTutPage === 0) {
                 tutPrevBtn.classList.remove('pointer-events-auto');
                 tutPrevBtn.classList.add('opacity-0', 'pointer-events-none');
@@ -1258,7 +1276,6 @@
                 tutConfirmBtn.classList.add('hidden');
             }
             
-            // 점(인디케이터) 업데이트 (미리 정의된 CSS 클래스 활용)
             dots.forEach((dot, idx) => {
                 if (idx === currentTutPage) {
                     dot.className = 'tut-dot active';
@@ -1267,7 +1284,6 @@
                 }
             });
 
-            // 페이지 1(두 번째 단락)일 때 캔버스 그리기
             if (currentTutPage === 1) {
                 drawTutorialCanvas();
             }
@@ -1287,14 +1303,12 @@
             const w = tCanvas.width;
             const h = tCanvas.height;
 
-            // 1. 인게임 배경색 박스 2개 설정 (가로 약 42%씩, 가운데 여백 10%)
             const boxW = w * 0.43;
             const boxH = h * 0.9;
             const boxY = (h - boxH) / 2;
             const leftBoxX = w * 0.02;
             const rightBoxX = w * 0.98 - boxW;
 
-            // 둥근 사각형 그리기 헬퍼 함수
             function drawRoundedRect(x, y, width, height, radius, bgColor) {
                 ctx.beginPath();
                 ctx.moveTo(x + radius, y);
@@ -1309,16 +1323,14 @@
                 ctx.closePath();
                 ctx.fillStyle = bgColor;
                 ctx.fill();
-                ctx.strokeStyle = '#2a2432'; // 약간 더 어두운 테두리
+                ctx.strokeStyle = '#2a2432';
                 ctx.lineWidth = 3;
                 ctx.stroke();
             }
 
-            // 인게임 캔버스 배경색(#3a3246)으로 박스 렌더링
             drawRoundedRect(leftBoxX, boxY, boxW, boxH, 12, '#3a3246');
             drawRoundedRect(rightBoxX, boxY, boxW, boxH, 12, '#3a3246');
 
-            // 2. 가운데 연결 방향 화살표 (▶)
             const arrowX = w / 2;
             const arrowY = h / 2;
             ctx.font = `900 ${Math.min(w * 0.08, 30)}px 'Inter', sans-serif`;
@@ -1327,14 +1339,11 @@
             ctx.textBaseline = 'middle';
             ctx.fillText('▶', arrowX, arrowY);
 
-            // 박스 크기에 맞춰 아이템 반지름 유동적 조정
             const itemRadius = Math.min(boxW * 0.22, boxH * 0.25);
             
-            // 아이템 그리기 공통 함수
             function drawTutItem(cx, cy, level, showGlow, isOnlyGlow = false) {
                 const itemY = cy; 
                 
-                // 그림자 (어두운 배경이므로 투명도를 살짝 높임)
                 if (!isOnlyGlow) {
                     ctx.beginPath();
                     ctx.ellipse(cx, cy + itemRadius * 0.35, itemRadius, itemRadius * 0.5, 0, 0, Math.PI * 2);
@@ -1342,7 +1351,6 @@
                     ctx.fill();
                 }
 
-                // 하얀 후광 효과
                 if (showGlow || isOnlyGlow) {
                     const glowThickness = itemRadius * 0.45;
                     let innerR = itemRadius * 0.8;
@@ -1362,16 +1370,14 @@
                 }
             }
 
-            const itemCy = boxY + boxH * 0.65; // 박스 내 아이템의 Y 위치 (살짝 아래쪽)
+            const itemCy = boxY + boxH * 0.65; 
 
-            // 3. 좌측 구역: 돌 2개 나열
             const lcx1 = leftBoxX + boxW * 0.28;
             const lcx2 = leftBoxX + boxW * 0.72;
             
-            drawTutItem(lcx1, itemCy, 1, true);  // 왼쪽 돌 (선택된 후광 포함)
-            drawTutItem(lcx2, itemCy, 1, false); // 오른쪽 돌
+            drawTutItem(lcx1, itemCy, 1, true);  
+            drawTutItem(lcx2, itemCy, 1, false); 
 
-            // 오른쪽 돌 위에서 가리키는 노란 화살표
             ctx.fillStyle = '#fde047';
             ctx.beginPath();
             let arrowTipY = itemCy - itemRadius * 1.3;
@@ -1389,14 +1395,12 @@
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
-            // 4. 우측 구역: 구리 1개와 남은 흔적(후광) 및 점수 이펙트
-            const rcx1 = rightBoxX + boxW * 0.28; // 기존 돌이 있던 왼쪽 위치 (흔적)
-            const rcx2 = rightBoxX + boxW * 0.72; // 합쳐진 구리 위치
+            const rcx1 = rightBoxX + boxW * 0.28; 
+            const rcx2 = rightBoxX + boxW * 0.72; 
             
-            drawTutItem(rcx1, itemCy, 0, false, true); // 왼쪽: 후광만 렌더링
-            drawTutItem(rcx2, itemCy, 2, false);       // 오른쪽: 구리 렌더링
+            drawTutItem(rcx1, itemCy, 0, false, true); 
+            drawTutItem(rcx2, itemCy, 2, false);       
 
-            // +200 텍스트 표시 (구리 위)
             const fontSize = Math.max(10, itemRadius * 0.75);
             ctx.font = `900 ${fontSize}px 'Inter', sans-serif`;
             ctx.textAlign = 'center';
@@ -1416,7 +1420,6 @@
             openTutorial();
         });
 
-        // 튜토리얼 모달 터치 이벤트
         tutModal.addEventListener('pointerdown', (e) => {
             if (e.target.closest('#tut-prev-btn') || e.target.closest('#tut-confirm-btn')) {
                 return;
@@ -1557,6 +1560,8 @@
         window.onload = () => {
             init();
             requestAnimationFrame(draw);
+            // 튜토리얼 텍스트 불러오기 (실패 시 HTML 기본값 유지)
+            loadTutorialData();
         };
     </script>
 </body>
