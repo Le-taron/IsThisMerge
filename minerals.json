@@ -15,13 +15,13 @@
 "3": {
 "name": "은",
 "settlementScore": 400,
-"texturePath": "resources/textures/",
+"texturePath": "resources/textures/silver.png",
 "description": "은에 대한 설명"
 },
 "4": {
 "name": "금",
 "settlementScore": 1200,
-"texturePath": "resources/textures/",
+"texturePath": "resources/textures/gold.png",
 "description": "금에 대한 설명"
 },
 "5": {
