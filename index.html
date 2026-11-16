@@ -173,7 +173,7 @@
 
             <!-- 상단 우측 점수 -->
             <div id="stats" class="absolute pointer-events-auto text-right dynamic-ui-top">
-                <span class="font-bold block dynamic-ui-score-label">배양 점수</span>
+                <span class="font-bold block dynamic-ui-score-label">결산 점수</span>
                 <span id="score-display" class="font-black dynamic-ui-score-val">0</span>
             </div>
 
@@ -239,11 +239,11 @@
                 <div class="flex-1 flex flex-col justify-end">
                     <div class="w-full flex flex-col gap-[3.5cqh] mb-[4cqh]">
                         <div class="flex justify-between items-center text-slate-300 px-[2cqw]">
-                            <span class="font-bold" style="font-size: 5cqh;">배양 점수</span>
-                            <span id="cultivation-score" class="font-black text-white leading-none" style="font-size: 5cqh;">0</span>
+                            <span class="font-bold" style="font-size: 5cqh;">파괴 점수</span>
+                            <span id="destroy-score" class="font-black text-white leading-none" style="font-size: 5cqh;">0</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-300 px-[2cqw] border-b-2 border-slate-600 pb-[3.5cqh]">
-                            <span class="font-bold" style="font-size: 5cqh;">결산 점수</span>
+                            <span class="font-bold" style="font-size: 5cqh;">잔여 결산</span>
                             <span id="settlement-score" class="font-black text-white leading-none" style="font-size: 5cqh;">0</span>
                         </div>
                         <div class="flex justify-between items-end px-[2cqw]">
@@ -261,7 +261,7 @@
 
         <!-- 도감 오버레이 -->
         <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
-            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-4 overflow-hidden">
+            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-4 border-[#8b5a2b] overflow-hidden" style="border-width: 6px;">
 
                 <!-- 왼쪽 페이지 넘김 영역 -->
                 <div id="dict-prev-area" class="absolute left-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors">
@@ -395,6 +395,32 @@
             }
         }
 
+        // ------------------ 통합 외부 광물 정보 불러오기 ------------------
+        let externalMinerals = {};
+        const preloadedTextures = {};
+        
+        async function loadMineralData() {
+            try {
+                const response = await fetch('minerals.json');
+                if (!response.ok) throw new Error('Failed to load JSON');
+                const data = await response.json();
+                externalMinerals = data.minerals || {};
+                
+                // 텍스쳐 프리로드 로직
+                for (let key in externalMinerals) {
+                    const path = externalMinerals[key].texturePath;
+                    // 경로가 파일명까지 지정되었을 경우에만 프리로드 진행
+                    if (path && path.trim() !== "resources/textures/" && path.trim() !== "") {
+                        const img = new Image();
+                        img.src = path;
+                        preloadedTextures[key] = img;
+                    }
+                }
+            } catch (error) {
+                console.log('minerals.json을 불러오지 못했습니다. 기본 내장 양식을 사용합니다.', error);
+            }
+        }
+
         // ------------------ 기존 게임 로직 ------------------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
@@ -405,7 +431,7 @@
         let nextSpawnLevel = 1;
         let selectedCell = null;
         let isGameOver = false;
-        let score = 0;
+        let score = 0; // 이제 파괴(결산 획득) 스킬을 통해서만 오르는 점수
 
         let discoveredMinerals = new Set();
 
@@ -433,7 +459,7 @@
             settlementCount: {}
         };
 
-        // 최신 정산 점수 적용
+        // 기본(Fallback) 광물 데이터
         const SETTLEMENT_SCORES = {
             1: 0, 2: 150, 3: 400, 4: 1200, 5: 3200,
             6: 9600, 7: 25600, 8: 64000, 9: 192000, 10: 512000
@@ -452,6 +478,17 @@
             10: { name: '다이아몬드', base: '#F0F9FF', point: '#FBBF24', shadow: '#E0F2FE', highlight: '#FFFFFF', highlight2: '#FFFFFF', highlight3: '#FFFFFF' },
         };
 
+        // 광물 정보 통합 반환 함수 (JSON 우선, 없을 시 Fallback)
+        function getMineralInfo(level) {
+            const ext = externalMinerals[level];
+            const fb = MINERAL_COLORS[level] || MINERAL_COLORS[1];
+            return {
+                name: ext && ext.name ? ext.name : fb.name,
+                settlementScore: ext && ext.settlementScore !== undefined ? ext.settlementScore : (SETTLEMENT_SCORES[level] || 0),
+                description: ext && ext.description ? ext.description : "???"
+            };
+        }
+
         function resetStats() {
             gameStats.spawnCount = 0;
             gameStats.skillUsage = { pin: 0, hammer: 0, swap: 0 };
@@ -462,6 +499,14 @@
         }
 
         function drawMineral(targetCtx, x, y, radius, level, isUnknown = false) {
+            if (!isUnknown && preloadedTextures[level] && preloadedTextures[level].complete) {
+                // 커스텀 텍스쳐가 로드되었을 경우 이미지를 그림
+                const img = preloadedTextures[level];
+                targetCtx.drawImage(img, x - radius, y - radius, radius * 2, radius * 2);
+                return;
+            }
+
+            // 기본 내장 도형 렌더링
             const baseColor = MINERAL_COLORS[level] || MINERAL_COLORS[1];
             const color = isUnknown ? {
                 base: '#2a2a2a', point: '#111111', shadow: '#1a1a1a', highlight: '#3a3a3a', highlight2: '#4a4a4a', highlight3: '#555555'
@@ -867,7 +912,7 @@
             const cult = createSec('광물별 배양 횟수');
             for (let i = 1; i <= MAX_LEVEL; i++) {
                 if (gameStats.cultivationCount[i] > 0) {
-                    cult.grid.appendChild(createRow(MINERAL_COLORS[i].name, gameStats.cultivationCount[i]));
+                    cult.grid.appendChild(createRow(getMineralInfo(i).name, gameStats.cultivationCount[i]));
                 }
             }
             if (cult.grid.children.length > 0) container.appendChild(cult.sec);
@@ -877,8 +922,8 @@
             for (let i = 1; i <= MAX_LEVEL; i++) {
                 if (gameStats.settlementCount[i] > 0) {
                     const cnt = gameStats.settlementCount[i];
-                    const pts = cnt * (SETTLEMENT_SCORES[i] || 0);
-                    sett.grid.appendChild(createRow(MINERAL_COLORS[i].name, `${cnt}개 (${pts.toLocaleString()})`));
+                    const pts = cnt * getMineralInfo(i).settlementScore;
+                    sett.grid.appendChild(createRow(getMineralInfo(i).name, `${cnt}개 (${pts.toLocaleString()})`));
                 }
             }
             if (sett.grid.children.length > 0) container.appendChild(sett.sec);
@@ -888,15 +933,13 @@
             isGameOver = true;
             selectedCell = null;
             
-            let settlementScore = 0;
+            let settlementScore = 0; // 잔여 보드 결산
             for (let r = 0; r < GRID_SIZE; r++) {
                 for (let c = 0; c < GRID_SIZE; c++) {
                     const level = grid[r][c].level;
                     if (level > 0) {
                         gameStats.settlementCount[level]++; // 결산 갯수 업데이트
-                        if (SETTLEMENT_SCORES[level]) {
-                            settlementScore += SETTLEMENT_SCORES[level];
-                        }
+                        settlementScore += getMineralInfo(level).settlementScore;
                     }
                 }
             }
@@ -905,11 +948,11 @@
             
             const finalTotalScore = score + settlementScore;
             
-            const cultivationScoreEl = document.getElementById('cultivation-score');
+            const destroyScoreEl = document.getElementById('destroy-score');
             const settlementScoreEl = document.getElementById('settlement-score');
             const finalScoreEl = document.getElementById('final-score');
             
-            if (cultivationScoreEl) cultivationScoreEl.innerText = score.toLocaleString();
+            if (destroyScoreEl) destroyScoreEl.innerText = score.toLocaleString();
             if (settlementScoreEl) settlementScoreEl.innerText = settlementScore.toLocaleString();
             if (finalScoreEl) finalScoreEl.innerText = finalTotalScore.toLocaleString();
 
@@ -947,11 +990,7 @@
                 const newLevel = firstCell.level + 1;
                 
                 if (newLevel <= MAX_LEVEL) {
-                    // 최신 배양 점수 적용 공식: 0, 100, 200, 400, 800 ...
-                    const gainedScore = newLevel === 1 ? 0 : 100 * Math.pow(2, newLevel - 2);
-                    score += gainedScore;
-                    updateScoreDisplay();
-
+                    // 점수 획득(배양) 로직 제거됨. 점수는 파괴 시에만 얻음
                     gameStats.cultivationCount[newLevel]++; // 배양 통계 업데이트
 
                     cell.level = newLevel;
@@ -963,8 +1002,6 @@
                     const baseRadius = tileW * 0.32;
                     const itemY = ty + tileH / 2 - baseRadius * 1.15;
                     spawnParticles(tx, itemY, '#ffffff', 13, 1.7, 1.8);
-                    
-                    spawnFloatingText(tx, itemY - baseRadius * 0.8, `+${gainedScore}`);
                     
                     firstCell.level = 0;
                     firstCell.scale = 0;
@@ -1271,17 +1308,6 @@
         });
 
         // ------------------ 도감 모달 관련 ------------------
-        let dictionaryData = {};
-        async function loadDictionaryData() {
-            try {
-                const response = await fetch('dictionary.json');
-                if (!response.ok) throw new Error('Failed to load JSON');
-                dictionaryData = await response.json();
-            } catch (error) {
-                console.log('dictionary.json을 불러오지 못했습니다. 기본 텍스트를 사용합니다.', error);
-            }
-        }
-
         const dictModal = document.getElementById('dictionary-modal');
         const dictContent = document.getElementById('dictionary-content');
 
@@ -1294,7 +1320,7 @@
 
             const popupHeight = dictContent.clientHeight;
             const isDiscovered = discoveredMinerals.has(mineralLevel);
-            const colorInfo = MINERAL_COLORS[mineralLevel];
+            const mineralInfo = getMineralInfo(mineralLevel);
 
             const topGap = popupHeight * 0.05;
             const mineralSize = popupHeight * 0.30;
@@ -1302,7 +1328,7 @@
             
             const nameFontSize = popupHeight * 0.06; 
             const scoreFontSize = popupHeight * 0.042;
-            const descFontSize = scoreFontSize * 0.9; // 설명 텍스트 크기: 점수 텍스트의 90%
+            const descFontSize = scoreFontSize * 0.9; 
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'w-full h-full flex flex-col items-center relative';
@@ -1339,28 +1365,17 @@
             const nameLabel = document.createElement('div');
             nameLabel.className = 'font-black text-[#5a4231] tracking-tighter leading-none relative z-10';
             nameLabel.style.fontSize = `${nameFontSize}px`;
-            nameLabel.innerText = isDiscovered ? colorInfo.name : '???';
+            nameLabel.innerText = isDiscovered ? mineralInfo.name : '???';
             
+            // 점수 컨테이너 (결산 점수만 표기)
             const scoresDiv = document.createElement('div');
-            scoresDiv.className = 'absolute flex justify-between items-center z-0 opacity-80';
-            scoresDiv.style.top = '50%';
-            scoresDiv.style.transform = 'translateY(-50%)';
-            scoresDiv.style.width = '68%'; 
+            scoresDiv.className = 'flex justify-center items-center z-0 opacity-80 w-full mt-2';
             
-            const cultScore = document.createElement('div');
-            cultScore.className = 'font-bold text-[#8b5a2b] leading-none';
-            cultScore.style.fontSize = `${scoreFontSize}px`;
-            // 최신 배양 점수 표시 
-            const cScore = isDiscovered ? (mineralLevel === 1 ? 0 : 100 * Math.pow(2, mineralLevel - 2)) : '?';
-            cultScore.innerText = cScore;
-
             const settScore = document.createElement('div');
             settScore.className = 'font-bold text-[#8b5a2b] leading-none';
             settScore.style.fontSize = `${scoreFontSize}px`;
-            const sScore = isDiscovered ? SETTLEMENT_SCORES[mineralLevel] : '?';
-            settScore.innerText = sScore;
+            settScore.innerText = isDiscovered ? mineralInfo.settlementScore : '?';
 
-            scoresDiv.appendChild(cultScore);
             scoresDiv.appendChild(settScore);
 
             textGroup.appendChild(nameLabel);
@@ -1376,9 +1391,7 @@
             
             let descContent = '???';
             if (isDiscovered) {
-                if (dictionaryData && dictionaryData.minerals && dictionaryData.minerals[mineralLevel]) {
-                    descContent = dictionaryData.minerals[mineralLevel];
-                }
+                descContent = mineralInfo.description;
             }
             descText.innerText = descContent;
             
@@ -1637,19 +1650,6 @@
             
             drawTutItem(rcx1, itemCy, 0, false, true); 
             drawTutItem(rcx2, itemCy, 2, false);       
-
-            const fontSize = Math.max(10, itemRadius * 0.75);
-            ctx.font = `900 ${fontSize}px 'Inter', sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.lineWidth = Math.max(2, fontSize * 0.15);
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = '#000000';
-            
-            let textY = itemCy - itemRadius * 1.6;
-            ctx.strokeText('+100', rcx2, textY);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText('+100', rcx2, textY);
         }
 
         document.getElementById('help-btn').addEventListener('pointerdown', (e) => {
@@ -1740,11 +1740,19 @@
                 if (clickedR !== -1 && grid[clickedR][clickedC].level > 0) {
                     gameStats.skillUsage.hammer++;
                     const targetCell = grid[clickedR][clickedC];
+                    
+                    // 파괴(망치) 스킬 사용 시 해당 광물의 결산 점수를 획득
+                    const gainedScore = getMineralInfo(targetCell.level).settlementScore;
+                    score += gainedScore;
+                    updateScoreDisplay();
+
                     const {x: tx, y: ty} = getScreenXY(clickedR, clickedC);
                     const itemRadius = tileW * 0.32 * targetCell.scale * targetCell.bounce;
                     const itemY = ty + tileH / 2 - itemRadius * 1.15;
                     
-                    const particleColor = MINERAL_COLORS[targetCell.level].base;
+                    spawnFloatingText(tx, itemY - itemRadius * 0.8, `+${gainedScore}`);
+
+                    const particleColor = MINERAL_COLORS[targetCell.level] ? MINERAL_COLORS[targetCell.level].base : '#ffffff';
                     spawnParticles(tx, itemY, particleColor, 12, 1.7, 1.2);
                     
                     grid[clickedR][clickedC].level = 0;
@@ -1800,8 +1808,9 @@
         window.onload = () => {
             init();
             requestAnimationFrame(draw);
+            // JSON 데이터를 차례로 로드
             loadTutorialData();
-            loadDictionaryData();
+            loadMineralData(); 
         };
     </script>
 </body>
