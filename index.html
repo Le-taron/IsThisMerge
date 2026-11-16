@@ -36,6 +36,7 @@
             display: block;
             width: 100%;
             height: 100%;
+            image-rendering: pixelated; /* 안티 에일리어싱 제거 (CSS) */
         }
 
         /* 양피지 색상 테마 클래스 */
@@ -294,7 +295,8 @@
                 <!-- 단락 0: 게임 소개 -->
                 <div id="tut-page-0" class="tut-page flex flex-col items-center justify-center h-full text-center fade-in pb-10">
                     <h2 id="tut-title-0" class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">게임 소개</h2>
-                    <p id="tut-desc-0" class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed whitespace-nowrap">
+                    <!-- break-keep으로 줄바꿈 허용 처리 -->
+                    <p id="tut-desc-0" class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed break-keep px-2">
                         동굴 안에서 고가의 광물을 최대한 많이 발견하세요!
                     </p>
                 </div>
@@ -302,7 +304,7 @@
                 <!-- 단락 1: 플레이 방법 -->
                 <div id="tut-page-1" class="tut-page hidden flex flex-col items-center justify-start h-full text-center fade-in pb-8">
                     <h2 id="tut-title-1" class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">플레이 방법</h2>
-                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full" style="font-size: calc(var(--tile-w, 60px) * 0.182); color: #5a4231; text-shadow: none;">
+                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full break-keep px-2" style="font-size: calc(var(--tile-w, 60px) * 0.182); color: #5a4231; text-shadow: none;">
                         인접한 두 광물을 선택해 더 좋은 광물을 발견하세요!
                     </p>
                     <div class="w-full flex-1 min-h-0 relative flex items-center justify-center overflow-hidden">
@@ -313,7 +315,7 @@
                 <!-- 단락 2: 스킬 -->
                 <div id="tut-page-2" class="tut-page hidden flex flex-col items-center justify-start h-full fade-in pb-10">
                     <h2 id="tut-title-2" class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">스킬</h2>
-                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
+                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0 break-keep px-2" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
                         스킬 버튼을 눌러서 능력을 사용하세요!
                     </p>
                     <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
@@ -753,6 +755,8 @@
             originX = canvas.width / 2;
             const totalGridHeight = GRID_SIZE * tileH;
             originY = (canvas.height - totalGridHeight) / 2 + (tileH * 0.5); 
+
+            ctx.imageSmoothingEnabled = false; // 리사이즈 시 안티 에일리어싱 해제 유지
         }
 
         function getScreenXY(r, c) {
@@ -790,6 +794,7 @@
             }
             
             const pCtx = previewCanvas.getContext('2d');
+            pCtx.imageSmoothingEnabled = false; // 안티 에일리어싱 제거
             pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
             
             const centerX = previewCanvas.width / 2;
@@ -1345,6 +1350,7 @@
             tempCanvas.style.width = `${mineralSize}px`;
             tempCanvas.style.height = `${mineralSize}px`;
             const tCtx = tempCanvas.getContext('2d');
+            tCtx.imageSmoothingEnabled = false; // 안티 에일리어싱 제거
             
             drawMineral(tCtx, mineralSize / 2, mineralSize / 2, mineralSize * 0.45, mineralLevel, !isDiscovered);
             
@@ -1548,6 +1554,7 @@
             tCanvas.height = rect.height;
             
             const ctx = tCanvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false; // 안티 에일리어싱 제거
             ctx.clearRect(0,0, tCanvas.width, tCanvas.height);
             
             const w = tCanvas.width;
