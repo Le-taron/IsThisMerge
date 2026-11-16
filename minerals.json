@@ -1,1 +1,64 @@
-
+{
+"minerals": {
+"1": {
+"name": "돌",
+"settlementScore": 0,
+"texturePath": "resources/textures/stone.png",
+"description": "돌에 대한 설명"
+},
+"2": {
+"name": "구리",
+"settlementScore": 150,
+"texturePath": "resources/textures/copper.png",
+"description": "구리에 대한 설명"
+},
+"3": {
+"name": "은",
+"settlementScore": 400,
+"texturePath": "resources/textures/",
+"description": "은에 대한 설명"
+},
+"4": {
+"name": "금",
+"settlementScore": 1200,
+"texturePath": "resources/textures/",
+"description": "금에 대한 설명"
+},
+"5": {
+"name": "감람석",
+"settlementScore": 3200,
+"texturePath": "resources/textures/",
+"description": "감람석에 대한 설명"
+},
+"6": {
+"name": "자수정",
+"settlementScore": 9600,
+"texturePath": "resources/textures/",
+"description": "자수정에 대한 설명"
+},
+"7": {
+"name": "사파이어",
+"settlementScore": 25600,
+"texturePath": "resources/textures/",
+"description": "사파이어에 대한 설명"
+},
+"8": {
+"name": "루비",
+"settlementScore": 64000,
+"texturePath": "resources/textures/",
+"description": "루비에 대한 설명"
+},
+"9": {
+"name": "에메랄드",
+"settlementScore": 192000,
+"texturePath": "resources/textures/",
+"description": "에메랄드에 대한 설명"
+},
+"10": {
+"name": "다이아몬드",
+"settlementScore": 512000,
+"texturePath": "resources/textures/",
+"description": "다이아몬드에 대한 설명"
+}
+}
+}
