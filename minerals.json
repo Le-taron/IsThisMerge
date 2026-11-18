@@ -38,7 +38,7 @@
 "texturePath": "resources/textures/peridot.png",
 "description": "규산염 광물의 일종인 감람석이다. ",
 "textureScale": 125,
-"textureOffsetY": 20
+"textureOffsetY": -30
 },
 "6": {
 "name": "자수정",
