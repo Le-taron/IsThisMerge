@@ -36,7 +36,7 @@
 "name": "페리도트",
 "settlementScore": 3200,
 "texturePath": "resources/textures/peridot.png",
-"description": "규산염 광물의 일종인 감람석이다. ",
+"description": "규산염 광물의 일종인 감람석이다. 보석으로 금과 함께 장식되는 편이다. 맨틀에 많이 분포해서 그런지 희소한 편은 아니다. ",
 "textureScale": 125,
 "textureOffsetY": -30
 },
@@ -45,8 +45,8 @@
 "settlementScore": 9600,
 "texturePath": "resources/textures/amethyst.png",
 "description": "석영의 일종인 자수정이다. 마치 마력이 깃들었을 듯한 보랏빛이 일품이다. 지니고 있으면 마음이 안정된다는 속설이 떠돈다. ",
-"textureScale": 100,
-"textureOffsetY": 0
+"textureScale": 125,
+"textureOffsetY": -30
 },
 "7": {
 "name": "사파이어",
@@ -60,7 +60,7 @@
 "name": "루비",
 "settlementScore": 64000,
 "texturePath": "resources/textures/ruby_.png",
-"description": "루비에 대한 설명",
+"description": "이것은 해적왕도 핑크 비버도 화폐도 아닌 붉은 루비다. 지니고 있으면 당장이라도 생명의 종착지인 대지를 뒤흔들어 마그마를 샘솟게 하고 싶은 열망이 솟구친다. 사파이어의 변이라는 말이 있는데 진위여부는 아직 확인 안 했다. ",
 "textureScale": 100,
 "textureOffsetY": 0
 },
@@ -68,7 +68,7 @@
 "name": "에메랄드",
 "settlementScore": 192000,
 "texturePath": "resources/textures/emerald_.png",
-"description": "에메랄드에 대한 설명",
+"description": "맑은 청색의 보석이다. 지니고 있으면 드높은 창공에서 반경 20미터 범위로 빗발치는 운석에 맞아 하늘 높이 승천해버릴 것만 같은 황홀함을 느낄 수 있다. 어느 지역에서는 화폐로 사용된다고 알려졌으나 이 보석의 희소성을 고려한다면 택도 없는 소리이므로 주의하자. ",
 "textureScale": 100,
 "textureOffsetY": 0
 },
@@ -76,7 +76,7 @@
 "name": "다이아몬드",
 "settlementScore": 512000,
 "texturePath": "resources/textures/diamond_.png",
-"description": "다이아몬드에 대한 설명",
+"description": "부서지지 않는다는 다이아몬드다. 이런 상징성에 걸맞게 자연 광물 중에서는 적수가 없는 강도를 자랑하나, 아이러니하게도 물에 댕강 썰려버린다. 그러므로 다이아몬드는 부서진다. 가공했다는 사실만으로 금강불괴의 광물은 아니라는 것이 증명된 셈이지만 과연 다이아몬드가 약한 것일까, 물이 강한 것일까? ",
 "textureScale": 100,
 "textureOffsetY": 0
 }
