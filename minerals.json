@@ -27,37 +27,37 @@
 "5": {
 "name": "페리도트",
 "settlementScore": 3200,
-"texturePath": "resources/textures/",
+"texturePath": "resources/textures/peridot.png",
 "description": "규산염 광물의 일종인 감람석이다. "
 },
 "6": {
 "name": "자수정",
 "settlementScore": 9600,
-"texturePath": "resources/textures/",
+"texturePath": "resources/textures/amethyst.png",
 "description": "석영의 일종인 자수정이다. 마치 마력이 깃들었을 듯한 보랏빛이 일품이다. 지니고 있으면 마음이 안정된다는 속설이 떠돈다. "
 },
 "7": {
 "name": "사파이어",
 "settlementScore": 25600,
-"texturePath": "resources/textures/",
+"texturePath": "resources/textures/sappire_.png",
 "description": "영롱한 푸른 색을 지닌 사파이어다. 지니고 있으면 당장이라도 생명의 시발점인 바닷물을 불러일으키고 싶은 충동이 일어난다. 블랙 사파이어는 광물이 아닌 개똥같은 과일이다. "
 },
 "8": {
 "name": "루비",
 "settlementScore": 64000,
-"texturePath": "resources/textures/",
+"texturePath": "resources/textures/ruby_.png",
 "description": "루비에 대한 설명"
 },
 "9": {
 "name": "에메랄드",
 "settlementScore": 192000,
-"texturePath": "resources/textures/",
+"texturePath": "resources/textures/emerald_.png",
 "description": "에메랄드에 대한 설명"
 },
 "10": {
 "name": "다이아몬드",
 "settlementScore": 512000,
-"texturePath": "resources/textures/",
+"texturePath": "resources/textures/diamond_.png",
 "description": "다이아몬드에 대한 설명"
 }
 }
