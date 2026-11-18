@@ -22,25 +22,25 @@
 "name": "금",
 "settlementScore": 1200,
 "texturePath": "resources/textures/gold.png",
-"description": "금에 대한 설명"
+"description": "번쩍거리는 금이다. 동서고금을 불문하고 부와 권력의 상징으로 여겨진다. 하지만 이빨로 뭉갤 수 있을 정도로 무른 게 함정. "
 },
 "5": {
-"name": "감람석",
+"name": "페리도트",
 "settlementScore": 3200,
 "texturePath": "resources/textures/",
-"description": "감람석에 대한 설명"
+"description": "규산염 광물의 일종인 감람석이다. "
 },
 "6": {
 "name": "자수정",
 "settlementScore": 9600,
 "texturePath": "resources/textures/",
-"description": "자수정에 대한 설명"
+"description": "석영의 일종인 자수정이다. 마치 마력이 깃들었을 듯한 보랏빛이 일품이다. 지니고 있으면 마음이 안정된다는 속설이 떠돈다. "
 },
 "7": {
 "name": "사파이어",
 "settlementScore": 25600,
 "texturePath": "resources/textures/",
-"description": "사파이어에 대한 설명"
+"description": "영롱한 푸른 색을 지닌 사파이어다. 지니고 있으면 당장이라도 생명의 시발점인 바닷물을 불러일으키고 싶은 충동이 일어난다. 블랙 사파이어는 광물이 아닌 개똥같은 과일이다. "
 },
 "8": {
 "name": "루비",
