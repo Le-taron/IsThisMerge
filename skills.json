@@ -8,7 +8,7 @@
 "baseCooldownType": "summon"
 },
 "mining": {
-"iconPath": "resources/textures/icon_pickaxe.png",
+"iconPath": "resources/textures/icon_destroy.png",
 "initialCooldown": 8,
 "baseCooldown": 20,
 "initialCooldownType": "merge",
