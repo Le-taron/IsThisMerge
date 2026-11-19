@@ -1,18 +1,52 @@
-<script src="http://unpkg.com/tone"></script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>8비트 레트로 사운드</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <style>
+    button { padding: 15px 30px; font-size: 16px; margin: 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
 
-<button>재생</button>
-//attach a click listener to a play button
-document.querySelector("button")?.addEventListener("click", async () => {
-	await Tone.start();
-	console.log("audio is ready");
-});
+  <button id="coin-btn">🪙 코인 획득 소리</button>
+  <button id="jump-btn">⬆️ 점프 소리</button>
 
-const retroSynth = new Tone.Synth({
-  oscillator: {
-    type: "square" // "sawtooth"로 바꿔도 거친 전자음이 납니다.
-  }
-}).toDestination();
+  <script>
+    // 8비트 스타일 신디사이저 설정 (사각파 + 짧게 끊어지는 소리)
+    const retroSynth = new Tone.Synth({
+      oscillator: {
+        type: "triangle" // 8비트 특유의 찌릿한 사각파
+      },
+      envelope: {
+        attack: 0.01,  // 소리가 즉시 남
+        decay: 0.2,    // 빠르게 줄어듦
+        sustain: 0.1,
+        release: 0.1
+      }
+    }).toDestination();
 
-retroSynth.triggerAttackRelease("C4", "8n");
+    // 코인 획득 소리 (빠르게 두 음을 연속 재생)
+    document.getElementById("coin-btn").addEventListener("click", async () => {
+      await Tone.start();
+      const now = Tone.now();
+      
+      retroSynth.triggerAttackRelease("B5", "16n", now);         // 첫 번째 음
+      retroSynth.triggerAttackRelease("E6", "8n", now + 0.1);    // 0.1초 뒤에 더 높은 음
+    });
 
-</script>
+    // 점프 소리 (음정이 빠르게 올라가는 효과)
+    document.getElementById("jump-btn").addEventListener("click", async () => {
+      await Tone.start();
+      const now = Tone.now();
+      
+      retroSynth.triggerAttackRelease("C4", "8n", now);
+      
+      // frequency(주파수)를 0.1초 동안 C4에서 C5로 부드럽게(ramp) 올려줍니다.
+      retroSynth.frequency.rampTo("C5", 0.1); 
+    });
+  </script>
+
+</body>
+</html>
