@@ -1,14 +1,14 @@
 {
 "skills": {
 "select": {
-"iconPath": "resources/textures/",
+"iconPath": "resources/textures/icon_select.png",
 "initialCooldown": 4,
 "baseCooldown": 10,
 "initialCooldownType": "merge",
 "baseCooldownType": "summon"
 },
 "mining": {
-"iconPath": "resources/textures/",
+"iconPath": "resources/textures/icon_pickaxe.png",
 "initialCooldown": 8,
 "baseCooldown": 20,
 "initialCooldownType": "merge",
