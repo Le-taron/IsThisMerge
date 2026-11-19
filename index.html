@@ -180,23 +180,23 @@
 
             <!-- 하단 좌측 컨트롤 (스킬 버튼) -->
             <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-left">
-                <!-- 📌 핀 -->
+                <!-- 📌 핀 (Select) -->
                 <button id="skill-pin-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
-                    <span>📌</span>
+                    <span id="skill-pin-icon" class="flex items-center justify-center w-full h-full text-[inherit]">📌</span>
                     <div id="skill-pin-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
                     <div id="skill-pin-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">6</div>
                 </button>
 
-                <!-- ⛏️ 곡괭이 (파괴) -->
+                <!-- ⛏️ 곡괭이 (Mining) -->
                 <button id="skill-hammer-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
-                    <span>⛏️</span>
+                    <span id="skill-hammer-icon" class="flex items-center justify-center w-full h-full text-[inherit]">⛏️</span>
                     <div id="skill-hammer-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
                     <div id="skill-hammer-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">8</div>
                 </button>
 
-                <!-- 🔁 교체 -->
+                <!-- 🔁 교체 (Change) -->
                 <button id="skill-swap-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
-                    <span>🔁</span>
+                    <span id="skill-swap-icon" class="flex items-center justify-center w-full h-full text-[inherit]">🔁</span>
                     <div id="skill-swap-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
                     <div id="skill-swap-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">12</div>
                 </button>
@@ -319,19 +319,7 @@
                         스킬 버튼을 눌러서 능력을 사용하세요!
                     </p>
                     <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
-                        <!-- 기본값(Fallback) 텍스트 -->
-                        <div class="flex items-start">
-                            <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">📌</span>
-                            <p class="leading-tight mt-0.5"><span class="font-black">지정:</span> 다음 광물을 원하는 위치에 놓을 수 있다.</p>
-                        </div>
-                        <div class="flex items-start">
-                            <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">⛏️</span>
-                            <p class="leading-tight mt-0.5"><span class="font-black">파괴:</span> 원하는 광물을 제거할 수 있다.</p>
-                        </div>
-                        <div class="flex items-start">
-                            <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">🔁</span>
-                            <p class="leading-tight mt-0.5"><span class="font-black">교체:</span> 서로 다른 두 광물의 위치를 맞바꿀 수 있다.</p>
-                        </div>
+                        <!-- 동적으로 로드되는 텍스트 공간 -->
                     </div>
                 </div>
 
@@ -357,7 +345,8 @@
     </div>
 
     <script>
-        // ------------------ 외부 튜토리얼 텍스트 불러오기 ------------------
+        // ------------------ 외부 데이터 연동 (비동기) ------------------
+        
         async function loadTutorialData() {
             try {
                 const response = await fetch('tutorial.json');
@@ -393,11 +382,10 @@
                     }
                 }
             } catch (error) {
-                console.log('tutorial.json을 불러오지 못했습니다. 기존 HTML의 기본 텍스트를 사용합니다.', error);
+                console.log('tutorial.json을 불러오지 못했습니다.', error);
             }
         }
 
-        // ------------------ 통합 외부 광물 정보 불러오기 ------------------
         let externalMinerals = {};
         const preloadedTextures = {};
         
@@ -408,10 +396,8 @@
                 const data = await response.json();
                 externalMinerals = data.minerals || {};
                 
-                // 텍스쳐 프리로드 로직
                 for (let key in externalMinerals) {
                     const path = externalMinerals[key].texturePath;
-                    // 경로가 파일명까지 지정되었을 경우에만 프리로드 진행
                     if (path && path.trim() !== "resources/textures/" && path.trim() !== "") {
                         const img = new Image();
                         img.src = path;
@@ -421,6 +407,43 @@
             } catch (error) {
                 console.log('minerals.json을 불러오지 못했습니다. 기본 내장 양식을 사용합니다.', error);
             }
+        }
+
+        // 스킬 설정 초기값
+        let skillConfigs = {
+            select: { iconPath: "", initialCooldown: 6, baseCooldown: 12, initialCooldownType: 'merge', baseCooldownType: 'summon' },
+            mining: { iconPath: "", initialCooldown: 8, baseCooldown: 28, initialCooldownType: 'merge', baseCooldownType: 'merge' },
+            change: { iconPath: "", initialCooldown: 12, baseCooldown: 20, initialCooldownType: 'merge', baseCooldownType: 'merge' }
+        };
+
+        async function loadSkillData() {
+            try {
+                const response = await fetch('skills.json');
+                if (!response.ok) throw new Error('Failed to load JSON');
+                const data = await response.json();
+                if (data.skills) {
+                    if (data.skills.select) skillConfigs.select = { ...skillConfigs.select, ...data.skills.select };
+                    if (data.skills.mining) skillConfigs.mining = { ...skillConfigs.mining, ...data.skills.mining };
+                    if (data.skills.change) skillConfigs.change = { ...skillConfigs.change, ...data.skills.change };
+                }
+            } catch (error) {
+                console.log('skills.json을 불러오지 못했습니다. 기본 쿨타임 설정을 사용합니다.', error);
+            }
+
+            // 아이콘 UI 갱신 함수
+            const updateSkillIconUI = (config, domId, fallbackEmoji) => {
+                const el = document.getElementById(domId);
+                const path = config.iconPath;
+                if (path && path.trim() !== "" && path.trim() !== "resources/textures/") {
+                    el.innerHTML = `<img src="${path}" class="w-[60%] h-[60%] object-contain" style="image-rendering: pixelated;" onerror="this.outerHTML='${fallbackEmoji}'">`;
+                } else {
+                    el.innerText = fallbackEmoji;
+                }
+            };
+
+            updateSkillIconUI(skillConfigs.select, 'skill-pin-icon', '📌');
+            updateSkillIconUI(skillConfigs.mining, 'skill-hammer-icon', '⛏️');
+            updateSkillIconUI(skillConfigs.change, 'skill-swap-icon', '🔁');
         }
 
         // ------------------ 기존 게임 로직 ------------------
@@ -437,6 +460,7 @@
 
         let discoveredMinerals = new Set();
 
+        // 스킬 상태 변수
         let targetedSpawnCooldown = 6;
         let targetedIsFirstUse = true;
         let isAwaitingTargetSelection = false;
@@ -446,6 +470,7 @@
         let isAwaitingRemoveSelection = false;
         
         let swapSkillCooldown = 12;
+        let swapIsFirstUse = true;
         let isAwaitingSwapSelection = false;
         let swapFirstTarget = null;
 
@@ -461,7 +486,6 @@
             settlementCount: {}
         };
 
-        // 기본(Fallback) 광물 데이터
         const SETTLEMENT_SCORES = {
             1: 0, 2: 150, 3: 400, 4: 1200, 5: 3200,
             6: 9600, 7: 25600, 8: 64000, 9: 192000, 10: 512000
@@ -480,7 +504,6 @@
             10: { name: '다이아몬드', base: '#F0F9FF', point: '#FBBF24', shadow: '#E0F2FE', highlight: '#FFFFFF', highlight2: '#FFFFFF', highlight3: '#FFFFFF' },
         };
 
-        // 광물 정보 통합 반환 함수 (JSON 우선, 없을 시 Fallback)
         function getMineralInfo(level) {
             const ext = externalMinerals[level];
             const fb = MINERAL_COLORS[level] || MINERAL_COLORS[1];
@@ -500,20 +523,32 @@
             }
         }
 
-        function drawMineral(targetCtx, x, y, radius, level, isUnknown = false) {
+        // 특정 트리거(summon 또는 merge)가 발생했을 때 설정에 따라 쿨타임을 감소시키는 통합 함수
+        function decrementCooldowns(triggerType) {
+            // Select (Pin)
+            const sConf = skillConfigs.select;
+            const sType = targetedIsFirstUse ? sConf.initialCooldownType : sConf.baseCooldownType;
+            if (sType === triggerType && targetedSpawnCooldown > 0) targetedSpawnCooldown--;
+
+            // Mining (Hammer)
+            const mConf = skillConfigs.mining;
+            const mType = removeIsFirstUse ? mConf.initialCooldownType : mConf.baseCooldownType;
+            if (mType === triggerType && removeSkillCooldown > 0) removeSkillCooldown--;
+
+            // Change (Swap)
+            const cConf = skillConfigs.change;
+            const cType = swapIsFirstUse ? cConf.initialCooldownType : cConf.baseCooldownType;
+            if (cType === triggerType && swapSkillCooldown > 0) swapSkillCooldown--;
+        }
+
+        function drawMineral(targetCtx, x, y, radius, level, isUnknown = false, ignoreTransform = false) {
             if (!isUnknown && preloadedTextures[level] && preloadedTextures[level].complete) {
-                // 커스텀 텍스쳐가 로드되었을 경우 이미지를 그림
                 const img = preloadedTextures[level];
-                
-                // JSON에서 크기(%) 및 상하 위치(%) 값을 가져옵니다. 미입력 시 기본값 (크기 100%, 오프셋 0%)
                 const ext = externalMinerals[level];
-                const scalePercent = (ext && ext.textureScale !== undefined) ? ext.textureScale : 100;
-                const offsetPercent = (ext && ext.textureOffsetY !== undefined) ? ext.textureOffsetY : 0;
+                const scalePercent = (!ignoreTransform && ext && ext.textureScale !== undefined) ? ext.textureScale : 100;
+                const offsetPercent = (!ignoreTransform && ext && ext.textureOffsetY !== undefined) ? ext.textureOffsetY : 0;
                 
                 const scale = scalePercent / 100;
-                
-                // 1타일 세로 길이를 100% 기준으로 환산 (현재 캔버스 스케일에 맞춤 보정)
-                // 기본 게임판 타일의 radius는 tileW * 0.32 이므로 이를 기준으로 비율을 맞춥니다.
                 const localTileH = (typeof tileH !== 'undefined' && typeof tileW !== 'undefined' && tileW > 0) 
                                    ? tileH * (radius / (tileW * 0.32)) 
                                    : radius * 2.5; 
@@ -525,7 +560,6 @@
                 return;
             }
 
-            // 기본 내장 도형 렌더링
             const baseColor = MINERAL_COLORS[level] || MINERAL_COLORS[1];
             const color = isUnknown ? {
                 base: '#2a2a2a', point: '#111111', shadow: '#1a1a1a', highlight: '#3a3a3a', highlight2: '#4a4a4a', highlight3: '#555555'
@@ -599,22 +633,23 @@
             
             resetStats();
 
-            targetedSpawnCooldown = 6;
+            // 스킬 쿨타임 초기화
+            targetedSpawnCooldown = skillConfigs.select.initialCooldown;
             targetedIsFirstUse = true;
             isAwaitingTargetSelection = false;
             
-            removeSkillCooldown = 8;
+            removeSkillCooldown = skillConfigs.mining.initialCooldown;
             removeIsFirstUse = true;
             isAwaitingRemoveSelection = false;
             
-            swapSkillCooldown = 12;
+            swapSkillCooldown = skillConfigs.change.initialCooldown;
+            swapIsFirstUse = true;
             isAwaitingSwapSelection = false;
             swapFirstTarget = null;
             
             particles = [];
             floatingTexts = [];
             
-            updateScoreDisplay();
             updateSkillUI();
             
             const gameOverUI = document.getElementById('game-over');
@@ -630,12 +665,23 @@
             
             discoveredMinerals.add(1);
 
+            updateScoreDisplay();
+
             resize();
         }
 
         function updateScoreDisplay() {
+            let currentBoardScore = 0;
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (grid[r][c] && grid[r][c].level > 0) {
+                        currentBoardScore += getMineralInfo(grid[r][c].level).settlementScore;
+                    }
+                }
+            }
+            const total = score + currentBoardScore;
             const scoreEl = document.getElementById('score-display');
-            if (scoreEl) scoreEl.innerText = score.toLocaleString();
+            if (scoreEl) scoreEl.innerText = total.toLocaleString();
         }
 
         function updateSkillUI() {
@@ -730,6 +776,15 @@
                 swapOverlayUI.classList.remove('hidden');
                 swapCooldownUI.classList.remove('hidden');
                 swapCooldownUI.innerText = swapSkillCooldown;
+
+                if (swapIsFirstUse) {
+                    swapCooldownUI.classList.remove(whiteText);
+                    swapCooldownUI.classList.add(yellowText);
+                } else {
+                    swapCooldownUI.classList.remove(yellowText);
+                    swapCooldownUI.classList.add(whiteText);
+                }
+
                 isAwaitingSwapSelection = false;
                 swapFirstTarget = null;
                 swapBtn.classList.remove(yellowGlow, blueGlow);
@@ -773,7 +828,7 @@
             const totalGridHeight = GRID_SIZE * tileH;
             originY = (canvas.height - totalGridHeight) / 2 + (tileH * 0.5); 
 
-            ctx.imageSmoothingEnabled = false; // 리사이즈 시 안티 에일리어싱 해제 유지
+            ctx.imageSmoothingEnabled = false; 
         }
 
         function getScreenXY(r, c) {
@@ -811,7 +866,7 @@
             }
             
             const pCtx = previewCanvas.getContext('2d');
-            pCtx.imageSmoothingEnabled = false; // 안티 에일리어싱 제거
+            pCtx.imageSmoothingEnabled = false; 
             pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
             
             const centerX = previewCanvas.width / 2;
@@ -857,22 +912,17 @@
             discoveredMinerals.add(nextSpawnLevel);
 
             if (!isTargeted) {
-                gameStats.spawnCount++; // 생성 횟수 통계 업데이트
+                gameStats.spawnCount++;
+                decrementCooldowns('summon'); // 생성(summon) 시 쿨타임 감소 트리거 작동
+            } else {
+                targetedSpawnCooldown = skillConfigs.select.baseCooldown;
+                targetedIsFirstUse = false;
+                isAwaitingTargetSelection = false;
             }
 
             generateNextSpawn();
-
-            if (isTargeted) {
-                targetedSpawnCooldown = 12;
-                targetedIsFirstUse = false;
-                isAwaitingTargetSelection = false;
-            } else {
-                if (!targetedIsFirstUse && targetedSpawnCooldown > 0) targetedSpawnCooldown--;
-            }
-
-            if (!removeIsFirstUse && removeSkillCooldown > 0) removeSkillCooldown--;
-            
             updateSkillUI();
+            updateScoreDisplay();
 
             if (getEmptyCount() === 0) {
                 triggerGameOver();
@@ -883,7 +933,6 @@
             const container = document.getElementById('stats-container');
             container.innerHTML = '';
             
-            // 통계 목차 및 수치 텍스트 크기 비율 조정 (점수 텍스트(5cqh) 기준 90%, 70%)
             const headerSize = '4.5cqh';
             const valueSize = '3.5cqh';
             
@@ -922,7 +971,6 @@
                 return div;
             };
 
-            // 1. 기본 통계
             const basic = createSec('기본 통계');
             basic.grid.appendChild(createRow('생성 횟수', gameStats.spawnCount));
             basic.grid.appendChild(createRow('📌 지정', gameStats.skillUsage.pin));
@@ -930,7 +978,6 @@
             basic.grid.appendChild(createRow('🔁 교체', gameStats.skillUsage.swap));
             container.appendChild(basic.sec);
             
-            // 2. 광물별 배양 횟수
             const cult = createSec('광물별 배양 횟수');
             for (let i = 1; i <= MAX_LEVEL; i++) {
                 if (gameStats.cultivationCount[i] > 0) {
@@ -939,7 +986,6 @@
             }
             if (cult.grid.children.length > 0) container.appendChild(cult.sec);
             
-            // 3. 결산 (갯수와 결산 점수 합을 함께 표시)
             const sett = createSec('결산');
             for (let i = 1; i <= MAX_LEVEL; i++) {
                 if (gameStats.settlementCount[i] > 0) {
@@ -955,18 +1001,18 @@
             isGameOver = true;
             selectedCell = null;
             
-            let settlementScore = 0; // 잔여 보드 결산
+            let settlementScore = 0; 
             for (let r = 0; r < GRID_SIZE; r++) {
                 for (let c = 0; c < GRID_SIZE; c++) {
                     const level = grid[r][c].level;
                     if (level > 0) {
-                        gameStats.settlementCount[level]++; // 결산 갯수 업데이트
+                        gameStats.settlementCount[level]++; 
                         settlementScore += getMineralInfo(level).settlementScore;
                     }
                 }
             }
             
-            renderStats(); // 통계 렌더링
+            renderStats(); 
             
             const finalTotalScore = score + settlementScore;
             
@@ -1012,8 +1058,7 @@
                 const newLevel = firstCell.level + 1;
                 
                 if (newLevel <= MAX_LEVEL) {
-                    // 점수 획득(배양) 로직 제거됨. 점수는 파괴 시에만 얻음
-                    gameStats.cultivationCount[newLevel]++; // 배양 통계 업데이트
+                    gameStats.cultivationCount[newLevel]++; 
 
                     cell.level = newLevel;
                     cell.bounce = 1.5;
@@ -1029,11 +1074,10 @@
                     firstCell.scale = 0;
                     selectedCell = null;
                     
-                    if (targetedIsFirstUse && targetedSpawnCooldown > 0) targetedSpawnCooldown--;
-                    if (removeIsFirstUse && removeSkillCooldown > 0) removeSkillCooldown--;
-                    if (swapSkillCooldown > 0) swapSkillCooldown--;
+                    decrementCooldowns('merge'); // 합성(merge) 시 쿨타임 감소 트리거 작동
                     
                     updateSkillUI();
+                    updateScoreDisplay();
                 } else {
                     selectedCell = null;
                 }
@@ -1367,9 +1411,9 @@
             tempCanvas.style.width = `${mineralSize}px`;
             tempCanvas.style.height = `${mineralSize}px`;
             const tCtx = tempCanvas.getContext('2d');
-            tCtx.imageSmoothingEnabled = false; // 안티 에일리어싱 제거
+            tCtx.imageSmoothingEnabled = false; 
             
-            drawMineral(tCtx, mineralSize / 2, mineralSize / 2, mineralSize * 0.45, mineralLevel, !isDiscovered);
+            drawMineral(tCtx, mineralSize / 2, mineralSize / 2, mineralSize * 0.45, mineralLevel, !isDiscovered, true);
             
             if (!isDiscovered) {
                 tCtx.fillStyle = '#ffffff';
@@ -1390,7 +1434,6 @@
             nameLabel.style.fontSize = `${nameFontSize}px`;
             nameLabel.innerText = isDiscovered ? mineralInfo.name : '???';
             
-            // 점수 컨테이너 (결산 점수만 표기)
             const scoresDiv = document.createElement('div');
             scoresDiv.className = 'flex justify-center items-center z-0 opacity-80 w-full mt-2';
             
@@ -1492,7 +1535,6 @@
             }
         });
 
-        // 바탕을 누르면 닫기 동작 유지
         dictModal.addEventListener('pointerdown', (e) => {
             if (e.target === dictModal) {
                 e.preventDefault();
@@ -1571,7 +1613,7 @@
             tCanvas.height = rect.height;
             
             const ctx = tCanvas.getContext('2d');
-            ctx.imageSmoothingEnabled = false; // 안티 에일리어싱 제거
+            ctx.imageSmoothingEnabled = false; 
             ctx.clearRect(0,0, tCanvas.width, tCanvas.height);
             
             const w = tCanvas.width;
@@ -1765,10 +1807,8 @@
                     gameStats.skillUsage.hammer++;
                     const targetCell = grid[clickedR][clickedC];
                     
-                    // 파괴(망치) 스킬 사용 시 해당 광물의 결산 점수를 획득
                     const gainedScore = getMineralInfo(targetCell.level).settlementScore;
                     score += gainedScore;
-                    updateScoreDisplay();
 
                     const {x: tx, y: ty} = getScreenXY(clickedR, clickedC);
                     const itemRadius = tileW * 0.32 * targetCell.scale * targetCell.bounce;
@@ -1782,10 +1822,13 @@
                     grid[clickedR][clickedC].level = 0;
                     grid[clickedR][clickedC].scale = 0;
                     
-                    removeSkillCooldown = 28;
+                    // 파괴(망치) 스킬 사용 처리
+                    removeSkillCooldown = skillConfigs.mining.baseCooldown;
                     removeIsFirstUse = false;
                     isAwaitingRemoveSelection = false;
+                    
                     updateSkillUI();
+                    updateScoreDisplay();
                 }
                 return;
             }
@@ -1812,9 +1855,12 @@
                             grid[swapFirstTarget.r][swapFirstTarget.c].scale = tempScale;
                             grid[swapFirstTarget.r][swapFirstTarget.c].bounce = 1.5;
                             
-                            swapSkillCooldown = 20; 
+                            // 교체(스왑) 스킬 사용 처리
+                            swapSkillCooldown = skillConfigs.change.baseCooldown; 
+                            swapIsFirstUse = false;
                             isAwaitingSwapSelection = false;
                             swapFirstTarget = null;
+                            
                             updateSkillUI();
                         }
                     }
@@ -1829,12 +1875,16 @@
             }
         });
 
-        window.onload = () => {
+        window.onload = async () => {
+            // 게임 시작 전 모든 외부 JSON 파일 로드 보장
+            await Promise.all([
+                loadTutorialData(),
+                loadMineralData(),
+                loadSkillData()
+            ]);
+            
             init();
             requestAnimationFrame(draw);
-            // JSON 데이터를 차례로 로드
-            loadTutorialData();
-            loadMineralData(); 
         };
     </script>
 </body>
