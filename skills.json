@@ -1,0 +1,25 @@
+{
+"skills": {
+"select": {
+"iconPath": "resources/textures/",
+"initialCooldown": 4,
+"baseCooldown": 10,
+"initialCooldownType": "merge",
+"baseCooldownType": "summon"
+},
+"mining": {
+"iconPath": "resources/textures/",
+"initialCooldown": 8,
+"baseCooldown": 20,
+"initialCooldownType": "merge",
+"baseCooldownType": "merge"
+},
+"change": {
+"iconPath": "resources/textures/",
+"initialCooldown": 12,
+"baseCooldown": 30,
+"initialCooldownType": "merge",
+"baseCooldownType": "merge"
+}
+}
+}
