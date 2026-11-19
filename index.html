@@ -388,6 +388,8 @@
 
         let externalMinerals = {};
         const preloadedTextures = {};
+        let MAX_LEVEL = 10; // json 파일에서 불러온 값에 따라 동적으로 변경됩니다.
+        let maxSpreads = 5; // 도감 페이지 수 역시 동적으로 계산됩니다.
         
         async function loadMineralData() {
             try {
@@ -396,16 +398,31 @@
                 const data = await response.json();
                 externalMinerals = data.minerals || {};
                 
-                for (let key in externalMinerals) {
-                    const path = externalMinerals[key].texturePath;
-                    if (path && path.trim() !== "resources/textures/" && path.trim() !== "") {
-                        const img = new Image();
-                        img.src = path;
-                        preloadedTextures[key] = img;
+                const declaredTotal = data.totalCount || 10;
+                let validMaxLevel = 0;
+                
+                for (let i = 1; i <= declaredTotal; i++) {
+                    if (externalMinerals[i]) {
+                        validMaxLevel = i;
+                        const path = externalMinerals[i].texturePath;
+                        if (path && path.trim() !== "resources/textures/" && path.trim() !== "") {
+                            const img = new Image();
+                            img.src = path;
+                            preloadedTextures[i] = img;
+                        }
+                    } else {
+                        // 데이터가 비어있을 때 예외 처리
+                        if (i <= 10) {
+                            validMaxLevel = i; // 10번까지는 내장 데이터(fallback) 사용 허용
+                        } else {
+                            break; // 11번 이상부터 데이터가 없으면 순회 종료하고 무시
+                        }
                     }
                 }
+                MAX_LEVEL = validMaxLevel > 0 ? validMaxLevel : 10;
             } catch (error) {
                 console.log('minerals.json을 불러오지 못했습니다. 기본 내장 양식을 사용합니다.', error);
+                MAX_LEVEL = 10;
             }
         }
 
@@ -451,7 +468,6 @@
         const ctx = canvas.getContext('2d', { alpha: false });
 
         const GRID_SIZE = 6;
-        const MAX_LEVEL = 10;
         let grid = [];
         let nextSpawnLevel = 1;
         let selectedCell = null;
@@ -517,6 +533,9 @@
         function resetStats() {
             gameStats.spawnCount = 0;
             gameStats.skillUsage = { pin: 0, hammer: 0, swap: 0 };
+            gameStats.cultivationCount = {};
+            gameStats.settlementCount = {};
+            // 데이터 로드 이후 측정된 MAX_LEVEL 기준으로 통계 객체를 동적으로 생성합니다.
             for (let i = 1; i <= MAX_LEVEL; i++) {
                 gameStats.cultivationCount[i] = 0;
                 gameStats.settlementCount[i] = 0;
@@ -1057,6 +1076,8 @@
             if (isAdjacent && isSameLevel) {
                 const newLevel = firstCell.level + 1;
                 
+                // 마지막 광물 합성 제한 로직: 
+                // newLevel이 갱신된 MAX_LEVEL보다 작거나 같을 때만 합성이 허용됩니다.
                 if (newLevel <= MAX_LEVEL) {
                     gameStats.cultivationCount[newLevel]++; 
 
@@ -1378,7 +1399,6 @@
         const dictContent = document.getElementById('dictionary-content');
 
         let dictCurrentSpread = 0;
-        const maxSpreads = 5;
 
         function renderDictionaryPage(container, mineralLevel) {
             container.innerHTML = '';
@@ -1497,6 +1517,8 @@
         }
 
         function openDictionary() {
+            // 현재 MAX_LEVEL에 맞추어 도감의 최대 펼침 횟수(페이지)를 재계산합니다.
+            maxSpreads = Math.ceil(MAX_LEVEL / 2);
             dictCurrentSpread = 0;
             dictModal.classList.remove('hidden');
             void dictModal.offsetWidth;
