@@ -46,11 +46,18 @@
             color: #5a4231;
         }
 
+        /* 커스텀 UI 텍스처 적용 시 기본 배경/테두리 투명화 및 특정 장식 숨김 */
+        .has-ui-texture {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            border-width: 0px !important;
         /* 커스텀 UI 텍스처 적용 시 기본 배경/테두리 투명화 */
         .has-ui-texture {
             background-color: transparent !important;
             border-color: transparent !important;
             border-width: 0px !important;
+            border-radius: 0px !important;
+            overflow: visible !important;
         }
 
         /* 반응형 UI 크기 조절용 클래스 */
@@ -213,21 +220,18 @@
                 <!-- 📌 핀 (Select) -->
                 <button id="skill-pin-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
                     <span id="skill-pin-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">📌</span>
-                    <div id="skill-pin-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px] z-10"></div>
                     <div id="skill-pin-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20" style="border-width: var(--skill-cd-border, 2px);">6</div>
                 </button>
 
                 <!-- ⛏️ 곡괭이 (Mining) -->
                 <button id="skill-hammer-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
                     <span id="skill-hammer-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">⛏️</span>
-                    <div id="skill-hammer-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px] z-10"></div>
                     <div id="skill-hammer-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20" style="border-width: var(--skill-cd-border, 2px);">8</div>
                 </button>
 
                 <!-- 🔁 교체 (Change) -->
                 <button id="skill-swap-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
                     <span id="skill-swap-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">🔁</span>
-                    <div id="skill-swap-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px] z-10"></div>
                     <div id="skill-swap-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20" style="border-width: var(--skill-cd-border, 2px);">12</div>
                 </button>
             </div>
@@ -287,12 +291,12 @@
 
         <!-- 도감 오버레이 -->
         <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
-            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-[#8b5a2b]" style="border-width: var(--popup-border, 6px);">
+            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl aspect-[5/3] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-[#8b5a2b]" style="border-width: var(--popup-border, 6px);">
                 <div id="dict-prev-area" class="absolute left-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors"><span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px); -webkit-text-stroke: 0.02em rgba(0,0,0,0.2);">◀</span></div>
                 <div id="dict-next-area" class="absolute right-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors"><span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px); -webkit-text-stroke: 0.02em rgba(0,0,0,0.2);">▶</span></div>
-                <div class="flex w-full h-full relative border-l-2 border-r-2 border-[#dca773]/30 mx-[5%] pointer-events-none relative z-10">
-                    <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-r from-[#dca773]/20 via-[#8b5a2b]/20 to-[#dca773]/20 -translate-x-1/2 z-0"></div>
-                    <div class="absolute left-1/2 top-0 bottom-0 w-px bg-[#5a4231]/10 -translate-x-1/2 z-0"></div>
+                <div id="dict-page-wrapper" class="flex w-full h-full relative border-l-2 border-r-2 border-[#dca773]/30 mx-[5%] pointer-events-none z-10">
+                    <div id="dict-spine-shadow" class="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-r from-[#dca773]/20 via-[#8b5a2b]/20 to-[#dca773]/20 -translate-x-1/2 z-0"></div>
+                    <div id="dict-spine-line" class="absolute left-1/2 top-0 bottom-0 w-px bg-[#5a4231]/10 -translate-x-1/2 z-0"></div>
                     <div id="dict-page-left" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0 pointer-events-auto"></div>
                     <div id="dict-page-right" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0 pointer-events-auto"></div>
                 </div>
@@ -349,7 +353,7 @@
             return config && config.path && config.path.trim() !== "" && config.path.trim() !== "resources/textures/";
         }
 
-        function applyBgTexture(el, config) {
+        function applyBgTexture(el, config, disabledConfig = null) {
             if (!el || !isValidPath(config)) return;
             const img = new Image();
             img.src = config.path;
@@ -358,9 +362,21 @@
                 el.classList.add('has-ui-texture');
                 el.style.isolation = 'isolate';
 
-                const bgImg = document.createElement('img');
+                let bgImg = el.querySelector('.bg-texture-img');
+                if (!bgImg) {
+                    bgImg = document.createElement('img');
+                    bgImg.className = 'bg-texture-img absolute pointer-events-none z-[-1]';
+                    el.appendChild(bgImg);
+                }
+                
+                bgImg.dataset.normalSrc = config.path;
+                bgImg.dataset.normalScale = config.scale;
+                if (isValidPath(disabledConfig)) {
+                    bgImg.dataset.disabledSrc = disabledConfig.path;
+                    bgImg.dataset.disabledScale = disabledConfig.scale;
+                }
+                
                 bgImg.src = config.path;
-                bgImg.className = 'absolute pointer-events-none z-[-1]';
                 bgImg.style.width = `${config.scale}%`;
                 bgImg.style.height = `${config.scale}%`;
                 bgImg.style.left = '50%';
@@ -369,7 +385,6 @@
                 bgImg.style.imageRendering = 'pixelated';
                 bgImg.style.objectFit = 'contain';
                 
-                el.appendChild(bgImg);
                 el.style.borderWidth = '0px';
             };
         }
@@ -382,6 +397,21 @@
                 el.innerText = fallbackEmoji;
             }
         }
+        
+        function setSkillDisabledState(btn, isDisabled) {
+            const bgImg = btn.querySelector('.bg-texture-img');
+            if (bgImg) {
+                if (isDisabled && bgImg.dataset.disabledSrc) {
+                    bgImg.src = bgImg.dataset.disabledSrc;
+                    bgImg.style.width = `${bgImg.dataset.disabledScale}%`;
+                    bgImg.style.height = `${bgImg.dataset.disabledScale}%`;
+                } else {
+                    bgImg.src = bgImg.dataset.normalSrc;
+                    bgImg.style.width = `${bgImg.dataset.normalScale}%`;
+                    bgImg.style.height = `${bgImg.dataset.normalScale}%`;
+                }
+            }
+        }
 
         async function loadUIData() {
             try {
@@ -392,19 +422,23 @@
 
                 // Static Backgrounds
                 applyBgTexture(document.getElementById('dictionary-btn'), uiConfig.dictBtn);
+                applyBgTexture(document.getElementById('exit-btn'), uiConfig.exitBtnBg);
                 applyBgTexture(document.getElementById('spawn-btn'), uiConfig.spawnBtn);
-                applyBgTexture(document.getElementById('skill-pin-btn'), uiConfig.skillBtnBg);
-                applyBgTexture(document.getElementById('skill-hammer-btn'), uiConfig.skillBtnBg);
-                applyBgTexture(document.getElementById('skill-swap-btn'), uiConfig.skillBtnBg);
+                
+                applyBgTexture(document.getElementById('skill-pin-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled);
+                applyBgTexture(document.getElementById('skill-hammer-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled);
+                applyBgTexture(document.getElementById('skill-swap-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled);
+                
                 applyBgTexture(document.getElementById('dictionary-content'), uiConfig.dictPopup);
                 applyBgTexture(document.getElementById('exit-content'), uiConfig.exitPopup);
                 applyBgTexture(document.getElementById('btn-exit-yes'), uiConfig.exitConfirmBtn);
                 applyBgTexture(document.getElementById('btn-exit-no'), uiConfig.exitCancelBtn);
                 applyBgTexture(document.getElementById('btn-title-play'), uiConfig.titlePlayBtn);
                 applyBgTexture(document.getElementById('btn-title-help'), uiConfig.titleHelpBtn);
-                applyBgTexture(document.getElementById('restart-btn'), uiConfig.titlePlayBtn); // 재시작 버튼은 타이틀 재생 버튼과 유사하게
+                applyBgTexture(document.getElementById('restart-btn'), uiConfig.titlePlayBtn);
 
                 // Icons
+                applyIconTexture(document.getElementById('dict-btn-icon'), uiConfig.dictBtnIcon, '📖');
                 applyIconTexture(document.getElementById('skill-pin-icon'), uiConfig.skillPinIcon, '📌');
                 applyIconTexture(document.getElementById('skill-hammer-icon'), uiConfig.skillHammerIcon, '⛏️');
                 applyIconTexture(document.getElementById('skill-swap-icon'), uiConfig.skillSwapIcon, '🔁');
@@ -952,15 +986,12 @@
 
         function updateSkillUI() {
             const pinBtn = document.getElementById('skill-pin-btn');
-            const pinOverlayUI = document.getElementById('skill-pin-cooldown-overlay');
             const pinCooldownUI = document.getElementById('skill-pin-cooldown');
             
             const hammerBtn = document.getElementById('skill-hammer-btn');
-            const hammerOverlayUI = document.getElementById('skill-hammer-cooldown-overlay');
             const hammerCooldownUI = document.getElementById('skill-hammer-cooldown');
             
             const swapBtn = document.getElementById('skill-swap-btn');
-            const swapOverlayUI = document.getElementById('skill-swap-cooldown-overlay');
             const swapCooldownUI = document.getElementById('skill-swap-cooldown');
             
             const spawnBtn = document.getElementById('spawn-btn');
@@ -974,7 +1005,6 @@
 
             if (targetedSpawnCooldown > 0) {
                 pinBtn.classList.add('pointer-events-none');
-                pinOverlayUI.classList.remove('hidden');
                 pinCooldownUI.classList.remove('hidden');
                 pinCooldownUI.innerText = targetedSpawnCooldown;
                 pinCooldownUI.className = pinCooldownUI.className.replace(/text-white|text-\[#fff9c4\]/g, targetedIsFirstUse ? yellowText : whiteText);
@@ -982,19 +1012,19 @@
                 isAwaitingTargetSelection = false;
                 pinBtn.classList.remove(yellowGlow, blueGlow);
                 if(!pinBtn.classList.contains('has-ui-texture')) pinBtn.classList.add(baseBorder, normalShadow);
+                setSkillDisabledState(pinBtn, true);
             } else {
                 pinBtn.classList.remove('pointer-events-none');
-                pinOverlayUI.classList.add('hidden');
                 pinCooldownUI.classList.add('hidden');
                 pinBtn.classList.remove(baseBorder, normalShadow);
                 
                 if (isAwaitingTargetSelection) { pinBtn.classList.remove(yellowGlow); pinBtn.classList.add(blueGlow); }
                 else { pinBtn.classList.remove(blueGlow); pinBtn.classList.add(yellowGlow); }
+                setSkillDisabledState(pinBtn, false);
             }
 
             if (removeSkillCooldown > 0) {
                 hammerBtn.classList.add('pointer-events-none');
-                hammerOverlayUI.classList.remove('hidden');
                 hammerCooldownUI.classList.remove('hidden');
                 hammerCooldownUI.innerText = removeSkillCooldown;
                 hammerCooldownUI.className = hammerCooldownUI.className.replace(/text-white|text-\[#fff9c4\]/g, removeIsFirstUse ? yellowText : whiteText);
@@ -1002,19 +1032,19 @@
                 isAwaitingRemoveSelection = false;
                 hammerBtn.classList.remove(yellowGlow, blueGlow);
                 if(!hammerBtn.classList.contains('has-ui-texture')) hammerBtn.classList.add(baseBorder, normalShadow);
+                setSkillDisabledState(hammerBtn, true);
             } else {
                 hammerBtn.classList.remove('pointer-events-none');
-                hammerOverlayUI.classList.add('hidden');
                 hammerCooldownUI.classList.add('hidden');
                 hammerBtn.classList.remove(baseBorder, normalShadow);
                 
                 if (isAwaitingRemoveSelection) { hammerBtn.classList.remove(yellowGlow); hammerBtn.classList.add(blueGlow); }
                 else { hammerBtn.classList.remove(blueGlow); hammerBtn.classList.add(yellowGlow); }
+                setSkillDisabledState(hammerBtn, false);
             }
 
             if (swapSkillCooldown > 0) {
                 swapBtn.classList.add('pointer-events-none');
-                swapOverlayUI.classList.remove('hidden');
                 swapCooldownUI.classList.remove('hidden');
                 swapCooldownUI.innerText = swapSkillCooldown;
                 swapCooldownUI.className = swapCooldownUI.className.replace(/text-white|text-\[#fff9c4\]/g, swapIsFirstUse ? yellowText : whiteText);
@@ -1023,14 +1053,15 @@
                 swapFirstTarget = null;
                 swapBtn.classList.remove(yellowGlow, blueGlow);
                 if(!swapBtn.classList.contains('has-ui-texture')) swapBtn.classList.add(baseBorder, normalShadow);
+                setSkillDisabledState(swapBtn, true);
             } else {
                 swapBtn.classList.remove('pointer-events-none');
-                swapOverlayUI.classList.add('hidden');
                 swapCooldownUI.classList.add('hidden');
                 swapBtn.classList.remove(baseBorder, normalShadow);
                 
                 if (isAwaitingSwapSelection) { swapBtn.classList.remove(yellowGlow); swapBtn.classList.add(blueGlow); }
                 else { swapBtn.classList.remove(blueGlow); swapBtn.classList.add(yellowGlow); }
+                setSkillDisabledState(swapBtn, false);
             }
 
             let anySkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
