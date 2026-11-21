@@ -392,7 +392,7 @@
             return config && config.path && config.path.trim() !== "" && config.path.trim() !== "resources/textures/";
         }
 
-        function applyBgTexture(el, config, disabledConfig = null) {
+        function applyBgTexture(el, config, disabledConfig = null, activeConfig = null) {
             if (!el || !isValidPath(config)) return;
             const img = new Image();
             img.src = config.path;
@@ -414,6 +414,10 @@
                     bgImg.dataset.disabledSrc = disabledConfig.path;
                     bgImg.dataset.disabledScale = disabledConfig.scale;
                 }
+                if (isValidPath(activeConfig)) {
+                    bgImg.dataset.activeSrc = activeConfig.path;
+                    bgImg.dataset.activeScale = activeConfig.scale;
+                }
                 
                 bgImg.src = config.path;
                 bgImg.style.width = `${config.scale}%`;
@@ -429,6 +433,7 @@
         }
 
         function applyIconTexture(el, config, fallbackEmoji) {
+        function applyIconTexture(el, config, fallbackEmoji) {
             if (!el) return;
             if (isValidPath(config)) {
                 el.innerHTML = `<img src="${config.path}" style="width: ${config.scale}%; height: ${config.scale}%; object-fit: contain; position: relative; z-index: 10; image-rendering: pixelated;" onerror="this.outerHTML='${fallbackEmoji}'">`;
@@ -437,13 +442,17 @@
             }
         }
         
-        function setSkillDisabledState(btn, isDisabled) {
+        function setSkillState(btn, state) {
             const bgImg = btn.querySelector('.bg-texture-img');
             if (bgImg) {
-                if (isDisabled && bgImg.dataset.disabledSrc) {
+                if (state === 'disabled' && bgImg.dataset.disabledSrc) {
                     bgImg.src = bgImg.dataset.disabledSrc;
                     bgImg.style.width = `${bgImg.dataset.disabledScale}%`;
                     bgImg.style.height = `${bgImg.dataset.disabledScale}%`;
+                } else if (state === 'active' && bgImg.dataset.activeSrc) {
+                    bgImg.src = bgImg.dataset.activeSrc;
+                    bgImg.style.width = `${bgImg.dataset.activeScale}%`;
+                    bgImg.style.height = `${bgImg.dataset.activeScale}%`;
                 } else {
                     bgImg.src = bgImg.dataset.normalSrc;
                     bgImg.style.width = `${bgImg.dataset.normalScale}%`;
@@ -452,6 +461,7 @@
             }
         }
 
+        async function loadUIData() {
         async function loadUIData() {
             try {
                 const response = await fetch('ui.json');
@@ -463,9 +473,9 @@
                 applyBgTexture(document.getElementById('exit-btn'), uiConfig.exitBtnBg);
                 applyBgTexture(document.getElementById('spawn-btn'), uiConfig.spawnBtn);
                 
-                applyBgTexture(document.getElementById('skill-pin-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled);
-                applyBgTexture(document.getElementById('skill-hammer-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled);
-                applyBgTexture(document.getElementById('skill-swap-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled);
+                applyBgTexture(document.getElementById('skill-pin-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled, uiConfig.skillBtnBgActive);
+                applyBgTexture(document.getElementById('skill-hammer-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled, uiConfig.skillBtnBgActive);
+                applyBgTexture(document.getElementById('skill-swap-btn'), uiConfig.skillBtnBg, uiConfig.skillBtnBgDisabled, uiConfig.skillBtnBgActive);
                 
                 applyBgTexture(document.getElementById('dictionary-content'), uiConfig.dictPopup);
                 applyBgTexture(document.getElementById('exit-content'), uiConfig.exitPopup);
@@ -1175,12 +1185,12 @@
                 
                 isAwaitingTargetSelection = false;
                 if(!pinBtn.classList.contains('has-ui-texture')) pinBtn.classList.add(baseBorder, normalShadow);
-                setSkillDisabledState(pinBtn, true);
+                setSkillState(pinBtn, 'disabled');
             } else {
                 pinBtn.classList.remove('pointer-events-none');
                 pinCooldownUI.classList.add('hidden');
                 if(!pinBtn.classList.contains('has-ui-texture')) pinBtn.classList.add(baseBorder, normalShadow);
-                setSkillDisabledState(pinBtn, false);
+                setSkillState(pinBtn, isAwaitingTargetSelection ? 'active' : 'normal');
             }
 
             if (removeSkillCooldown > 0) {
@@ -1191,12 +1201,12 @@
 
                 isAwaitingRemoveSelection = false;
                 if(!hammerBtn.classList.contains('has-ui-texture')) hammerBtn.classList.add(baseBorder, normalShadow);
-                setSkillDisabledState(hammerBtn, true);
+                setSkillState(hammerBtn, 'disabled');
             } else {
                 hammerBtn.classList.remove('pointer-events-none');
                 hammerCooldownUI.classList.add('hidden');
                 if(!hammerBtn.classList.contains('has-ui-texture')) hammerBtn.classList.add(baseBorder, normalShadow);
-                setSkillDisabledState(hammerBtn, false);
+                setSkillState(hammerBtn, isAwaitingRemoveSelection ? 'active' : 'normal');
             }
 
             if (swapSkillCooldown > 0) {
@@ -1208,12 +1218,12 @@
                 isAwaitingSwapSelection = false;
                 swapFirstTarget = null;
                 if(!swapBtn.classList.contains('has-ui-texture')) swapBtn.classList.add(baseBorder, normalShadow);
-                setSkillDisabledState(swapBtn, true);
+                setSkillState(swapBtn, 'disabled');
             } else {
                 swapBtn.classList.remove('pointer-events-none');
                 swapCooldownUI.classList.add('hidden');
                 if(!swapBtn.classList.contains('has-ui-texture')) swapBtn.classList.add(baseBorder, normalShadow);
-                setSkillDisabledState(swapBtn, false);
+                setSkillState(swapBtn, isAwaitingSwapSelection ? 'active' : 'normal');
             }
 
             let anySkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
@@ -1713,7 +1723,24 @@
                 ctx.fill();
 
                 if (isSelected || isAwaitingRemoveSelection || (isAwaitingSwapSelection && isItemHighlighted)) {
-                    // 글로우 효과 제거 상태
+                    let r_col = 255, g_col = 255, b_col = 255, baseAlpha = 0.6;
+
+                    if (isAwaitingSwapSelection && swapFirstTarget) {
+                        if (swapFirstTarget.r === r && swapFirstTarget.c === c) {
+                            baseAlpha = 0.8; // 첫 번째 선택 대상 (강한 하얀색)
+                        } else {
+                            r_col = 96; g_col = 165; b_col = 250; baseAlpha = 0.7; // 두 번째 선택 가능 대상 (파란색)
+                        }
+                    }
+
+                    let grad = ctx.createRadialGradient(x, itemY, radius * 0.8, x, itemY, radius + radius * 0.45);
+                    grad.addColorStop(0, `rgba(${r_col}, ${g_col}, ${b_col}, ${baseAlpha})`);
+                    grad.addColorStop(1, `rgba(${r_col}, ${g_col}, ${b_col}, 0)`);
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, itemY, radius + radius * 0.45, 0, Math.PI * 2);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
                 }
 
                 drawMineral(ctx, x, itemY, radius, cell.level);
