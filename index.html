@@ -433,7 +433,6 @@
         }
 
         function applyIconTexture(el, config, fallbackEmoji) {
-        function applyIconTexture(el, config, fallbackEmoji) {
             if (!el) return;
             if (isValidPath(config)) {
                 el.innerHTML = `<img src="${config.path}" style="width: ${config.scale}%; height: ${config.scale}%; object-fit: contain; position: relative; z-index: 10; image-rendering: pixelated;" onerror="this.outerHTML='${fallbackEmoji}'">`;
@@ -461,7 +460,6 @@
             }
         }
 
-        async function loadUIData() {
         async function loadUIData() {
             try {
                 const response = await fetch('ui.json');
@@ -683,7 +681,7 @@
             7:  { name: '사파이어', base: '#2563EB', point: '#60A5FA', shadow: '#1D4ED8', highlight: '#93C5FD', highlight2: '#BFDBFE', highlight3: '#DBEAFE' },
             8:  { name: '루비', base: '#F43F5E', point: '#9F1239', shadow: '#E11D48', highlight: '#E11D48', highlight2: '#FDA4AF', highlight3: '#FECDD3' },
             9:  { name: '에메랄드', base: '#4ADE80', point: '#22C55E', shadow: '#16A34A', highlight: '#86EFAC', highlight2: '#BBF7D0', highlight3: '#DCFCE7' },
-            10: { name: '다이아몬드', base: '#F0F9FF', point: '#FBBF24', shadow: '#E0F2FE', highlight: '#FFFFFF', highlight2: '#FFFFFF', highlight3: '#FFFFFF' },
+            10: { name: '다이아몬드', base: '#F0F9FF', point: '#FBBF24', shadow: '#E0F2FE', highlight: '#E0F2FE', highlight2: '#FFFFFF', highlight3: '#FFFFFF' },
         };
 
         function getMineralInfo(level) {
