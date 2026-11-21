@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -37,7 +36,7 @@
             display: block;
             width: 100%;
             height: 100%;
-            image-rendering: pixelated; /* 안티 에일리어싱 제거 (CSS) */
+            image-rendering: pixelated; /* 안티 에일리어싱 제거 */
         }
 
         /* 양피지 색상 테마 클래스 */
@@ -47,18 +46,25 @@
             color: #5a4231;
         }
 
+        /* 커스텀 UI 텍스처 적용 시 기본 배경/테두리 투명화 */
+        .has-ui-texture {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            border-width: 0px !important;
+        }
+
         /* 반응형 UI 크기 조절용 클래스 */
-        .dynamic-ui-top {
+        .dynamic-ui-top-left {
             top: calc(var(--tile-w, 60px) * 0.3);
-            right: calc(var(--tile-w, 60px) * 0.3);
+            left: calc(var(--tile-w, 60px) * 0.3);
             height: calc(var(--tile-h, 30px) * 0.9);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
         }
-        .dynamic-ui-top-left-group {
+        .dynamic-ui-top-right-group {
             top: calc(var(--tile-w, 60px) * 0.3);
-            left: calc(var(--tile-w, 60px) * 0.3);
+            right: calc(var(--tile-w, 60px) * 0.3);
             display: flex;
             gap: calc(var(--tile-w, 60px) * 0.15);
         }
@@ -67,6 +73,7 @@
             height: calc(var(--tile-w, 60px) * 0.48);
             font-size: calc(var(--tile-w, 60px) * 0.24);
             border-radius: calc(var(--tile-w, 60px) * 0.16);
+            border-width: var(--btn-border, 2px);
         }
 
         /* UI들을 타일 세로의 25%만큼 위로 올림 */
@@ -86,12 +93,13 @@
             line-height: 1; 
             color: #f4e4bc; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            -webkit-text-stroke: 0.02em rgba(0,0,0,0.8);
         }
         .dynamic-ui-score-val { 
             font-size: calc(var(--tile-h, 30px) * 0.65); 
             line-height: 1; 
             color: white;
-            -webkit-text-stroke: 1.5px black;
+            -webkit-text-stroke: 0.02em black;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
@@ -100,6 +108,7 @@
             padding: 0 calc(var(--tile-w, 60px) * 0.3);
             font-size: calc(var(--tile-w, 60px) * 0.25);
             border-radius: calc(var(--tile-w, 60px) * 0.3);
+            border-width: calc(var(--btn-border, 2px) * 0.8); 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -110,6 +119,7 @@
             height: calc(var(--tile-w, 60px) * 0.54);
             font-size: calc(var(--tile-w, 60px) * 0.25);
             border-radius: calc(var(--tile-w, 60px) * 0.15);
+            border-width: var(--btn-border, 2px);
         }
         
         .dynamic-preview-box {
@@ -122,10 +132,10 @@
             margin-top: 0; 
             color: #f4e4bc;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            -webkit-text-stroke: 0.02em rgba(0,0,0,0.8);
             font-weight: 900;
         }
 
-        /* 튜토리얼 단락 전환 애니메이션 및 인디케이터 클래스 */
         .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -136,194 +146,192 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             transition: transform 0.3s;
         }
-        .tut-dot.active {
-            background-color: white;
-            transform: scale(1.25);
-        }
-        .tut-dot.inactive {
-            background-color: rgba(90, 66, 49, 0.4);
-        }
+        .tut-dot.active { background-color: white; transform: scale(1.25); }
+        .tut-dot.inactive { background-color: rgba(90, 66, 49, 0.4); }
 
-        /* 커스텀 스크롤바 (게임 오버 통계창 용) */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 1.5cqh;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-            border-radius: 1cqh;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 1cqh;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 1.5cqh; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 1cqh; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 1cqh; }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <!-- UI Layer -->
-        <div id="ui-layer" class="absolute inset-0 pointer-events-none z-10">
+
+        <!-- 타이틀 화면 -->
+        <div id="title-screen" class="absolute inset-0 bg-[#1a1525] z-50 flex flex-col items-center justify-center pointer-events-auto transition-opacity duration-300">
+            <div id="title-logo-container" class="mb-[15cqh] flex items-center justify-center relative w-full h-[25cqh]">
+                <h1 id="title-logo-text" class="font-black text-transparent bg-clip-text bg-gradient-to-b from-[#fde047] to-[#dca773] drop-shadow-2xl text-center leading-none" style="font-size: 14cqh; -webkit-text-stroke: 0.02em #5a4231;">
+                    Is This<br>Merge?
+                </h1>
+                <img id="title-logo-img" class="hidden absolute object-contain" style="image-rendering: pixelated; max-width: 100%; max-height: 100%;">
+            </div>
             
-            <!-- 상단 좌측 그룹 -->
-            <div class="absolute pointer-events-auto dynamic-ui-top-left-group">
-                <button id="dictionary-btn" class="flex items-center justify-center parchment-theme shadow-lg transition-transform active:scale-90 border-2 touch-manipulation dynamic-top-btn">
-                    📖
+            <div class="flex flex-col gap-[4cqh] w-[60cqw] max-w-[400px]">
+                <button id="btn-title-play" class="parchment-theme font-black rounded-[3cqh] shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center border-[#dca773] relative overflow-hidden" style="height: 12cqh; font-size: 5cqh; border-width: 0.6cqh;">
+                    <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">플레이</span>
                 </button>
-                <button id="help-btn" class="flex items-center justify-center parchment-theme shadow-lg transition-transform active:scale-90 border-2 touch-manipulation dynamic-top-btn">
-                    <span class="italic font-serif font-bold text-[#5a4231]">i</span>
+                <button id="btn-title-help" class="parchment-theme font-black rounded-[3cqh] shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center border-[#dca773] relative overflow-hidden" style="height: 12cqh; font-size: 5cqh; border-width: 0.6cqh;">
+                    <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">게임 방법</span>
                 </button>
             </div>
+        </div>
 
-            <!-- 상단 우측 점수 -->
-            <div id="stats" class="absolute pointer-events-auto text-right dynamic-ui-top">
+        <!-- 저장 슬롯 화면 -->
+        <div id="save-screen" class="hidden absolute inset-0 bg-[#1a1525] z-50 flex flex-col items-center justify-center pointer-events-auto transition-opacity duration-300">
+            <h2 class="font-black text-white drop-shadow-lg mb-[6cqh]" style="font-size: 8cqh; -webkit-text-stroke: 0.02em black;">저장 데이터</h2>
+            
+            <div id="save-slots-container" class="flex flex-col gap-[3cqh] w-[80cqw] max-w-[500px]">
+                <!-- JS에서 동적 생성 -->
+            </div>
+
+            <button id="btn-save-back" class="mt-[8cqh] text-white/70 font-bold hover:text-white transition-colors" style="font-size: 4cqh;">
+                돌아가기
+            </button>
+        </div>
+
+        <!-- UI Layer (In-Game) -->
+        <div id="ui-layer" class="hidden absolute inset-0 pointer-events-none z-10">
+            
+            <!-- 상단 좌측 점수 -->
+            <div id="stats" class="absolute pointer-events-auto text-left dynamic-ui-top-left">
                 <span class="font-bold block dynamic-ui-score-label">결산 점수</span>
                 <span id="score-display" class="font-black dynamic-ui-score-val">0</span>
+            </div>
+
+            <!-- 상단 우측 그룹 (도감, 나가기 버튼) -->
+            <div class="absolute pointer-events-auto dynamic-ui-top-right-group">
+                <button id="dictionary-btn" class="flex items-center justify-center parchment-theme shadow-lg transition-transform active:scale-90 touch-manipulation dynamic-top-btn relative overflow-hidden">
+                    <span id="dict-btn-icon" class="relative z-10 flex items-center justify-center w-full h-full" style="font-size: 1.2em;">📖</span>
+                </button>
+                <button id="exit-btn" class="flex items-center justify-center parchment-theme shadow-lg transition-transform active:scale-90 touch-manipulation dynamic-top-btn relative overflow-hidden">
+                    <span id="exit-icon" class="relative z-10 flex items-center justify-center w-full h-full" style="font-size: 1.2em;">🚪</span>
+                </button>
             </div>
 
             <!-- 하단 좌측 컨트롤 (스킬 버튼) -->
             <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-left">
                 <!-- 📌 핀 (Select) -->
-                <button id="skill-pin-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
-                    <span id="skill-pin-icon" class="flex items-center justify-center w-full h-full text-[inherit]">📌</span>
-                    <div id="skill-pin-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
-                    <div id="skill-pin-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">6</div>
+                <button id="skill-pin-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                    <span id="skill-pin-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">📌</span>
+                    <div id="skill-pin-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px] z-10"></div>
+                    <div id="skill-pin-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20" style="border-width: var(--skill-cd-border, 2px);">6</div>
                 </button>
 
                 <!-- ⛏️ 곡괭이 (Mining) -->
-                <button id="skill-hammer-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
-                    <span id="skill-hammer-icon" class="flex items-center justify-center w-full h-full text-[inherit]">⛏️</span>
-                    <div id="skill-hammer-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
-                    <div id="skill-hammer-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">8</div>
+                <button id="skill-hammer-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                    <span id="skill-hammer-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">⛏️</span>
+                    <div id="skill-hammer-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px] z-10"></div>
+                    <div id="skill-hammer-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20" style="border-width: var(--skill-cd-border, 2px);">8</div>
                 </button>
 
                 <!-- 🔁 교체 (Change) -->
-                <button id="skill-swap-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 border-2 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
-                    <span id="skill-swap-icon" class="flex items-center justify-center w-full h-full text-[inherit]">🔁</span>
-                    <div id="skill-swap-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px]"></div>
-                    <div id="skill-swap-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-2 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20">12</div>
+                <button id="skill-swap-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                    <span id="skill-swap-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">🔁</span>
+                    <div id="skill-swap-cooldown-overlay" class="hidden absolute inset-0 bg-slate-800/70 rounded-[calc(var(--tile-w,60px)*0.15)] backdrop-blur-[1px] z-10"></div>
+                    <div id="skill-swap-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 bg-slate-900 border-[#dca773] text-[#fff9c4] rounded-full px-2 py-0 text-[calc(var(--tile-w,60px)*0.18)] font-black shadow-md whitespace-nowrap z-20" style="border-width: var(--skill-cd-border, 2px);">12</div>
                 </button>
             </div>
 
             <!-- 하단 우측 컨트롤 (생성 + NEXT) -->
-        <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-right">
-            <div class="flex flex-col items-center justify-end">
-                <div id="preview-box" class="flex items-center justify-center transition-transform duration-300 transform hover:scale-105 dynamic-preview-box relative overflow-visible">
-                    <canvas id="preview-canvas" class="absolute inset-0 w-full h-full"></canvas>
-                </div>
-                <div class="dynamic-next-label tracking-widest leading-none">NEXT</div>
-            </div>
-            
-            <button id="spawn-btn" class="parchment-theme border-2 font-bold shadow-lg transition-transform active:scale-90 touch-manipulation dynamic-spawn-btn">
-                생성
-            </button>
-        </div>
-    </div>
-
-    <!-- 게임 오버 오버레이 (새로운 줌아웃 연출 레이아웃) -->
-    <div id="game-over" class="hidden absolute inset-0 z-50 pointer-events-none">
-        
-        <!-- 상단 게임 오버 텍스트 (화면 상단 여백 15% 내에 배치, 높이 10vh) -->
-        <div id="go-title" class="absolute w-full top-[2.5cqh] flex justify-center opacity-0 transition-opacity duration-500">
-            <h2 class="font-black text-white drop-shadow-2xl leading-none" style="font-size: 10cqh;">GAME OVER</h2>
-        </div>
-        
-        <!-- 우측 영역: 통계, 점수 -->
-        <div class="absolute right-0 top-0 h-full w-[40cqw] flex flex-col pr-[2cqw] pointer-events-auto">
-            
-            <!-- 통계 박스 (높이를 35cqh로 조절하여 줌아웃 필드와 눈높이 일치) -->
-            <div id="go-stats" class="bg-slate-800/80 rounded-[3cqh] border-2 border-slate-600 p-[2cqh] overflow-y-auto custom-scrollbar opacity-0 transition-opacity duration-500 mt-[15cqh]" style="height: 35cqh; flex-shrink: 0;">
-                <div id="stats-container" class="w-full flex flex-col gap-[2cqh]">
-                    <!-- JS에서 통계 내용이 삽입됩니다. -->
-                </div>
-            </div>
-            
-            <!-- 최종 점수 -->
-            <div id="go-score" class="opacity-0 transition-opacity duration-500 mt-[2cqh] flex flex-col items-center justify-center shrink-0">
-                <span class="text-slate-400 font-bold mb-[0.5cqh]" style="font-size: 3cqh;">최종 점수</span>
-                <span id="final-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 8cqh;">0</span>
-            </div>
-        </div>
-
-        <!-- 재시작 버튼 (하단 중앙 정렬) -->
-        <button id="restart-btn" class="absolute bottom-[8cqh] left-1/2 -translate-x-1/2 opacity-0 transition-opacity duration-500 bg-white text-slate-900 font-black rounded-[4cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center pointer-events-auto w-[55cqw] max-w-[300px]" style="height: 12cqh; font-size: 5cqh;">
-            다시 시작
-        </button>
-    </div>
-
-    <!-- 도감 오버레이 -->
-    <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
-            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-4 border-[#8b5a2b] overflow-hidden" style="border-width: 6px;">
-
-                <!-- 왼쪽 페이지 넘김 영역 -->
-                <div id="dict-prev-area" class="absolute left-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors">
-                    <span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px);">◀</span>
+            <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-right">
+                <div class="flex flex-col items-center justify-end">
+                    <div id="preview-box" class="flex items-center justify-center transition-transform duration-300 transform hover:scale-105 dynamic-preview-box relative overflow-visible">
+                        <canvas id="preview-canvas" class="absolute inset-0 w-full h-full"></canvas>
+                    </div>
+                    <div class="dynamic-next-label tracking-widest leading-none">NEXT</div>
                 </div>
                 
-                <!-- 오른쪽 페이지 넘김 영역 -->
-                <div id="dict-next-area" class="absolute right-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors">
-                    <span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px);">▶</span>
-                </div>
+                <button id="spawn-btn" class="parchment-theme font-bold shadow-lg transition-transform active:scale-90 touch-manipulation dynamic-spawn-btn relative overflow-hidden">
+                    <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">생성</span>
+                </button>
+            </div>
+        </div>
 
-                <!-- 도감 책 뼈대 -->
-                <div class="flex w-full h-full relative border-l-2 border-r-2 border-[#dca773]/30 mx-[5%] pointer-events-none">
-                    <!-- 중앙 제본선 -->
+        <!-- 게임 오버 오버레이 -->
+        <div id="game-over" class="hidden absolute inset-0 z-40 pointer-events-none">
+            <div id="go-title" class="absolute w-full top-[2.5cqh] flex justify-center opacity-0 transition-opacity duration-500">
+                <h2 class="font-black text-white drop-shadow-2xl leading-none" style="font-size: 10cqh; -webkit-text-stroke: 0.02em black;">GAME OVER</h2>
+            </div>
+            
+            <div class="absolute right-0 top-0 h-full w-[40cqw] flex flex-col pr-[2cqw] pointer-events-auto">
+                <div id="go-stats" class="bg-slate-800/80 rounded-[3cqh] border-slate-600 p-[2cqh] overflow-y-auto custom-scrollbar opacity-0 transition-opacity duration-500 mt-[15cqh]" style="height: 35cqh; flex-shrink: 0; border-width: var(--stats-border, 2px);">
+                    <div id="stats-container" class="w-full flex flex-col gap-[2cqh]"></div>
+                </div>
+                <div id="go-score" class="opacity-0 transition-opacity duration-500 mt-[2cqh] flex flex-col items-center justify-center shrink-0">
+                    <span class="text-slate-400 font-bold mb-[0.5cqh]" style="font-size: 3cqh; -webkit-text-stroke: 0.02em rgba(0,0,0,0.5);">최종 점수</span>
+                    <span id="final-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 8cqh; -webkit-text-stroke: 0.02em black;">0</span>
+                </div>
+            </div>
+
+            <button id="restart-btn" class="absolute bottom-[8cqh] left-1/2 -translate-x-1/2 opacity-0 transition-opacity duration-500 bg-white text-slate-900 font-black rounded-[4cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center pointer-events-auto w-[55cqw] max-w-[300px] relative overflow-hidden" style="height: 12cqh; font-size: 5cqh;">
+                <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">타이틀로</span>
+            </button>
+        </div>
+
+        <!-- 나가기 모달 -->
+        <div id="exit-modal" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] flex items-center justify-center pointer-events-auto opacity-0 transition-opacity duration-300">
+            <div class="parchment-theme p-[4cqh] rounded-3xl flex flex-col items-center shadow-2xl border-[#dca773] transform scale-95 transition-transform duration-300 w-[70cqw] max-w-[400px] relative" style="border-width: 0.6cqh;" id="exit-content">
+                <p class="font-black text-center mb-[4cqh] break-keep leading-snug relative z-10" style="font-size: 4cqh; color: #5a4231; -webkit-text-stroke: 0.02em transparent;">
+                    타이틀로 돌아가시겠습니까?<br><span class="text-[3cqh] font-bold opacity-80">(진행 상황은 자동 저장됩니다)</span>
+                </p>
+                <div class="flex w-full gap-[3cqw] relative z-10">
+                    <button id="btn-exit-no" class="flex-1 bg-slate-300 text-slate-800 rounded-xl font-black py-[2cqh] active:scale-95 transition-transform text-[3.5cqh] relative overflow-hidden">
+                        <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">취소</span>
+                    </button>
+                    <button id="btn-exit-yes" class="flex-1 bg-[#dca773] text-white rounded-xl font-black py-[2cqh] active:scale-95 transition-transform text-[3.5cqh] shadow-md relative overflow-hidden">
+                        <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">나가기</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 도감 오버레이 -->
+        <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
+            <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-[#8b5a2b]" style="border-width: var(--popup-border, 6px);">
+                <div id="dict-prev-area" class="absolute left-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors"><span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px); -webkit-text-stroke: 0.02em rgba(0,0,0,0.2);">◀</span></div>
+                <div id="dict-next-area" class="absolute right-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors"><span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px); -webkit-text-stroke: 0.02em rgba(0,0,0,0.2);">▶</span></div>
+                <div class="flex w-full h-full relative border-l-2 border-r-2 border-[#dca773]/30 mx-[5%] pointer-events-none relative z-10">
                     <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-r from-[#dca773]/20 via-[#8b5a2b]/20 to-[#dca773]/20 -translate-x-1/2 z-0"></div>
                     <div class="absolute left-1/2 top-0 bottom-0 w-px bg-[#5a4231]/10 -translate-x-1/2 z-0"></div>
-
-                    <!-- 좌측 페이지 -->
                     <div id="dict-page-left" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0 pointer-events-auto"></div>
-                    <!-- 우측 페이지 -->
                     <div id="dict-page-right" class="w-1/2 h-full relative px-1 py-2 flex flex-col z-0 pointer-events-auto"></div>
                 </div>
             </div>
         </div>
 
         <!-- 도움말(튜토리얼) 오버레이 -->
-        <div id="tutorial-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] flex items-center justify-center pointer-events-auto opacity-0 transition-opacity duration-300">
-            <div id="tutorial-content" class="parchment-theme w-[80%] h-[78%] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300 border-4">
-                
-                <!-- 단락 0: 게임 소개 -->
+        <div id="tutorial-modal" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-[70] flex items-center justify-center pointer-events-auto opacity-0 transition-opacity duration-300">
+            <div id="tutorial-content" class="parchment-theme w-[80%] h-[78%] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300" style="border-width: var(--popup-border, 6px);">
+                <!-- 단락 0 -->
                 <div id="tut-page-0" class="tut-page flex flex-col items-center justify-center h-full text-center fade-in pb-10">
-                    <h2 id="tut-title-0" class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">게임 소개</h2>
-                    <!-- break-keep으로 줄바꿈 허용 처리 -->
-                    <p id="tut-desc-0" class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed break-keep px-2">
-                        동굴 안에서 고가의 광물을 최대한 많이 발견하세요!
-                    </p>
+                    <h2 id="tut-title-0" class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">게임 소개</h2>
+                    <p id="tut-desc-0" class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed break-keep px-2"></p>
                 </div>
-
-                <!-- 단락 1: 플레이 방법 -->
+                <!-- 단락 1 -->
                 <div id="tut-page-1" class="tut-page hidden flex flex-col items-center justify-start h-full text-center fade-in pb-8">
-                    <h2 id="tut-title-1" class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">플레이 방법</h2>
-                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full break-keep px-2" style="font-size: calc(var(--tile-w, 60px) * 0.182); color: #5a4231; text-shadow: none;">
-                        인접한 두 광물을 선택해 더 좋은 광물을 발견하세요!
-                    </p>
+                    <h2 id="tut-title-1" class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">플레이 방법</h2>
+                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full break-keep px-2" style="font-size: calc(var(--tile-w, 60px) * 0.182); color: #5a4231;"></p>
                     <div class="w-full flex-1 min-h-0 relative flex items-center justify-center overflow-hidden">
                         <canvas id="tutorial-canvas" class="max-w-full max-h-full object-contain"></canvas>
                     </div>
                 </div>
-
-                <!-- 단락 2: 스킬 -->
+                <!-- 단락 2 -->
                 <div id="tut-page-2" class="tut-page hidden flex flex-col items-center justify-start h-full fade-in pb-10">
-                    <h2 id="tut-title-2" class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195);">스킬</h2>
-                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0 break-keep px-2" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
-                        스킬 버튼을 눌러서 능력을 사용하세요!
-                    </p>
-                    <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--tile-w, 60px) * 0.117);">
-                        <!-- 동적으로 로드되는 텍스트 공간 -->
-                    </div>
+                    <h2 id="tut-title-2" class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">스킬</h2>
+                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0 break-keep px-2" style="font-size: calc(var(--tile-w, 60px) * 0.117);"></p>
+                    <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--tile-w, 60px) * 0.117);"></div>
                 </div>
 
                 <!-- 튜토리얼 네비게이션 버튼 & 인디케이터 -->
                 <div class="absolute bottom-3 left-4 right-4 flex justify-between items-center z-10 pointer-events-none" style="height: 15%;">
                     <button id="tut-prev-btn" class="bg-[#dca773] text-white rounded-full font-black flex items-center justify-center active:scale-90 transition-transform shadow-md pointer-events-auto opacity-0" style="height: 66.6%; aspect-ratio: 1/1; font-size: clamp(10px, 3vh, 20px);">
-                        ◀
+                        <span style="-webkit-text-stroke: 0.02em transparent;">◀</span>
                     </button>
                     <div id="tut-dots" class="flex gap-2 sm:gap-3 absolute left-1/2 -translate-x-1/2 pointer-events-none items-center h-full">
-                        <div class="tut-dot active"></div>
-                        <div class="tut-dot inactive"></div>
-                        <div class="tut-dot inactive"></div>
+                        <div class="tut-dot active"></div><div class="tut-dot inactive"></div><div class="tut-dot inactive"></div>
                     </div>
-                    <button id="tut-confirm-btn" class="hidden bg-[#5a4231] text-white rounded-xl font-black active:scale-90 transition-transform shadow-md pointer-events-auto ml-auto" style="height: 100%; padding: 0 1.25rem; font-size: clamp(12px, 3.5vh, 24px);">
-                        확인
+                    <button id="tut-confirm-btn" class="hidden bg-[#5a4231] text-white rounded-xl font-black active:scale-90 transition-transform shadow-md pointer-events-auto ml-auto relative overflow-hidden" style="height: 100%; padding: 0 1.25rem; font-size: clamp(12px, 3.5vh, 24px);">
+                        <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">확인</span>
                     </button>
                 </div>
             </div>
@@ -335,7 +343,91 @@
 
     <script>
         // ------------------ 외부 데이터 연동 (비동기) ------------------
-        
+        let uiConfig = {};
+
+        function isValidPath(config) {
+            return config && config.path && config.path.trim() !== "" && config.path.trim() !== "resources/textures/";
+        }
+
+        function applyBgTexture(el, config) {
+            if (!el || !isValidPath(config)) return;
+            const img = new Image();
+            img.src = config.path;
+            img.onload = () => {
+                el.classList.remove('parchment-theme', 'bg-slate-300', 'bg-[#dca773]', 'bg-white', 'hover:bg-slate-100');
+                el.classList.add('has-ui-texture');
+                el.style.isolation = 'isolate';
+
+                const bgImg = document.createElement('img');
+                bgImg.src = config.path;
+                bgImg.className = 'absolute pointer-events-none z-[-1]';
+                bgImg.style.width = `${config.scale}%`;
+                bgImg.style.height = `${config.scale}%`;
+                bgImg.style.left = '50%';
+                bgImg.style.top = '50%';
+                bgImg.style.transform = 'translate(-50%, -50%)';
+                bgImg.style.imageRendering = 'pixelated';
+                bgImg.style.objectFit = 'contain';
+                
+                el.appendChild(bgImg);
+                el.style.borderWidth = '0px';
+            };
+        }
+
+        function applyIconTexture(el, config, fallbackEmoji) {
+            if (!el) return;
+            if (isValidPath(config)) {
+                el.innerHTML = `<img src="${config.path}" style="width: ${config.scale}%; height: ${config.scale}%; object-fit: contain; position: relative; z-index: 10; image-rendering: pixelated;" onerror="this.outerHTML='${fallbackEmoji}'">`;
+            } else {
+                el.innerText = fallbackEmoji;
+            }
+        }
+
+        async function loadUIData() {
+            try {
+                const response = await fetch('ui.json');
+                if (!response.ok) throw new Error('Failed to load JSON');
+                const data = await response.json();
+                uiConfig = data.ui || {};
+
+                // Static Backgrounds
+                applyBgTexture(document.getElementById('dictionary-btn'), uiConfig.dictBtn);
+                applyBgTexture(document.getElementById('spawn-btn'), uiConfig.spawnBtn);
+                applyBgTexture(document.getElementById('skill-pin-btn'), uiConfig.skillBtnBg);
+                applyBgTexture(document.getElementById('skill-hammer-btn'), uiConfig.skillBtnBg);
+                applyBgTexture(document.getElementById('skill-swap-btn'), uiConfig.skillBtnBg);
+                applyBgTexture(document.getElementById('dictionary-content'), uiConfig.dictPopup);
+                applyBgTexture(document.getElementById('exit-content'), uiConfig.exitPopup);
+                applyBgTexture(document.getElementById('btn-exit-yes'), uiConfig.exitConfirmBtn);
+                applyBgTexture(document.getElementById('btn-exit-no'), uiConfig.exitCancelBtn);
+                applyBgTexture(document.getElementById('btn-title-play'), uiConfig.titlePlayBtn);
+                applyBgTexture(document.getElementById('btn-title-help'), uiConfig.titleHelpBtn);
+                applyBgTexture(document.getElementById('restart-btn'), uiConfig.titlePlayBtn); // 재시작 버튼은 타이틀 재생 버튼과 유사하게
+
+                // Icons
+                applyIconTexture(document.getElementById('skill-pin-icon'), uiConfig.skillPinIcon, '📌');
+                applyIconTexture(document.getElementById('skill-hammer-icon'), uiConfig.skillHammerIcon, '⛏️');
+                applyIconTexture(document.getElementById('skill-swap-icon'), uiConfig.skillSwapIcon, '🔁');
+                applyIconTexture(document.getElementById('exit-icon'), uiConfig.exitBtnIcon, '🚪');
+
+                // Logo
+                if (isValidPath(uiConfig.titleLogo)) {
+                    const logoText = document.getElementById('title-logo-text');
+                    const logoImg = document.getElementById('title-logo-img');
+                    const img = new Image();
+                    img.src = uiConfig.titleLogo.path;
+                    img.onload = () => {
+                        logoText.classList.add('hidden');
+                        logoImg.classList.remove('hidden');
+                        logoImg.src = uiConfig.titleLogo.path;
+                        logoImg.style.width = `${uiConfig.titleLogo.scale}%`;
+                    };
+                }
+            } catch (error) {
+                console.log('ui.json Load Failed:', error);
+            }
+        }
+
         async function loadTutorialData() {
             try {
                 const response = await fetch('tutorial.json');
@@ -354,7 +446,6 @@
                     if (data.pages[2]) {
                         document.getElementById('tut-title-2').innerText = data.pages[2].title;
                         document.getElementById('tut-desc-2').innerText = data.pages[2].description;
-                        
                         if (data.pages[2].skills) {
                             const skillContainer = document.getElementById('tut-skills-container');
                             skillContainer.innerHTML = ''; 
@@ -371,14 +462,14 @@
                     }
                 }
             } catch (error) {
-                console.log('tutorial.json을 불러오지 못했습니다.', error);
+                console.log('tutorial.json Load Failed:', error);
             }
         }
 
         let externalMinerals = {};
         const preloadedTextures = {};
-        let MAX_LEVEL = 10; // json 파일에서 불러온 값에 따라 동적으로 변경됩니다.
-        let maxSpreads = 5; // 도감 페이지 수 역시 동적으로 계산됩니다.
+        let MAX_LEVEL = 10; 
+        let maxSpreads = 5; 
         
         async function loadMineralData() {
             try {
@@ -400,26 +491,21 @@
                             preloadedTextures[i] = img;
                         }
                     } else {
-                        // 데이터가 비어있을 때 예외 처리
-                        if (i <= 10) {
-                            validMaxLevel = i; // 10번까지는 내장 데이터(fallback) 사용 허용
-                        } else {
-                            break; // 11번 이상부터 데이터가 없으면 순회 종료하고 무시
-                        }
+                        if (i <= 10) validMaxLevel = i;
+                        else break;
                     }
                 }
                 MAX_LEVEL = validMaxLevel > 0 ? validMaxLevel : 10;
             } catch (error) {
-                console.log('minerals.json을 불러오지 못했습니다. 기본 내장 양식을 사용합니다.', error);
+                console.log('minerals.json Load Failed:', error);
                 MAX_LEVEL = 10;
             }
         }
 
-        // 스킬 설정 초기값
         let skillConfigs = {
-            select: { iconPath: "", initialCooldown: 6, baseCooldown: 12, initialCooldownType: 'merge', baseCooldownType: 'summon' },
-            mining: { iconPath: "", initialCooldown: 8, baseCooldown: 28, initialCooldownType: 'merge', baseCooldownType: 'merge' },
-            change: { iconPath: "", initialCooldown: 12, baseCooldown: 20, initialCooldownType: 'merge', baseCooldownType: 'merge' }
+            select: { initialCooldown: 6, baseCooldown: 12, initialCooldownType: 'merge', baseCooldownType: 'summon' },
+            mining: { initialCooldown: 8, baseCooldown: 28, initialCooldownType: 'merge', baseCooldownType: 'merge' },
+            change: { initialCooldown: 12, baseCooldown: 20, initialCooldownType: 'merge', baseCooldownType: 'merge' }
         };
 
         async function loadSkillData() {
@@ -433,37 +519,24 @@
                     if (data.skills.change) skillConfigs.change = { ...skillConfigs.change, ...data.skills.change };
                 }
             } catch (error) {
-                console.log('skills.json을 불러오지 못했습니다. 기본 쿨타임 설정을 사용합니다.', error);
+                console.log('skills.json Load Failed:', error);
             }
-
-            // 아이콘 UI 갱신 함수
-            const updateSkillIconUI = (config, domId, fallbackEmoji) => {
-                const el = document.getElementById(domId);
-                const path = config.iconPath;
-                if (path && path.trim() !== "" && path.trim() !== "resources/textures/") {
-                    el.innerHTML = `<img src="${path}" class="w-[60%] h-[60%] object-contain" style="image-rendering: pixelated;" onerror="this.outerHTML='${fallbackEmoji}'">`;
-                } else {
-                    el.innerText = fallbackEmoji;
-                }
-            };
-
-            updateSkillIconUI(skillConfigs.select, 'skill-pin-icon', '📌');
-            updateSkillIconUI(skillConfigs.mining, 'skill-hammer-icon', '⛏️');
-            updateSkillIconUI(skillConfigs.change, 'skill-swap-icon', '🔁');
         }
 
-        // ------------------ 기존 게임 로직 ------------------
+        // ------------------ 게임 상태 변수 ------------------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
+
+        let appState = 'TITLE'; // TITLE, SAVES, PLAYING
+        let currentSaveSlot = null;
 
         const GRID_SIZE = 6;
         let grid = [];
         let nextSpawnLevel = 1;
         let selectedCell = null;
         let isGameOver = false;
-        let score = 0; // 이제 파괴(결산 획득) 스킬을 통해서만 오르는 점수
+        let score = 0; 
 
-        // 줌아웃 애니메이션 상태 변수
         let currentBoardScale = 1.0;
         let currentOriginX = 0;
         let currentOriginY = 0;
@@ -475,7 +548,6 @@
 
         let discoveredMinerals = new Set();
 
-        // 스킬 상태 변수
         let targetedSpawnCooldown = 6;
         let targetedIsFirstUse = true;
         let isAwaitingTargetSelection = false;
@@ -493,12 +565,10 @@
         let particles = [];
         let floatingTexts = [];
 
-        // 통계 데이터를 저장하는 객체
-        const gameStats = {
-            spawnCount: 0,
+        let gameStats = {
+            spawnCount: 0, totalMerges: 0,
             skillUsage: { pin: 0, hammer: 0, swap: 0 },
-            cultivationCount: {},
-            settlementCount: {}
+            miningCount: {}, discoveryCount: {}, finalBoardCount: {}   
         };
 
         const SETTLEMENT_SCORES = {
@@ -529,31 +599,263 @@
             };
         }
 
-        function resetStats() {
-            gameStats.spawnCount = 0;
-            gameStats.skillUsage = { pin: 0, hammer: 0, swap: 0 };
-            gameStats.cultivationCount = {};
-            gameStats.settlementCount = {};
-            // 데이터 로드 이후 측정된 MAX_LEVEL 기준으로 통계 객체를 동적으로 생성합니다.
+        // ------------------ 저장 및 로드 로직 ------------------
+        function saveGameState() {
+            if (!currentSaveSlot || isGameOver || appState !== 'PLAYING') return;
+
+            const saveData = {
+                gridLevels: grid.map(row => row.map(cell => cell.level)),
+                nextSpawnLevel: nextSpawnLevel,
+                cooldowns: {
+                    target: targetedSpawnCooldown, remove: removeSkillCooldown, swap: swapSkillCooldown,
+                    targetFirst: targetedIsFirstUse, removeFirst: removeIsFirstUse, swapFirst: swapIsFirstUse
+                },
+                stats: gameStats,
+                discovered: Array.from(discoveredMinerals)
+            };
+            localStorage.setItem(`merge_save_${currentSaveSlot}`, JSON.stringify(saveData));
+        }
+
+        function loadGameState(data) {
+            resetToEmptyBoard();
+            
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    grid[r][c].level = data.gridLevels[r][c];
+                    grid[r][c].scale = data.gridLevels[r][c] > 0 ? 1 : 0;
+                }
+            }
+            nextSpawnLevel = data.nextSpawnLevel;
+            
+            targetedSpawnCooldown = data.cooldowns.target;
+            removeSkillCooldown = data.cooldowns.remove;
+            swapSkillCooldown = data.cooldowns.swap;
+            targetedIsFirstUse = data.cooldowns.targetFirst;
+            removeIsFirstUse = data.cooldowns.removeFirst;
+            swapIsFirstUse = data.cooldowns.swapFirst;
+
+            gameStats = data.stats;
+            discoveredMinerals = new Set(data.discovered);
+            
+            score = 0;
             for (let i = 1; i <= MAX_LEVEL; i++) {
-                gameStats.cultivationCount[i] = 0;
-                gameStats.settlementCount[i] = 0;
+                if (gameStats.miningCount[i]) {
+                    score += gameStats.miningCount[i] * getMineralInfo(i).settlementScore;
+                }
+            }
+
+            finalizeStartGame();
+        }
+
+        function initNewGame() {
+            resetToEmptyBoard();
+            
+            targetedSpawnCooldown = skillConfigs.select.initialCooldown;
+            targetedIsFirstUse = true;
+            removeSkillCooldown = skillConfigs.mining.initialCooldown;
+            removeIsFirstUse = true;
+            swapSkillCooldown = skillConfigs.change.initialCooldown;
+            swapIsFirstUse = true;
+            
+            generateNextSpawn();
+            
+            const randR = Math.floor(Math.random() * GRID_SIZE);
+            const randC = Math.floor(Math.random() * GRID_SIZE);
+            grid[randR][randC].level = 1;
+            
+            discoveredMinerals.add(1);
+            gameStats.discoveryCount[1]++;
+            
+            finalizeStartGame();
+            saveGameState();
+        }
+
+        function resetToEmptyBoard() {
+            grid = [];
+            for (let r = 0; r < GRID_SIZE; r++) {
+                let row = [];
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    row.push({ level: 0, scale: 0, bounce: 1, errorFlash: 0 });
+                }
+                grid.push(row);
+            }
+            selectedCell = null;
+            isGameOver = false;
+            score = 0;
+            isGameOverAnimating = false;
+            currentBoardScale = 1.0;
+            
+            particles = [];
+            floatingTexts = [];
+            
+            isAwaitingTargetSelection = false;
+            isAwaitingRemoveSelection = false;
+            isAwaitingSwapSelection = false;
+            swapFirstTarget = null;
+            
+            gameStats = { spawnCount: 0, totalMerges: 0, skillUsage: { pin: 0, hammer: 0, swap: 0 }, miningCount: {}, discoveryCount: {}, finalBoardCount: {} };
+            for (let i = 1; i <= MAX_LEVEL; i++) {
+                gameStats.miningCount[i] = 0; gameStats.discoveryCount[i] = 0; gameStats.finalBoardCount[i] = 0;
+            }
+            discoveredMinerals.clear();
+        }
+
+        function finalizeStartGame() {
+            updateSkillUI();
+            updateScoreDisplay();
+            resize();
+            appState = 'PLAYING';
+            
+            document.getElementById('ui-layer').classList.remove('hidden');
+            document.getElementById('game-over').classList.add('hidden');
+            
+            document.getElementById('go-title').classList.add('opacity-0');
+            document.getElementById('go-stats').classList.add('opacity-0');
+            document.getElementById('go-score').classList.add('opacity-0');
+            document.getElementById('restart-btn').classList.add('opacity-0');
+        }
+
+        // ------------------ 화면 전환 및 렌더링 ------------------
+        function showTitleScreen() {
+            appState = 'TITLE';
+            currentSaveSlot = null;
+            
+            document.getElementById('ui-layer').classList.add('hidden');
+            document.getElementById('save-screen').classList.add('hidden');
+            document.getElementById('game-over').classList.add('hidden');
+            
+            const titleScreen = document.getElementById('title-screen');
+            titleScreen.classList.remove('hidden');
+            void titleScreen.offsetWidth;
+            titleScreen.classList.remove('opacity-0');
+        }
+
+        function showSaveScreen() {
+            appState = 'SAVES';
+            document.getElementById('title-screen').classList.add('opacity-0');
+            
+            setTimeout(() => {
+                document.getElementById('title-screen').classList.add('hidden');
+                
+                const saveScreen = document.getElementById('save-screen');
+                saveScreen.classList.remove('hidden');
+                renderSaveSlots();
+                void saveScreen.offsetWidth;
+                saveScreen.classList.remove('opacity-0');
+            }, 300);
+        }
+
+        function renderSaveSlots() {
+            const container = document.getElementById('save-slots-container');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= 3; i++) {
+                const dataStr = localStorage.getItem(`merge_save_${i}`);
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex gap-[2cqw] w-full items-center';
+                
+                const btn = document.createElement('button');
+                btn.className = 'relative flex-1 parchment-theme h-[14cqh] rounded-2xl flex flex-col justify-center px-[5cqw] border-[#dca773] active:scale-95 transition-transform text-left shadow-lg overflow-hidden';
+                btn.style.borderWidth = '0.5cqh';
+                
+                if (dataStr) {
+                    try {
+                        const data = JSON.parse(dataStr);
+                        let maxLevel = Math.max(...data.discovered);
+                        btn.innerHTML = `
+                            <div class="relative z-10 flex justify-between items-end w-full">
+                                <span class="font-black text-[#5a4231] leading-none" style="font-size: 3.5cqh; -webkit-text-stroke: 0.02em transparent;">슬롯 ${i}</span>
+                                <span class="font-bold text-[#8b5a2b]" style="font-size: 2.2cqh; -webkit-text-stroke: 0.02em transparent;">이어서 하기</span>
+                            </div>
+                            <span class="relative z-10 font-bold mt-[1cqh] text-slate-700" style="font-size: 2.5cqh; -webkit-text-stroke: 0.02em transparent;">최대 발견: ${getMineralInfo(maxLevel).name}</span>
+                        `;
+                        btn.onclick = () => {
+                            hideSaveScreen(() => { currentSaveSlot = i; loadGameState(data); });
+                        };
+                    } catch(e) {
+                        btn.innerHTML = `<span class="relative z-10 font-black text-[#5a4231]" style="font-size: 3.5cqh;">데이터 오류</span>`;
+                    }
+                } else {
+                    btn.innerHTML = `
+                        <div class="relative z-10 flex justify-between items-center w-full h-full">
+                            <span class="font-black text-[#5a4231]" style="font-size: 3.5cqh; -webkit-text-stroke: 0.02em transparent;">슬롯 ${i}</span>
+                            <span class="font-bold text-[#8b5a2b]" style="font-size: 2.5cqh; -webkit-text-stroke: 0.02em transparent;">빈 데이터 - 새로 시작</span>
+                        </div>
+                    `;
+                    btn.onclick = () => {
+                        hideSaveScreen(() => { currentSaveSlot = i; initNewGame(); });
+                    };
+                }
+                if (uiConfig && isValidPath(uiConfig.saveSlotBtn)) applyBgTexture(btn, uiConfig.saveSlotBtn);
+                wrapper.appendChild(btn);
+
+                if (dataStr) {
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'relative h-[10cqh] aspect-square bg-red-500/80 hover:bg-red-500 text-white rounded-2xl flex items-center justify-center font-black active:scale-90 transition-transform shadow-md border-[0.3cqh] border-red-700 overflow-hidden';
+                    delBtn.style.fontSize = '3.5cqh';
+                    delBtn.innerHTML = '<span class="relative z-10">🗑️</span>';
+                    delBtn.onclick = () => {
+                        if (confirm(`슬롯 ${i}의 진행 상황을 삭제하시겠습니까?`)) {
+                            localStorage.removeItem(`merge_save_${i}`); renderSaveSlots();
+                        }
+                    };
+                    if (uiConfig && isValidPath(uiConfig.saveDelBtn)) applyBgTexture(delBtn, uiConfig.saveDelBtn);
+                    wrapper.appendChild(delBtn);
+                }
+                container.appendChild(wrapper);
             }
         }
 
-        // 특정 트리거(summon 또는 merge)가 발생했을 때 설정에 따라 쿨타임을 감소시키는 통합 함수
+        function hideSaveScreen(callback) {
+            const saveScreen = document.getElementById('save-screen');
+            saveScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                saveScreen.classList.add('hidden');
+                if (callback) callback();
+            }, 300);
+        }
+
+        document.getElementById('btn-title-play').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); showSaveScreen();
+        });
+
+        document.getElementById('btn-save-back').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); hideSaveScreen(() => { showTitleScreen(); });
+        });
+        
+        document.getElementById('exit-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            const modal = document.getElementById('exit-modal');
+            modal.classList.remove('hidden'); void modal.offsetWidth; modal.classList.remove('opacity-0');
+            document.getElementById('exit-content').classList.remove('scale-95');
+        });
+        
+        document.getElementById('btn-exit-no').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            const modal = document.getElementById('exit-modal');
+            modal.classList.add('opacity-0'); document.getElementById('exit-content').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        });
+
+        document.getElementById('btn-exit-yes').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            const modal = document.getElementById('exit-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden'); saveGameState(); showTitleScreen();
+            }, 300);
+        });
+
+        // ------------------ 기존 게임 로직 ------------------
         function decrementCooldowns(triggerType) {
-            // Select (Pin)
             const sConf = skillConfigs.select;
             const sType = targetedIsFirstUse ? sConf.initialCooldownType : sConf.baseCooldownType;
             if (sType === triggerType && targetedSpawnCooldown > 0) targetedSpawnCooldown--;
 
-            // Mining (Hammer)
             const mConf = skillConfigs.mining;
             const mType = removeIsFirstUse ? mConf.initialCooldownType : mConf.baseCooldownType;
             if (mType === triggerType && removeSkillCooldown > 0) removeSkillCooldown--;
 
-            // Change (Swap)
             const cConf = skillConfigs.change;
             const cType = swapIsFirstUse ? cConf.initialCooldownType : cConf.baseCooldownType;
             if (cType === triggerType && swapSkillCooldown > 0) swapSkillCooldown--;
@@ -568,8 +870,7 @@
                 
                 const scale = scalePercent / 100;
                 const localTileH = (typeof tileH !== 'undefined' && typeof tileW !== 'undefined' && tileW > 0) 
-                                   ? tileH * (radius / (tileW * 0.32)) 
-                                   : radius * 2.5; 
+                                   ? tileH * (radius / (tileW * 0.32)) : radius * 2.5; 
                 
                 const offsetY = (offsetPercent / 100) * localTileH;
                 const drawRadius = radius * scale;
@@ -614,7 +915,6 @@
                 else if (i === 0) targetCtx.fillStyle = color.highlight2;
                 else if (i === 1 || i === 4) targetCtx.fillStyle = color.base;
                 else targetCtx.fillStyle = color.shadow;
-                
                 targetCtx.fill();
                 
                 targetCtx.strokeStyle = color.point;
@@ -634,67 +934,6 @@
             targetCtx.stroke();
             
             targetCtx.restore();
-        }
-
-        function init() {
-            grid = [];
-            for (let r = 0; r < GRID_SIZE; r++) {
-                let row = [];
-                for (let c = 0; c < GRID_SIZE; c++) {
-                    row.push({ level: 0, scale: 0, bounce: 1, errorFlash: 0 });
-                }
-                grid.push(row);
-            }
-            selectedCell = null;
-            isGameOver = false;
-            score = 0;
-            
-            isGameOverAnimating = false;
-            currentBoardScale = 1.0;
-            
-            resetStats();
-
-            // 스킬 쿨타임 초기화
-            targetedSpawnCooldown = skillConfigs.select.initialCooldown;
-            targetedIsFirstUse = true;
-            isAwaitingTargetSelection = false;
-            
-            removeSkillCooldown = skillConfigs.mining.initialCooldown;
-            removeIsFirstUse = true;
-            isAwaitingRemoveSelection = false;
-            
-            swapSkillCooldown = skillConfigs.change.initialCooldown;
-            swapIsFirstUse = true;
-            isAwaitingSwapSelection = false;
-            swapFirstTarget = null;
-            
-            particles = [];
-            floatingTexts = [];
-            
-            updateSkillUI();
-            
-            const gameOverUI = document.getElementById('game-over');
-            gameOverUI.classList.add('hidden');
-            
-            document.getElementById('ui-layer').classList.remove('hidden');
-            
-            document.getElementById('go-title').classList.add('opacity-0');
-            document.getElementById('go-stats').classList.add('opacity-0');
-            document.getElementById('go-score').classList.add('opacity-0');
-            document.getElementById('restart-btn').classList.add('opacity-0');
-            
-            generateNextSpawn();
-            
-            const randR = Math.floor(Math.random() * GRID_SIZE);
-            const randC = Math.floor(Math.random() * GRID_SIZE);
-            grid[randR][randC].level = 1;
-            grid[randR][randC].scale = 0;
-            
-            discoveredMinerals.add(1);
-
-            updateScoreDisplay();
-
-            resize();
         }
 
         function updateScoreDisplay() {
@@ -730,7 +969,6 @@
             const yellowGlow = 'shadow-[0_0_20px_rgba(250,204,21,0.8)]';
             const blueGlow = 'shadow-[0_0_20px_rgba(56,189,248,0.8)]';
             const baseBorder = 'border-[#dca773]';
-            
             const yellowText = 'text-[#fff9c4]';
             const whiteText = 'text-white';
 
@@ -739,31 +977,19 @@
                 pinOverlayUI.classList.remove('hidden');
                 pinCooldownUI.classList.remove('hidden');
                 pinCooldownUI.innerText = targetedSpawnCooldown;
-                
-                if (targetedIsFirstUse) {
-                    pinCooldownUI.classList.remove(whiteText);
-                    pinCooldownUI.classList.add(yellowText);
-                } else {
-                    pinCooldownUI.classList.remove(yellowText);
-                    pinCooldownUI.classList.add(whiteText);
-                }
+                pinCooldownUI.className = pinCooldownUI.className.replace(/text-white|text-\[#fff9c4\]/g, targetedIsFirstUse ? yellowText : whiteText);
                 
                 isAwaitingTargetSelection = false;
                 pinBtn.classList.remove(yellowGlow, blueGlow);
-                pinBtn.classList.add(baseBorder, normalShadow);
+                if(!pinBtn.classList.contains('has-ui-texture')) pinBtn.classList.add(baseBorder, normalShadow);
             } else {
                 pinBtn.classList.remove('pointer-events-none');
                 pinOverlayUI.classList.add('hidden');
                 pinCooldownUI.classList.add('hidden');
                 pinBtn.classList.remove(baseBorder, normalShadow);
                 
-                if (isAwaitingTargetSelection) {
-                    pinBtn.classList.remove(yellowGlow);
-                    pinBtn.classList.add(blueGlow);
-                } else {
-                    pinBtn.classList.remove(blueGlow);
-                    pinBtn.classList.add(yellowGlow);
-                }
+                if (isAwaitingTargetSelection) { pinBtn.classList.remove(yellowGlow); pinBtn.classList.add(blueGlow); }
+                else { pinBtn.classList.remove(blueGlow); pinBtn.classList.add(yellowGlow); }
             }
 
             if (removeSkillCooldown > 0) {
@@ -771,31 +997,19 @@
                 hammerOverlayUI.classList.remove('hidden');
                 hammerCooldownUI.classList.remove('hidden');
                 hammerCooldownUI.innerText = removeSkillCooldown;
-                
-                if (removeIsFirstUse) {
-                    hammerCooldownUI.classList.remove(whiteText);
-                    hammerCooldownUI.classList.add(yellowText);
-                } else {
-                    hammerCooldownUI.classList.remove(yellowText);
-                    hammerCooldownUI.classList.add(whiteText);
-                }
+                hammerCooldownUI.className = hammerCooldownUI.className.replace(/text-white|text-\[#fff9c4\]/g, removeIsFirstUse ? yellowText : whiteText);
 
                 isAwaitingRemoveSelection = false;
                 hammerBtn.classList.remove(yellowGlow, blueGlow);
-                hammerBtn.classList.add(baseBorder, normalShadow);
+                if(!hammerBtn.classList.contains('has-ui-texture')) hammerBtn.classList.add(baseBorder, normalShadow);
             } else {
                 hammerBtn.classList.remove('pointer-events-none');
                 hammerOverlayUI.classList.add('hidden');
                 hammerCooldownUI.classList.add('hidden');
                 hammerBtn.classList.remove(baseBorder, normalShadow);
                 
-                if (isAwaitingRemoveSelection) {
-                    hammerBtn.classList.remove(yellowGlow);
-                    hammerBtn.classList.add(blueGlow);
-                } else {
-                    hammerBtn.classList.remove(blueGlow);
-                    hammerBtn.classList.add(yellowGlow);
-                }
+                if (isAwaitingRemoveSelection) { hammerBtn.classList.remove(yellowGlow); hammerBtn.classList.add(blueGlow); }
+                else { hammerBtn.classList.remove(blueGlow); hammerBtn.classList.add(yellowGlow); }
             }
 
             if (swapSkillCooldown > 0) {
@@ -803,32 +1017,20 @@
                 swapOverlayUI.classList.remove('hidden');
                 swapCooldownUI.classList.remove('hidden');
                 swapCooldownUI.innerText = swapSkillCooldown;
-
-                if (swapIsFirstUse) {
-                    swapCooldownUI.classList.remove(whiteText);
-                    swapCooldownUI.classList.add(yellowText);
-                } else {
-                    swapCooldownUI.classList.remove(yellowText);
-                    swapCooldownUI.classList.add(whiteText);
-                }
+                swapCooldownUI.className = swapCooldownUI.className.replace(/text-white|text-\[#fff9c4\]/g, swapIsFirstUse ? yellowText : whiteText);
 
                 isAwaitingSwapSelection = false;
                 swapFirstTarget = null;
                 swapBtn.classList.remove(yellowGlow, blueGlow);
-                swapBtn.classList.add(baseBorder, normalShadow);
+                if(!swapBtn.classList.contains('has-ui-texture')) swapBtn.classList.add(baseBorder, normalShadow);
             } else {
                 swapBtn.classList.remove('pointer-events-none');
                 swapOverlayUI.classList.add('hidden');
                 swapCooldownUI.classList.add('hidden');
                 swapBtn.classList.remove(baseBorder, normalShadow);
                 
-                if (isAwaitingSwapSelection) {
-                    swapBtn.classList.remove(yellowGlow);
-                    swapBtn.classList.add(blueGlow);
-                } else {
-                    swapBtn.classList.remove(blueGlow);
-                    swapBtn.classList.add(yellowGlow);
-                }
+                if (isAwaitingSwapSelection) { swapBtn.classList.remove(yellowGlow); swapBtn.classList.add(blueGlow); }
+                else { swapBtn.classList.remove(blueGlow); swapBtn.classList.add(yellowGlow); }
             }
 
             let anySkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
@@ -850,6 +1052,11 @@
 
             container.style.setProperty('--tile-w', `${tileW}px`);
             container.style.setProperty('--tile-h', `${tileH}px`);
+
+            container.style.setProperty('--btn-border', `${tileW * 0.48 * 0.10}px`);
+            container.style.setProperty('--popup-border', `${canvas.height * 0.78 * 0.05}px`);
+            container.style.setProperty('--skill-cd-border', `${tileW * 0.54 * 0.1}px`);
+            container.style.setProperty('--stats-border', `${canvas.height * 0.35 * 0.03}px`);
 
             originX = canvas.width / 2;
             const totalGridHeight = GRID_SIZE * tileH;
@@ -896,16 +1103,13 @@
         function drawNextPreview() {
             const previewCanvas = document.getElementById('preview-canvas');
             if (!previewCanvas) return;
-            
             const rect = previewCanvas.parentElement.getBoundingClientRect();
             if (rect.width === 0) return;
-            
             const dpr = window.devicePixelRatio || 1;
             if (previewCanvas.width !== rect.width * dpr) {
                 previewCanvas.width = rect.width * dpr;
                 previewCanvas.height = rect.height * dpr;
             }
-            
             const pCtx = previewCanvas.getContext('2d');
             pCtx.imageSmoothingEnabled = false; 
             pCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
@@ -929,19 +1133,15 @@
 
         function spawnItem() {
             if (isGameOver || isAwaitingTargetSelection) return;
-
             const emptyCells = [];
             for(let r=0; r<GRID_SIZE; r++) {
                 for(let c=0; c<GRID_SIZE; c++) {
                     if (grid[r][c].level === 0) emptyCells.push({r, c});
                 }
             }
-
             if (emptyCells.length === 0) return;
-
             const randIdx = Math.floor(Math.random() * emptyCells.length);
             const {r, c} = emptyCells[randIdx];
-
             executeSpawn(r, c, false);
         }
 
@@ -951,10 +1151,11 @@
             grid[r][c].bounce = 1;
             
             discoveredMinerals.add(nextSpawnLevel);
+            gameStats.discoveryCount[nextSpawnLevel]++;
 
             if (!isTargeted) {
                 gameStats.spawnCount++;
-                decrementCooldowns('summon'); // 생성(summon) 시 쿨타임 감소 트리거 작동
+                decrementCooldowns('summon'); 
             } else {
                 targetedSpawnCooldown = skillConfigs.select.baseCooldown;
                 targetedIsFirstUse = false;
@@ -964,6 +1165,8 @@
             generateNextSpawn();
             updateSkillUI();
             updateScoreDisplay();
+            
+            saveGameState(); 
 
             if (getEmptyCount() === 0) {
                 triggerGameOver();
@@ -980,17 +1183,16 @@
             const createSec = (title) => {
                 const sec = document.createElement('div');
                 sec.className = 'flex flex-col gap-[1cqh]';
-                
                 const h3 = document.createElement('h3');
                 h3.className = 'text-yellow-400 font-black border-b-2 border-slate-600/50 pb-[0.5cqh]';
                 h3.style.fontSize = headerSize;
+                h3.style.webkitTextStroke = '0.02em rgba(0,0,0,0.5)';
                 h3.innerText = title;
                 sec.appendChild(h3);
                 
                 const grid = document.createElement('div');
                 grid.className = 'grid grid-cols-2 gap-x-[3cqw] gap-y-[0.5cqh]';
                 sec.appendChild(grid);
-                
                 return {sec, grid};
             };
             
@@ -998,73 +1200,84 @@
                 const div = document.createElement('div');
                 div.className = 'flex justify-between items-center';
                 div.style.fontSize = valueSize;
-                
                 const l = document.createElement('span');
                 l.className = 'text-slate-300 font-bold';
+                l.style.webkitTextStroke = '0.02em transparent';
                 l.innerText = label;
-                
                 const v = document.createElement('span');
                 v.className = 'text-white font-black';
+                v.style.webkitTextStroke = '0.02em rgba(0,0,0,0.5)';
                 v.innerText = val;
-                
                 div.appendChild(l);
                 div.appendChild(v);
                 return div;
             };
 
-            const basic = createSec('기본 통계');
-            basic.grid.appendChild(createRow('생성 횟수', gameStats.spawnCount));
-            basic.grid.appendChild(createRow('📌 지정', gameStats.skillUsage.pin));
-            basic.grid.appendChild(createRow('⛏️ 파괴', gameStats.skillUsage.hammer));
-            basic.grid.appendChild(createRow('🔁 교체', gameStats.skillUsage.swap));
-            container.appendChild(basic.sec);
-            
-            const cult = createSec('광물별 배양 횟수');
+            const sett = createSec('정산');
             for (let i = 1; i <= MAX_LEVEL; i++) {
-                if (gameStats.cultivationCount[i] > 0) {
-                    cult.grid.appendChild(createRow(getMineralInfo(i).name, gameStats.cultivationCount[i]));
-                }
-            }
-            if (cult.grid.children.length > 0) container.appendChild(cult.sec);
-            
-            const sett = createSec('결산');
-            for (let i = 1; i <= MAX_LEVEL; i++) {
-                if (gameStats.settlementCount[i] > 0) {
-                    const cnt = gameStats.settlementCount[i];
-                    const pts = cnt * getMineralInfo(i).settlementScore;
-                    sett.grid.appendChild(createRow(getMineralInfo(i).name, `${cnt}개 (${pts.toLocaleString()})`));
+                const totalCount = gameStats.finalBoardCount[i] + gameStats.miningCount[i];
+                if (totalCount > 0) {
+                    const pts = totalCount * getMineralInfo(i).settlementScore;
+                    sett.grid.appendChild(createRow(`${getMineralInfo(i).name} (x${totalCount})`, pts.toLocaleString()));
                 }
             }
             if (sett.grid.children.length > 0) container.appendChild(sett.sec);
+            
+            const secMine = createSec('채굴');
+            for (let i = 1; i <= MAX_LEVEL; i++) {
+                if (gameStats.miningCount[i] > 0) {
+                    const cnt = gameStats.miningCount[i];
+                    const pts = cnt * getMineralInfo(i).settlementScore;
+                    secMine.grid.appendChild(createRow(getMineralInfo(i).name, `${cnt}회 (${pts.toLocaleString()})`));
+                }
+            }
+            if (secMine.grid.children.length > 0) container.appendChild(secMine.sec);
+            
+            const secDiscovery = createSec('발견');
+            for (let i = 1; i <= MAX_LEVEL; i++) {
+                if (gameStats.discoveryCount[i] > 0) {
+                    secDiscovery.grid.appendChild(createRow(getMineralInfo(i).name, gameStats.discoveryCount[i]));
+                }
+            }
+            if (secDiscovery.grid.children.length > 0) container.appendChild(secDiscovery.sec);
+
+            const secOther = createSec('기타');
+            const totalSpawns = gameStats.spawnCount + gameStats.skillUsage.pin;
+            secOther.grid.appendChild(createRow('생성 횟수', totalSpawns));
+            secOther.grid.appendChild(createRow('합성 횟수', gameStats.totalMerges));
+            secOther.grid.appendChild(createRow('📌 지정 스킬', gameStats.skillUsage.pin));
+            secOther.grid.appendChild(createRow('⛏️ 파괴 스킬', gameStats.skillUsage.hammer));
+            secOther.grid.appendChild(createRow('🔁 교체 스킬', gameStats.skillUsage.swap));
+            container.appendChild(secOther.sec);
         }
 
         function triggerGameOver() {
             isGameOver = true;
             selectedCell = null;
             
-            let settlementScore = 0; 
+            let finalBoardScore = 0; 
             for (let r = 0; r < GRID_SIZE; r++) {
                 for (let c = 0; c < GRID_SIZE; c++) {
                     const level = grid[r][c].level;
                     if (level > 0) {
-                        gameStats.settlementCount[level]++; 
-                        settlementScore += getMineralInfo(level).settlementScore;
+                        gameStats.finalBoardCount[level]++; 
+                        finalBoardScore += getMineralInfo(level).settlementScore;
                     }
                 }
             }
-            
             renderStats(); 
             
-            const finalTotalScore = score + settlementScore;
-            
+            const finalTotalScore = score + finalBoardScore;
             const finalScoreEl = document.getElementById('final-score');
             if (finalScoreEl) finalScoreEl.innerText = finalTotalScore.toLocaleString();
 
-            // 상호작용 중지 후 0.6초 대기
+            if (currentSaveSlot) {
+                localStorage.removeItem(`merge_save_${currentSaveSlot}`);
+            }
+
             setTimeout(() => {
-                document.getElementById('ui-layer').classList.add('hidden'); // UI 제거
+                document.getElementById('ui-layer').classList.add('hidden'); 
                 
-                // 줌아웃 애니메이션 셋팅 (1초 간 60% 크기로 줌아웃)
                 targetOriginX = canvas.width * 0.3;
                 targetOriginY = canvas.height * 0.15 + (tileH * 0.6 / 2);
                 targetBoardScale = 0.6;
@@ -1073,48 +1286,26 @@
                 
                 const gameOverUI = document.getElementById('game-over');
                 gameOverUI.classList.remove('hidden');
-                
-                // GAME OVER 텍스트 등장
                 document.getElementById('go-title').classList.remove('opacity-0');
                 
-                // 1초(줌아웃) + 0.5초 대기
                 setTimeout(() => {
-                    // 통계 박스 부드럽게 등장
                     document.getElementById('go-stats').classList.remove('opacity-0');
-                    
-                    // 1초 뒤에 최종 점수 등장
                     setTimeout(() => {
                         document.getElementById('go-score').classList.remove('opacity-0');
-                        
-                        // 0.8초 뒤에 재시작 버튼 등장
                         setTimeout(() => {
                             document.getElementById('restart-btn').classList.remove('opacity-0');
                         }, 800);
-                        
                     }, 1000);
-                    
                 }, 1500);
-                
             }, 600);
         }
 
         function handleCellInteraction(r, c) {
             const cell = grid[r][c];
 
-            if (cell.level === 0) {
-                selectedCell = null;
-                return;
-            }
-
-            if (!selectedCell) {
-                selectedCell = {r, c};
-                return;
-            }
-
-            if (selectedCell.r === r && selectedCell.c === c) {
-                selectedCell = null;
-                return;
-            }
+            if (cell.level === 0) { selectedCell = null; return; }
+            if (!selectedCell) { selectedCell = {r, c}; return; }
+            if (selectedCell.r === r && selectedCell.c === c) { selectedCell = null; return; }
 
             const firstCell = grid[selectedCell.r][selectedCell.c];
             const dist = Math.abs(selectedCell.r - r) + Math.abs(selectedCell.c - c);
@@ -1123,15 +1314,11 @@
 
             if (isAdjacent && isSameLevel) {
                 const newLevel = firstCell.level + 1;
-                
-                // 마지막 광물 합성 제한 로직: 
-                // newLevel이 갱신된 MAX_LEVEL보다 작거나 같을 때만 합성이 허용됩니다.
                 if (newLevel <= MAX_LEVEL) {
-                    gameStats.cultivationCount[newLevel]++; 
-
+                    gameStats.totalMerges++; 
+                    gameStats.discoveryCount[newLevel]++;
                     cell.level = newLevel;
                     cell.bounce = 1.5;
-                    
                     discoveredMinerals.add(newLevel);
                     
                     const {x: tx, y: ty} = getScreenXY(r, c);
@@ -1143,10 +1330,11 @@
                     firstCell.scale = 0;
                     selectedCell = null;
                     
-                    decrementCooldowns('merge'); // 합성(merge) 시 쿨타임 감소 트리거 작동
-                    
+                    decrementCooldowns('merge'); 
                     updateSkillUI();
                     updateScoreDisplay();
+
+                    saveGameState(); 
                 } else {
                     selectedCell = null;
                 }
@@ -1169,8 +1357,7 @@
                     alpha: 1, life: 0,
                     maxLife: Math.random() * 15 + 10,
                     radius: (Math.random() * (sW * 0.015) + (sW * 0.01)) * sizeMultiplier,
-                    color: color,
-                    sH: sH
+                    color: color, sH: sH
                 });
             }
         }
@@ -1180,17 +1367,12 @@
                 const p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vx *= 0.80;
-                p.vy *= 0.80;
+                p.vx *= 0.80; p.vy *= 0.80;
                 p.vy += (p.sH || tileH) * 0.004; 
                 p.life++;
-                
                 if (p.maxLife - p.life < 5) p.alpha = Math.max(0, (p.maxLife - p.life) / 5);
                 
-                if (p.life >= p.maxLife) {
-                    particles.splice(i, 1);
-                    continue;
-                }
+                if (p.life >= p.maxLife) { particles.splice(i, 1); continue; }
                 
                 ctx.save();
                 ctx.globalAlpha = p.alpha;
@@ -1203,11 +1385,7 @@
         }
 
         function spawnFloatingText(x, y, text) {
-            floatingTexts.push({
-                x: x, y: y, text: text,
-                startTime: performance.now(),
-                duration: 1000
-            });
+            floatingTexts.push({ x: x, y: y, text: text, startTime: performance.now(), duration: 1000 });
         }
 
         function updateAndDrawFloatingTexts() {
@@ -1218,25 +1396,17 @@
             for (let i = floatingTexts.length - 1; i >= 0; i--) {
                 const ft = floatingTexts[i];
                 const elapsed = now - ft.startTime;
-                
-                if (elapsed >= ft.duration) {
-                    floatingTexts.splice(i, 1);
-                    continue;
-                }
+                if (elapsed >= ft.duration) { floatingTexts.splice(i, 1); continue; }
                 
                 const progress = elapsed / ft.duration;
                 const floatDistance = sH * 0.4;
                 let currentY = ft.y;
                 
-                if (progress <= 0.2) {
-                    currentY -= floatDistance * (2.5 * progress);
-                } else if (progress <= 0.6) {
+                if (progress <= 0.2) currentY -= floatDistance * (2.5 * progress);
+                else if (progress <= 0.6) {
                     const p2 = progress - 0.2;
-                    const distRatio = 0.5 + (2.5 * p2 - 3.125 * p2 * p2);
-                    currentY -= floatDistance * distRatio;
-                } else {
-                    currentY -= floatDistance;
-                }
+                    currentY -= floatDistance * (0.5 + (2.5 * p2 - 3.125 * p2 * p2));
+                } else currentY -= floatDistance;
                 
                 const alpha = progress > 0.6 ? Math.max(0, 1 - (progress - 0.6) / 0.4) : 1;
                 
@@ -1244,14 +1414,11 @@
                 ctx.globalAlpha = alpha;
                 const fontSize = sW * 0.25;
                 ctx.font = `900 ${fontSize}px 'Inter', sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 
                 ctx.lineWidth = Math.max(1, fontSize * 0.048);
-                ctx.lineJoin = 'round';
-                ctx.strokeStyle = '#000000';
+                ctx.lineJoin = 'round'; ctx.strokeStyle = '#000000';
                 ctx.strokeText(ft.text, ft.x, currentY);
-                
                 ctx.fillStyle = '#ffffff';
                 ctx.fillText(ft.text, ft.x, currentY);
                 ctx.restore();
@@ -1262,12 +1429,8 @@
             if (isGameOverAnimating) {
                 const now = performance.now();
                 let p = (now - gameOverAnimStartTime) / 1000;
-                if (p > 1) {
-                    p = 1;
-                    isGameOverAnimating = false;
-                }
-                const ease = 1 - Math.pow(1 - p, 3); // Cubic ease-out
-                
+                if (p > 1) { p = 1; isGameOverAnimating = false; }
+                const ease = 1 - Math.pow(1 - p, 3); 
                 currentBoardScale = 1.0 + (0.6 - 1.0) * ease;
                 currentOriginX = originX + (targetOriginX - originX) * ease;
                 currentOriginY = originY + (targetOriginY - originY) * ease;
@@ -1276,71 +1439,22 @@
             ctx.fillStyle = '#3a3246';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const isSkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
-            if (isSkillActive) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-
-            // 1. 모든 타일과 광물 먼저 그리기
-            for (let r = 0; r < GRID_SIZE; r++) {
-                for (let c = 0; c < GRID_SIZE; c++) {
-                    drawTileAndItem(r, c);
+            if (appState === 'PLAYING' || appState === 'SAVES') {
+                const isSkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
+                if (isSkillActive) {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                 }
-            }
 
-            // 2. UI 요소인 단계 표시 텍스트를 가장 최상단에 렌더링
-            for (let r = 0; r < GRID_SIZE; r++) {
-                for (let c = 0; c < GRID_SIZE; c++) {
-                    const cell = grid[r][c];
-                    if (cell.level > 0) {
-                        const {x, y} = getScreenXY(r, c);
-                        const sW = tileW * currentBoardScale;
-                        const sH = tileH * currentBoardScale;
-                        
-                        // 스킬 필터 시인성을 맞추기 위한 어둡기 조건 복제
-                        let isItemHighlighted = false;
-                        if (isAwaitingRemoveSelection) isItemHighlighted = true;
-                        else if (isAwaitingSwapSelection) {
-                            if (!swapFirstTarget) isItemHighlighted = true;
-                            else if (swapFirstTarget.r === r && swapFirstTarget.c === c) isItemHighlighted = true;
-                            else if (cell.level !== grid[swapFirstTarget.r][swapFirstTarget.c].level) isItemHighlighted = true;
-                        }
-
-                        if (isSkillActive && !isItemHighlighted) ctx.filter = 'brightness(65%)';
-                        else ctx.filter = 'none';
-
-                        ctx.save();
-                        // 텍스트 크기 기존 대비 80% 확대
-                        const levelFontSize = sH * 0.225;
-                        ctx.font = `900 ${levelFontSize}px 'Inter', sans-serif`;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        
-                        // 텍스트 가로 위치
-                        const textX = x + sW * 0.20;
-                        // 텍스트 Y 위치를 타일 하단에서 타일 세로 길이의 40%만큼 위로 올림
-                        const textY = (y + sH / 2) - (sH * 0.4);
-                        
-                        // 텍스트 윤곽선
-                        ctx.lineWidth = levelFontSize * 0.2;
-                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
-                        ctx.lineJoin = 'round';
-                        ctx.strokeText(cell.level, textX, textY);
-                        
-                        // 텍스트 채우기
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillText(cell.level, textX, textY);
-                        
-                        ctx.restore();
-                        ctx.filter = 'none'; // 필터 초기화
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    for (let c = 0; c < GRID_SIZE; c++) {
+                        drawTileAndItem(r, c);
                     }
                 }
+                updateAndDrawParticles();
+                updateAndDrawFloatingTexts();
+                if (appState === 'PLAYING') drawNextPreview();
             }
-
-            updateAndDrawParticles();
-            updateAndDrawFloatingTexts();
-            drawNextPreview();
 
             requestAnimationFrame(draw);
         }
@@ -1350,7 +1464,10 @@
             const sW = tileW * currentBoardScale;
             const sH = tileH * currentBoardScale;
             const isSelected = selectedCell && selectedCell.r === r && selectedCell.c === c;
-            const cell = grid[r][c];
+            
+            let cell = {level: 0, scale: 0, bounce: 1, errorFlash: 0};
+            if (grid[r] && grid[r][c]) cell = grid[r][c];
+
             const isSkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
             
             if (isAwaitingRemoveSelection) {
@@ -1370,18 +1487,15 @@
             }
 
             ctx.beginPath();
-            ctx.moveTo(x, y - sH / 2);
-            ctx.lineTo(x + sW / 2, y);
-            ctx.lineTo(x, y + sH / 2);
-            ctx.lineTo(x - sW / 2, y);
+            ctx.moveTo(x, y - sH / 2); ctx.lineTo(x + sW / 2, y);
+            ctx.lineTo(x, y + sH / 2); ctx.lineTo(x - sW / 2, y);
             ctx.closePath();
 
             ctx.fillStyle = (r + c) % 2 === 0 ? '#554a63' : '#5f536e';
             ctx.fill();
             ctx.strokeStyle = '#473d54';
             ctx.lineWidth = 2 * currentBoardScale;
-            ctx.lineJoin = 'round';
-            ctx.stroke();
+            ctx.lineJoin = 'round'; ctx.stroke();
 
             if (cell.level > 0) {
                 let isItemHighlighted = false;
@@ -1391,21 +1505,15 @@
                     else if (swapFirstTarget.r === r && swapFirstTarget.c === c) isItemHighlighted = true;
                     else if (cell.level !== grid[swapFirstTarget.r][swapFirstTarget.c].level) isItemHighlighted = true;
                 }
-
                 if (isSkillActive && !isItemHighlighted) ctx.filter = 'brightness(65%)';
                 else ctx.filter = 'none';
 
                 cell.scale += (1 - cell.scale) * 0.15;
                 cell.bounce += (1 - cell.bounce) * 0.2;
-                
-                if (cell.errorFlash > 0) {
-                    cell.errorFlash -= 0.03;
-                    if (cell.errorFlash < 0) cell.errorFlash = 0;
-                }
+                if (cell.errorFlash > 0) { cell.errorFlash = Math.max(0, cell.errorFlash - 0.03); }
 
                 const baseRadius = sW * 0.32;
                 const radius = baseRadius * cell.scale * cell.bounce;
-                
                 if (radius <= 0.1) return;
 
                 const itemY = y + sH / 2 - radius * 1.15;
@@ -1417,43 +1525,23 @@
 
                 const isSwapFirst = isAwaitingSwapSelection && swapFirstTarget && swapFirstTarget.r === r && swapFirstTarget.c === c;
                 const isSwapCandidate = isAwaitingSwapSelection && isItemHighlighted && !isSwapFirst;
-
-                const minGlow = radius * 0.10;
-                const maxGlow = radius * 0.55;
-                const sineWave = (Math.sin(Date.now() * 0.005) + 1) / 2;
-                const glowThickness = minGlow + (maxGlow - minGlow) * sineWave;
+                const minGlow = radius * 0.10, maxGlow = radius * 0.55;
+                const glowThickness = minGlow + (maxGlow - minGlow) * ((Math.sin(Date.now() * 0.005) + 1) / 2);
 
                 if (isSelected || isAwaitingRemoveSelection || isSwapFirst || isSwapCandidate) {
-                    let innerR = radius * 0.8; 
-                    let outerR = radius + glowThickness;
-                    let grad = ctx.createRadialGradient(x, itemY, innerR, x, itemY, outerR);
-                    let glowColor;
-
-                    if (isSelected || isSwapFirst) {
-                        glowColor = '255, 255, 255';
-                    } else if (isSwapCandidate) {
-                        glowColor = '74, 222, 128'; 
-                    } else if (isAwaitingRemoveSelection) {
-                        glowColor = '249, 115, 22'; 
-                    }
-                    
+                    let grad = ctx.createRadialGradient(x, itemY, radius * 0.8, x, itemY, radius + glowThickness);
+                    let glowColor = isSelected || isSwapFirst ? '255, 255, 255' : isSwapCandidate ? '74, 222, 128' : '249, 115, 22';
                     grad.addColorStop(0, `rgba(${glowColor}, 0.8)`);
                     grad.addColorStop(1, `rgba(${glowColor}, 0)`);
-                    
-                    ctx.beginPath();
-                    ctx.arc(x, itemY, outerR, 0, Math.PI * 2);
-                    ctx.fillStyle = grad;
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(x, itemY, radius + glowThickness, 0, Math.PI * 2);
+                    ctx.fillStyle = grad; ctx.fill();
                 }
 
                 drawMineral(ctx, x, itemY, radius, cell.level);
 
                 if (cell.errorFlash > 0) {
-                    ctx.beginPath();
-                    ctx.arc(x, itemY, radius, 0, Math.PI * 2);
-                    ctx.lineWidth = 5;
-                    const flashAlpha = Math.abs(Math.sin(cell.errorFlash * Math.PI * 6));
-                    ctx.strokeStyle = `rgba(239, 68, 68, ${flashAlpha})`;
+                    ctx.beginPath(); ctx.arc(x, itemY, radius, 0, Math.PI * 2);
+                    ctx.lineWidth = 5; ctx.strokeStyle = `rgba(239, 68, 68, ${Math.abs(Math.sin(cell.errorFlash * Math.PI * 6))})`;
                     ctx.stroke();
                 }
             }
@@ -1467,42 +1555,25 @@
             e.preventDefault();
             if (targetedSpawnCooldown > 0) return;
             isAwaitingTargetSelection = !isAwaitingTargetSelection;
-            if (isAwaitingTargetSelection) {
-                isAwaitingRemoveSelection = false;
-                isAwaitingSwapSelection = false;
-                selectedCell = null;
-            }
+            if (isAwaitingTargetSelection) { isAwaitingRemoveSelection = false; isAwaitingSwapSelection = false; selectedCell = null; }
             updateSkillUI();
         });
-
         document.getElementById('skill-hammer-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
             if (removeSkillCooldown > 0) return;
             isAwaitingRemoveSelection = !isAwaitingRemoveSelection;
-            if (isAwaitingRemoveSelection) {
-                isAwaitingTargetSelection = false;
-                isAwaitingSwapSelection = false;
-                selectedCell = null;
-                swapFirstTarget = null;
-            }
+            if (isAwaitingRemoveSelection) { isAwaitingTargetSelection = false; isAwaitingSwapSelection = false; selectedCell = null; swapFirstTarget = null; }
             updateSkillUI();
         });
-
         document.getElementById('skill-swap-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
             if (swapSkillCooldown > 0) return;
             isAwaitingSwapSelection = !isAwaitingSwapSelection;
-            if (isAwaitingSwapSelection) {
-                isAwaitingTargetSelection = false;
-                isAwaitingRemoveSelection = false;
-                selectedCell = null;
-                swapFirstTarget = null;
-            } else {
-                swapFirstTarget = null;
-            }
+            if (isAwaitingSwapSelection) { isAwaitingTargetSelection = false; isAwaitingRemoveSelection = false; selectedCell = null; swapFirstTarget = null; }
+            else { swapFirstTarget = null; }
             updateSkillUI();
         });
-
+        
         document.getElementById('spawn-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
             if (grid.length === 0) return;
@@ -1511,387 +1582,153 @@
 
         document.getElementById('restart-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            init();
+            showTitleScreen();
         });
 
-        // ------------------ 도감 모달 관련 ------------------
+        // 도감 및 튜토리얼 팝업
         const dictModal = document.getElementById('dictionary-modal');
         const dictContent = document.getElementById('dictionary-content');
-
         let dictCurrentSpread = 0;
 
         function renderDictionaryPage(container, mineralLevel) {
             container.innerHTML = '';
             if (mineralLevel > MAX_LEVEL) return;
-
             const popupHeight = dictContent.clientHeight;
             const isDiscovered = discoveredMinerals.has(mineralLevel);
             const mineralInfo = getMineralInfo(mineralLevel);
 
-            const topGap = popupHeight * 0.05;
-            const mineralSize = popupHeight * 0.30;
-            const midGap = popupHeight * 0.05;
-            
-            const nameFontSize = popupHeight * 0.06; 
-            const scoreFontSize = popupHeight * 0.042;
-            const descFontSize = scoreFontSize * 0.9; 
-
             const contentDiv = document.createElement('div');
             contentDiv.className = 'w-full h-full flex flex-col items-center relative';
-            contentDiv.style.paddingTop = `${topGap}px`;
+            contentDiv.style.paddingTop = `${popupHeight * 0.05}px`;
 
             const canvasWrapper = document.createElement('div');
             canvasWrapper.className = 'flex justify-center items-center shrink-0 pointer-events-none';
-            canvasWrapper.style.width = '100%';
-            canvasWrapper.style.height = `${mineralSize}px`;
-
+            canvasWrapper.style.width = '100%'; canvasWrapper.style.height = `${popupHeight * 0.30}px`;
+            
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = mineralSize;
-            tempCanvas.height = mineralSize;
-            tempCanvas.style.width = `${mineralSize}px`;
-            tempCanvas.style.height = `${mineralSize}px`;
-            const tCtx = tempCanvas.getContext('2d');
-            tCtx.imageSmoothingEnabled = false; 
-            
-            drawMineral(tCtx, mineralSize / 2, mineralSize / 2, mineralSize * 0.45, mineralLevel, !isDiscovered, true);
-            
+            tempCanvas.width = popupHeight * 0.30; 
+            tempCanvas.height = popupHeight * 0.30;
+            tempCanvas.style.width = 'auto'; 
+            tempCanvas.style.height = '100%';
+            tempCanvas.style.aspectRatio = '1 / 1';
+            const tCtx = tempCanvas.getContext('2d'); tCtx.imageSmoothingEnabled = false; 
+            drawMineral(tCtx, tempCanvas.width / 2, tempCanvas.height / 2, tempCanvas.width * 0.45, mineralLevel, !isDiscovered, true);
             if (!isDiscovered) {
-                tCtx.fillStyle = '#ffffff';
-                tCtx.font = `900 ${mineralSize * 0.35}px 'Inter', sans-serif`;
-                tCtx.textAlign = 'center';
-                tCtx.textBaseline = 'middle';
-                tCtx.fillText('?', mineralSize / 2, mineralSize / 2 + mineralSize * 0.05);
+                tCtx.fillStyle = '#ffffff'; tCtx.font = `900 ${tempCanvas.width * 0.35}px 'Inter', sans-serif`;
+                tCtx.textAlign = 'center'; tCtx.textBaseline = 'middle';
+                tCtx.fillText('?', tempCanvas.width / 2, tempCanvas.height / 2 + tempCanvas.width * 0.05);
             }
-            canvasWrapper.appendChild(tempCanvas);
-            contentDiv.appendChild(canvasWrapper);
+            canvasWrapper.appendChild(tempCanvas); contentDiv.appendChild(canvasWrapper);
 
             const textGroup = document.createElement('div');
             textGroup.className = 'relative w-full flex flex-col items-center shrink-0 pointer-events-none';
-            textGroup.style.marginTop = `${midGap}px`;
+            textGroup.style.marginTop = `${popupHeight * 0.05}px`;
 
             const nameLabel = document.createElement('div');
             nameLabel.className = 'font-black text-[#5a4231] tracking-tighter leading-none relative z-10';
-            nameLabel.style.fontSize = `${nameFontSize}px`;
+            nameLabel.style.fontSize = `${popupHeight * 0.06}px`; nameLabel.style.webkitTextStroke = '0.02em transparent';
             nameLabel.innerText = isDiscovered ? mineralInfo.name : '???';
             
             const scoresDiv = document.createElement('div');
             scoresDiv.className = 'flex justify-center items-center z-0 opacity-80 w-full mt-2';
-            
             const settScore = document.createElement('div');
             settScore.className = 'font-bold text-[#8b5a2b] leading-none';
-            settScore.style.fontSize = `${scoreFontSize}px`;
+            settScore.style.fontSize = `${popupHeight * 0.042}px`; settScore.style.webkitTextStroke = '0.02em transparent';
             settScore.innerText = isDiscovered ? mineralInfo.settlementScore : '?';
-
             scoresDiv.appendChild(settScore);
 
-            textGroup.appendChild(nameLabel);
-            textGroup.appendChild(scoresDiv);
-            contentDiv.appendChild(textGroup);
+            textGroup.appendChild(nameLabel); textGroup.appendChild(scoresDiv); contentDiv.appendChild(textGroup);
 
             const descBox = document.createElement('div');
-            descBox.className = 'mt-3 mb-8 w-[92%] bg-[#5a4231]/5 rounded-xl p-2 sm:p-3 border border-[#dca773]/40 overflow-y-auto flex-1 pointer-events-auto';
-            
+            descBox.className = 'mt-3 mb-8 w-[92%] bg-[#5a4231]/5 rounded-xl p-2 sm:p-3 overflow-y-auto flex-1 pointer-events-auto border-[#dca773]/40 z-10 relative';
+            descBox.style.borderWidth = 'calc(var(--popup-border, 6px) * 0.6)';
             const descText = document.createElement('p');
             descText.className = 'text-[#5a4231] font-bold leading-snug text-left break-keep';
-            descText.style.fontSize = `${descFontSize}px`;
-            
-            let descContent = '???';
-            if (isDiscovered) {
-                descContent = mineralInfo.description;
-            }
-            descText.innerText = descContent;
-            
-            descBox.appendChild(descText);
-            contentDiv.appendChild(descBox);
+            descText.style.fontSize = `${popupHeight * 0.042 * 0.9}px`; descText.style.webkitTextStroke = '0.02em transparent';
+            descText.innerText = isDiscovered ? mineralInfo.description : '???';
+            descBox.appendChild(descText); contentDiv.appendChild(descBox);
 
             const pageNum = document.createElement('div');
-            pageNum.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 font-black text-[#8b5a2b]/50 pointer-events-none';
-            pageNum.style.fontSize = `${popupHeight * 0.035}px`;
-            pageNum.innerText = `- ${mineralLevel} -`;
-            contentDiv.appendChild(pageNum);
+            pageNum.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 font-black text-[#8b5a2b]/50 pointer-events-none z-10';
+            pageNum.style.fontSize = `${popupHeight * 0.035}px`; pageNum.style.webkitTextStroke = '0.02em transparent';
+            pageNum.innerText = `- ${mineralLevel} -`; contentDiv.appendChild(pageNum);
 
             container.appendChild(contentDiv);
         }
 
         function renderDictionary() {
-            const leftPage = document.getElementById('dict-page-left');
-            const rightPage = document.getElementById('dict-page-right');
-            
-            const leftMineral = dictCurrentSpread * 2 + 1;
-            const rightMineral = dictCurrentSpread * 2 + 2;
-
-            renderDictionaryPage(leftPage, leftMineral);
-            renderDictionaryPage(rightPage, rightMineral);
-            
-            const prevArea = document.getElementById('dict-prev-area');
-            const nextArea = document.getElementById('dict-next-area');
-            
-            if (prevArea) {
-                prevArea.style.opacity = dictCurrentSpread === 0 ? '0.3' : '1';
-                prevArea.style.pointerEvents = dictCurrentSpread === 0 ? 'none' : 'auto';
-            }
-            if (nextArea) {
-                nextArea.style.opacity = dictCurrentSpread === maxSpreads - 1 ? '0.3' : '1';
-                nextArea.style.pointerEvents = dictCurrentSpread === maxSpreads - 1 ? 'none' : 'auto';
-            }
-        }
-
-        function openDictionary() {
-            // 현재 MAX_LEVEL에 맞추어 도감의 최대 펼침 횟수(페이지)를 재계산합니다.
-            maxSpreads = Math.ceil(MAX_LEVEL / 2);
-            dictCurrentSpread = 0;
-            dictModal.classList.remove('hidden');
-            void dictModal.offsetWidth;
-            renderDictionary();
-            
-            dictModal.classList.remove('opacity-0');
-            dictContent.classList.remove('scale-95');
-            dictContent.classList.add('scale-100');
-        }
-
-        function closeDictionary() {
-            dictModal.classList.add('opacity-0');
-            dictContent.classList.remove('scale-100');
-            dictContent.classList.add('scale-95');
-            setTimeout(() => dictModal.classList.add('hidden'), 300);
+            renderDictionaryPage(document.getElementById('dict-page-left'), dictCurrentSpread * 2 + 1);
+            renderDictionaryPage(document.getElementById('dict-page-right'), dictCurrentSpread * 2 + 2);
+            document.getElementById('dict-prev-area').style.opacity = dictCurrentSpread === 0 ? '0.3' : '1';
+            document.getElementById('dict-prev-area').style.pointerEvents = dictCurrentSpread === 0 ? 'none' : 'auto';
+            document.getElementById('dict-next-area').style.opacity = dictCurrentSpread === maxSpreads - 1 ? '0.3' : '1';
+            document.getElementById('dict-next-area').style.pointerEvents = dictCurrentSpread === maxSpreads - 1 ? 'none' : 'auto';
         }
 
         document.getElementById('dictionary-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            openDictionary();
+            maxSpreads = Math.ceil(MAX_LEVEL / 2); dictCurrentSpread = 0;
+            dictModal.classList.remove('hidden'); void dictModal.offsetWidth; renderDictionary();
+            dictModal.classList.remove('opacity-0'); dictContent.classList.remove('scale-95'); dictContent.classList.add('scale-100');
         });
+        document.getElementById('dict-prev-area').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dictCurrentSpread > 0) { dictCurrentSpread--; renderDictionary(); }});
+        document.getElementById('dict-next-area').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dictCurrentSpread < maxSpreads - 1) { dictCurrentSpread++; renderDictionary(); }});
+        dictModal.addEventListener('pointerdown', (e) => { if (e.target === dictModal) { e.preventDefault(); dictModal.classList.add('opacity-0'); dictContent.classList.remove('scale-100'); dictContent.classList.add('scale-95'); setTimeout(() => dictModal.classList.add('hidden'), 300); }});
 
-        document.getElementById('dict-prev-area').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            if (dictCurrentSpread > 0) {
-                dictCurrentSpread--;
-                renderDictionary();
-            }
-        });
-
-        document.getElementById('dict-next-area').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            if (dictCurrentSpread < maxSpreads - 1) {
-                dictCurrentSpread++;
-                renderDictionary();
-            }
-        });
-
-        dictModal.addEventListener('pointerdown', (e) => {
-            if (e.target === dictModal) {
-                e.preventDefault();
-                closeDictionary();
-            }
-        });
-
-        // ------------------ 튜토리얼 모달 관련 ------------------
         const tutModal = document.getElementById('tutorial-modal');
         const tutPrevBtn = document.getElementById('tut-prev-btn');
         const tutConfirmBtn = document.getElementById('tut-confirm-btn');
-        
         let currentTutPage = 0;
         const totalTutPages = 3;
 
-        function openTutorial() {
-            currentTutPage = 0;
-            updateTutorialView();
-            tutModal.classList.remove('hidden');
-            void tutModal.offsetWidth;
-            tutModal.classList.remove('opacity-0');
-        }
-
-        function closeTutorial() {
-            tutModal.classList.add('opacity-0');
-            setTimeout(() => tutModal.classList.add('hidden'), 300);
-        }
+        document.getElementById('btn-title-help').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            currentTutPage = 0; updateTutorialView();
+            tutModal.classList.remove('hidden'); void tutModal.offsetWidth; tutModal.classList.remove('opacity-0');
+        });
 
         function updateTutorialView() {
             for (let i = 0; i < totalTutPages; i++) {
                 const page = document.getElementById(`tut-page-${i}`);
-                if (i === currentTutPage) {
-                    page.classList.remove('hidden');
-                    page.classList.remove('fade-in');
-                    void page.offsetWidth;
-                    page.classList.add('fade-in');
-                } else {
-                    page.classList.add('hidden');
-                }
+                if (i === currentTutPage) { page.classList.remove('hidden', 'fade-in'); void page.offsetWidth; page.classList.add('fade-in'); }
+                else page.classList.add('hidden');
             }
-
-            if (currentTutPage === 0) {
-                tutPrevBtn.classList.remove('pointer-events-auto');
-                tutPrevBtn.classList.add('opacity-0', 'pointer-events-none');
-            } else {
-                tutPrevBtn.classList.add('pointer-events-auto');
-                tutPrevBtn.classList.remove('opacity-0', 'pointer-events-none');
-            }
-
-            const dots = document.querySelectorAll('#tut-dots .tut-dot');
-            if (currentTutPage === totalTutPages - 1) {
-                tutConfirmBtn.classList.remove('hidden');
-            } else {
-                tutConfirmBtn.classList.add('hidden');
-            }
+            if (currentTutPage === 0) { tutPrevBtn.classList.add('opacity-0', 'pointer-events-none'); tutPrevBtn.classList.remove('pointer-events-auto'); }
+            else { tutPrevBtn.classList.remove('opacity-0', 'pointer-events-none'); tutPrevBtn.classList.add('pointer-events-auto'); }
             
-            dots.forEach((dot, idx) => {
-                if (idx === currentTutPage) {
-                    dot.className = 'tut-dot active';
-                } else {
-                    dot.className = 'tut-dot inactive';
-                }
-            });
-
-            if (currentTutPage === 1) {
-                drawTutorialCanvas();
-            }
+            document.querySelectorAll('#tut-dots .tut-dot').forEach((dot, idx) => { dot.className = idx === currentTutPage ? 'tut-dot active' : 'tut-dot inactive'; });
+            currentTutPage === totalTutPages - 1 ? tutConfirmBtn.classList.remove('hidden') : tutConfirmBtn.classList.add('hidden');
+            if (currentTutPage === 1) drawTutorialCanvas();
         }
 
         function drawTutorialCanvas() {
-            const tCanvas = document.getElementById('tutorial-canvas');
-            if(!tCanvas) return;
+            const tCanvas = document.getElementById('tutorial-canvas'); if(!tCanvas) return;
+            const rect = tCanvas.parentElement.getBoundingClientRect(); tCanvas.width = rect.width; tCanvas.height = rect.height;
+            const ctx = tCanvas.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.clearRect(0,0, tCanvas.width, tCanvas.height);
+            const w = tCanvas.width, h = tCanvas.height, boxW = w * 0.43, boxH = h * 0.9, boxY = (h - boxH) / 2, leftBoxX = w * 0.02, rightBoxX = w * 0.98 - boxW;
+            function drawRoundedRect(x, y, w, h, r, c) { ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath(); ctx.fillStyle=c; ctx.fill(); ctx.strokeStyle='#2a2432'; ctx.lineWidth=3; ctx.stroke(); }
+            drawRoundedRect(leftBoxX, boxY, boxW, boxH, 12, '#3a3246'); drawRoundedRect(rightBoxX, boxY, boxW, boxH, 12, '#3a3246');
+            ctx.font = `900 ${Math.min(w * 0.08, 30)}px 'Inter', sans-serif`; ctx.fillStyle = '#5a4231'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('▶', w / 2, h / 2);
             
-            const rect = tCanvas.parentElement.getBoundingClientRect();
-            tCanvas.width = rect.width;
-            tCanvas.height = rect.height;
-            
-            const ctx = tCanvas.getContext('2d');
-            ctx.imageSmoothingEnabled = false; 
-            ctx.clearRect(0,0, tCanvas.width, tCanvas.height);
-            
-            const w = tCanvas.width;
-            const h = tCanvas.height;
-
-            const boxW = w * 0.43;
-            const boxH = h * 0.9;
-            const boxY = (h - boxH) / 2;
-            const leftBoxX = w * 0.02;
-            const rightBoxX = w * 0.98 - boxW;
-
-            function drawRoundedRect(x, y, width, height, radius, bgColor) {
-                ctx.beginPath();
-                ctx.moveTo(x + radius, y);
-                ctx.lineTo(x + width - radius, y);
-                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-                ctx.lineTo(x + width, y + height - radius);
-                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-                ctx.lineTo(x + radius, y + height);
-                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-                ctx.lineTo(x, y + radius);
-                ctx.quadraticCurveTo(x, y, x + radius, y);
-                ctx.closePath();
-                ctx.fillStyle = bgColor;
-                ctx.fill();
-                ctx.strokeStyle = '#2a2432';
-                ctx.lineWidth = 3;
-                ctx.stroke();
-            }
-
-            drawRoundedRect(leftBoxX, boxY, boxW, boxH, 12, '#3a3246');
-            drawRoundedRect(rightBoxX, boxY, boxW, boxH, 12, '#3a3246');
-
-            const arrowX = w / 2;
-            const arrowY = h / 2;
-            ctx.font = `900 ${Math.min(w * 0.08, 30)}px 'Inter', sans-serif`;
-            ctx.fillStyle = '#5a4231';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('▶', arrowX, arrowY);
-
             const itemRadius = Math.min(boxW * 0.22, boxH * 0.25);
-            
             function drawTutItem(cx, cy, level, showGlow, isOnlyGlow = false) {
-                const itemY = cy; 
-                
-                if (!isOnlyGlow) {
-                    ctx.beginPath();
-                    ctx.ellipse(cx, cy + itemRadius * 0.35, itemRadius, itemRadius * 0.5, 0, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-                    ctx.fill();
-                }
-
-                if (showGlow || isOnlyGlow) {
-                    const glowThickness = itemRadius * 0.45;
-                    let innerR = itemRadius * 0.8;
-                    let outerR = itemRadius + glowThickness;
-                    let grad = ctx.createRadialGradient(cx, itemY, innerR, cx, itemY, outerR);
-                    const glowAlpha = isOnlyGlow ? 0.4 : 0.8;
-                    grad.addColorStop(0, `rgba(255, 255, 255, ${glowAlpha})`);
-                    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                    ctx.beginPath();
-                    ctx.arc(cx, itemY, outerR, 0, Math.PI * 2);
-                    ctx.fillStyle = grad;
-                    ctx.fill();
-                }
-
-                if (!isOnlyGlow) {
-                    drawMineral(ctx, cx, itemY, itemRadius, level);
-                }
+                if (!isOnlyGlow) { ctx.beginPath(); ctx.ellipse(cx, cy + itemRadius * 0.35, itemRadius, itemRadius * 0.5, 0, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'; ctx.fill(); }
+                if (showGlow || isOnlyGlow) { let grad = ctx.createRadialGradient(cx, cy, itemRadius * 0.8, cx, cy, itemRadius + itemRadius * 0.45); grad.addColorStop(0, `rgba(255, 255, 255, ${isOnlyGlow ? 0.4 : 0.8})`); grad.addColorStop(1, 'rgba(255, 255, 255, 0)'); ctx.beginPath(); ctx.arc(cx, cy, itemRadius + itemRadius * 0.45, 0, Math.PI * 2); ctx.fillStyle = grad; ctx.fill(); }
+                if (!isOnlyGlow) drawMineral(ctx, cx, cy, itemRadius, level);
             }
-
-            const itemCy = boxY + boxH * 0.65; 
-
-            const lcx1 = leftBoxX + boxW * 0.28;
-            const lcx2 = leftBoxX + boxW * 0.72;
-            
-            drawTutItem(lcx1, itemCy, 1, true);  
-            drawTutItem(lcx2, itemCy, 1, false); 
-
-            ctx.fillStyle = '#fde047';
-            ctx.beginPath();
-            let arrowTipY = itemCy - itemRadius * 1.3;
-            let arrowBaseY = arrowTipY - itemRadius * 1.0;
-            ctx.moveTo(lcx2, arrowTipY);
-            ctx.lineTo(lcx2 - itemRadius*0.4, arrowTipY - itemRadius*0.4);
-            ctx.lineTo(lcx2 - itemRadius*0.2, arrowTipY - itemRadius*0.4);
-            ctx.lineTo(lcx2 - itemRadius*0.2, arrowBaseY);
-            ctx.lineTo(lcx2 + itemRadius*0.2, arrowBaseY);
-            ctx.lineTo(lcx2 + itemRadius*0.2, arrowTipY - itemRadius*0.4);
-            ctx.lineTo(lcx2 + itemRadius*0.4, arrowTipY - itemRadius*0.4);
-            ctx.closePath();
-            ctx.fill();
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            const rcx1 = rightBoxX + boxW * 0.28; 
-            const rcx2 = rightBoxX + boxW * 0.72; 
-            
-            drawTutItem(rcx1, itemCy, 0, false, true); 
-            drawTutItem(rcx2, itemCy, 2, false);       
+            const itemCy = boxY + boxH * 0.65;
+            drawTutItem(leftBoxX + boxW * 0.28, itemCy, 1, true); drawTutItem(leftBoxX + boxW * 0.72, itemCy, 1, false);
+            ctx.fillStyle = '#fde047'; ctx.beginPath(); let lcx2 = leftBoxX + boxW * 0.72, tipY = itemCy - itemRadius * 1.3, baseY = tipY - itemRadius * 1.0;
+            ctx.moveTo(lcx2, tipY); ctx.lineTo(lcx2 - itemRadius*0.4, tipY - itemRadius*0.4); ctx.lineTo(lcx2 - itemRadius*0.2, tipY - itemRadius*0.4); ctx.lineTo(lcx2 - itemRadius*0.2, baseY); ctx.lineTo(lcx2 + itemRadius*0.2, baseY); ctx.lineTo(lcx2 + itemRadius*0.2, tipY - itemRadius*0.4); ctx.lineTo(lcx2 + itemRadius*0.4, tipY - itemRadius*0.4); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#000000'; ctx.lineWidth = 1.5; ctx.stroke();
+            drawTutItem(rightBoxX + boxW * 0.28, itemCy, 0, false, true); drawTutItem(rightBoxX + boxW * 0.72, itemCy, 2, false);
         }
+        tutModal.addEventListener('pointerdown', (e) => { if (e.target.closest('#tut-prev-btn') || e.target.closest('#tut-confirm-btn')) return; e.preventDefault(); if (currentTutPage < totalTutPages - 1) { currentTutPage++; updateTutorialView(); } });
+        tutPrevBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); if (currentTutPage > 0) { currentTutPage--; updateTutorialView(); } });
+        tutConfirmBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); tutModal.classList.add('opacity-0'); setTimeout(() => tutModal.classList.add('hidden'), 300); });
 
-        document.getElementById('help-btn').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            openTutorial();
-        });
-
-        tutModal.addEventListener('pointerdown', (e) => {
-            if (e.target.closest('#tut-prev-btn') || e.target.closest('#tut-confirm-btn')) {
-                return;
-            }
-            e.preventDefault();
-            if (currentTutPage < totalTutPages - 1) {
-                currentTutPage++;
-                updateTutorialView();
-            }
-        });
-
-        tutPrevBtn.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            if (currentTutPage > 0) {
-                currentTutPage--;
-                updateTutorialView();
-            }
-        });
-
-        tutConfirmBtn.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            closeTutorial();
-        });
-
-        // ------------------ 캔버스 클릭(게임 진행) ------------------
+        // 인게임 캔버스 터치 로직
         canvas.addEventListener('pointerdown', (e) => {
-            if (isGameOver || grid.length === 0) return;
+            if (isGameOver || grid.length === 0 || appState !== 'PLAYING') return;
 
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -1899,39 +1736,16 @@
             const sx = (e.clientX - rect.left) * scaleX;
             const sy = (e.clientY - rect.top) * scaleY;
 
-            let clickedR = -1;
-            let clickedC = -1;
-
+            let clickedR = -1; let clickedC = -1;
             for (let r = GRID_SIZE - 1; r >= 0; r--) {
                 for (let c = GRID_SIZE - 1; c >= 0; c--) {
-                    const {x, y} = getScreenXY(r, c);
-                    const cell = grid[r][c];
-
+                    const {x, y} = getScreenXY(r, c); const cell = grid[r][c];
                     if (cell.level > 0) {
                         const radius = tileW * 0.32 * cell.scale * cell.bounce;
                         const itemY = y + tileH / 2 - radius * 1.15; 
-                        const dx = sx - x;
-                        const dy = sy - itemY;
-                        
-                        if (dx * dx + dy * dy <= radius * radius) {
-                            clickedR = r;
-                            clickedC = c;
-                            break;
-                        }
+                        if ((sx - x)*(sx - x) + (sy - itemY)*(sy - itemY) <= radius * radius) { clickedR = r; clickedC = c; break; }
                     }
-
-                    const poly = [
-                        {x: x, y: y - tileH/2},
-                        {x: x + tileW/2, y: y},
-                        {x: x, y: y + tileH/2},
-                        {x: x - tileW/2, y: y}
-                    ];
-                    
-                    if (isPointInPoly(poly, {x: sx, y: sy})) {
-                        clickedR = r;
-                        clickedC = c;
-                        break;
-                    }
+                    if (isPointInPoly([{x, y: y - tileH/2}, {x: x + tileW/2, y}, {x, y: y + tileH/2}, {x: x - tileW/2, y}], {x: sx, y: sy})) { clickedR = r; clickedC = c; break; }
                 }
                 if (clickedR !== -1) break;
             }
@@ -1948,29 +1762,20 @@
                 if (clickedR !== -1 && grid[clickedR][clickedC].level > 0) {
                     gameStats.skillUsage.hammer++;
                     const targetCell = grid[clickedR][clickedC];
+                    gameStats.miningCount[targetCell.level]++; 
                     
                     const gainedScore = getMineralInfo(targetCell.level).settlementScore;
                     score += gainedScore;
 
                     const {x: tx, y: ty} = getScreenXY(clickedR, clickedC);
                     const itemRadius = tileW * 0.32 * targetCell.scale * targetCell.bounce;
-                    const itemY = ty + tileH / 2 - itemRadius * 1.15;
+                    spawnFloatingText(tx, ty + tileH / 2 - itemRadius * 1.95, `+${gainedScore}`);
+                    spawnParticles(tx, ty + tileH / 2 - itemRadius * 1.15, MINERAL_COLORS[targetCell.level] ? MINERAL_COLORS[targetCell.level].base : '#ffffff', 12, 1.7, 1.2);
                     
-                    spawnFloatingText(tx, itemY - itemRadius * 0.8, `+${gainedScore}`);
-
-                    const particleColor = MINERAL_COLORS[targetCell.level] ? MINERAL_COLORS[targetCell.level].base : '#ffffff';
-                    spawnParticles(tx, itemY, particleColor, 12, 1.7, 1.2);
+                    grid[clickedR][clickedC].level = 0; grid[clickedR][clickedC].scale = 0;
+                    removeSkillCooldown = skillConfigs.mining.baseCooldown; removeIsFirstUse = false; isAwaitingRemoveSelection = false;
                     
-                    grid[clickedR][clickedC].level = 0;
-                    grid[clickedR][clickedC].scale = 0;
-                    
-                    // 파괴(망치) 스킬 사용 처리
-                    removeSkillCooldown = skillConfigs.mining.baseCooldown;
-                    removeIsFirstUse = false;
-                    isAwaitingRemoveSelection = false;
-                    
-                    updateSkillUI();
-                    updateScoreDisplay();
+                    updateSkillUI(); updateScoreDisplay(); saveGameState();
                 }
                 return;
             }
@@ -1978,7 +1783,6 @@
             if (isAwaitingSwapSelection) {
                 if (clickedR !== -1 && grid[clickedR][clickedC].level > 0) {
                     const clickedCell = grid[clickedR][clickedC];
-                    
                     if (!swapFirstTarget) {
                         swapFirstTarget = {r: clickedR, c: clickedC};
                     } else {
@@ -1986,49 +1790,33 @@
                             swapFirstTarget = null;
                         } else if (clickedCell.level !== grid[swapFirstTarget.r][swapFirstTarget.c].level) {
                             gameStats.skillUsage.swap++;
-                            const tempLevel = clickedCell.level;
-                            const tempScale = clickedCell.scale;
-                            
+                            const tempLevel = clickedCell.level; const tempScale = clickedCell.scale;
                             grid[clickedR][clickedC].level = grid[swapFirstTarget.r][swapFirstTarget.c].level;
                             grid[clickedR][clickedC].scale = grid[swapFirstTarget.r][swapFirstTarget.c].scale;
                             grid[clickedR][clickedC].bounce = 1.5;
-
                             grid[swapFirstTarget.r][swapFirstTarget.c].level = tempLevel;
                             grid[swapFirstTarget.r][swapFirstTarget.c].scale = tempScale;
                             grid[swapFirstTarget.r][swapFirstTarget.c].bounce = 1.5;
                             
-                            // 교체(스왑) 스킬 사용 처리
-                            swapSkillCooldown = skillConfigs.change.baseCooldown; 
-                            swapIsFirstUse = false;
-                            isAwaitingSwapSelection = false;
-                            swapFirstTarget = null;
+                            swapSkillCooldown = skillConfigs.change.baseCooldown; swapIsFirstUse = false; isAwaitingSwapSelection = false; swapFirstTarget = null;
                             
-                            updateSkillUI();
+                            updateSkillUI(); saveGameState();
                         }
                     }
                 }
                 return;
             }
 
-            if (clickedR !== -1) {
-                handleCellInteraction(clickedR, clickedC);
-            } else {
-                selectedCell = null;
-            }
+            if (clickedR !== -1) handleCellInteraction(clickedR, clickedC);
+            else selectedCell = null;
         });
 
         window.onload = async () => {
-            // 게임 시작 전 모든 외부 JSON 파일 로드 보장
-            await Promise.all([
-                loadTutorialData(),
-                loadMineralData(),
-                loadSkillData()
-            ]);
-            
-            init();
+            await Promise.all([loadTutorialData(), loadMineralData(), loadSkillData(), loadUIData()]);
+            resize();
+            showTitleScreen();
             requestAnimationFrame(draw);
         };
     </script>
 </body>
 </html>
-```
