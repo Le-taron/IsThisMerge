@@ -1,20 +1,68 @@
 {
 "ui": {
+"titleLogo": {
+"path": "",
+"scale": 100
+},
+"titlePlayBtn": {
+"path": "",
+"scale": 100
+},
+"titleHelpBtn": {
+"path": "",
+"scale": 100
+},
+"saveSlotBtn": {
+"path": "",
+"scale": 100
+},
+"saveDelBtn": {
+"path": "",
+"scale": 100
+},
 "dictBtn": {
-"path": "resources/textures/",
+"path": "resources/textures/memo_seet.png",
 "scale": 100
 },
 "spawnBtn": {
-"path": "resources/textures/",
+"path": "",
 "scale": 100
 },
-"skillBtn": {
-"path": "resources/textures/",
+"skillBtnBg": {
+"path": "resources/textures/memo_seet.png",
 "scale": 100
 },
 "dictPopup": {
-"path": "resources/textures/",
+"path": "resources/textures/dictionary_open.png",
 "scale": 100
+},
+"exitPopup": {
+"path": "",
+"scale": 100
+},
+"exitConfirmBtn": {
+"path": "",
+"scale": 100
+},
+"exitCancelBtn": {
+"path": "",
+"scale": 100
+},
+"skillPinIcon": {
+"path": "resources/textures/icon_select.png",
+"scale": 60
+},
+"skillHammerIcon": {
+"path": "",
+"scale": 60
+},
+"skillSwapIcon": {
+"path": "resources/textures/icon_swap.png",
+"scale": 60
+},
+"exitBtnIcon": {
+"path": "resources/textures/icon_escape.png",
+"scale": 60
 }
 }
 }
