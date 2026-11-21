@@ -75,6 +75,10 @@
 "skillBtnBgDisabled": {
 "path": "resources/textures/memo_seet_disable.png",
 "scale": 100
+},
+"skillBtnBgActive": {
+"path": "resources/textures/memo_sheet_using.png",
+"scale": 100
 }
 }
 }
