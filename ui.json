@@ -1,0 +1,20 @@
+{
+"ui": {
+"dictBtn": {
+"path": "resources/textures/",
+"scale": 100
+},
+"spawnBtn": {
+"path": "resources/textures/",
+"scale": 100
+},
+"skillBtn": {
+"path": "resources/textures/",
+"scale": 100
+},
+"dictPopup": {
+"path": "resources/textures/",
+"scale": 100
+}
+}
+}
