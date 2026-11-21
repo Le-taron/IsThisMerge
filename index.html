@@ -138,6 +138,31 @@
             font-weight: 900;
         }
 
+        /* 스킬 버튼 둥근 반투명 후광 효과 */
+        .skill-glow-yellow::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220%; height: 220%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(250,204,21,0.45) 0%, rgba(250,204,21,0) 65%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .skill-glow-blue::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220%; height: 220%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56,189,248,0.45) 0%, rgba(56,189,248,0) 65%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
         .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -252,7 +277,7 @@
                 <h2 class="font-black text-white drop-shadow-2xl leading-none" style="font-size: 10cqh; -webkit-text-stroke: 0.02em black;">GAME OVER</h2>
             </div>
             
-            <div class="absolute right-0 top-0 h-full w-[40cqw] flex flex-col pr-[2cqw] pointer-events-auto">
+            <div class="absolute right-0 top-0 h-full w-[40cqw] flex flex-col pr-[2cqw] pb-[6cqh] pointer-events-auto">
                 <div id="go-stats" class="bg-slate-800/80 rounded-[3cqh] border-slate-600 p-[2cqh] overflow-y-auto custom-scrollbar opacity-0 transition-opacity duration-500 mt-[15cqh]" style="height: 35cqh; flex-shrink: 0; border-width: var(--stats-border, 2px);">
                     <div id="stats-container" class="w-full flex flex-col gap-[2cqh]"></div>
                 </div>
@@ -260,11 +285,11 @@
                     <span class="text-slate-400 font-bold mb-[0.5cqh]" style="font-size: 3cqh; -webkit-text-stroke: 0.02em rgba(0,0,0,0.5);">최종 점수</span>
                     <span id="final-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 8cqh; -webkit-text-stroke: 0.02em black;">0</span>
                 </div>
+                
+                <button id="restart-btn" class="mt-auto self-center opacity-0 transition-opacity duration-500 bg-white text-slate-900 font-black rounded-[3cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center pointer-events-auto w-[90%] max-w-[250px] relative overflow-hidden shrink-0" style="height: 10cqh; font-size: 4cqh;">
+                    <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">타이틀로</span>
+                </button>
             </div>
-
-            <button id="restart-btn" class="absolute bottom-[8cqh] left-1/2 -translate-x-1/2 opacity-0 transition-opacity duration-500 bg-white text-slate-900 font-black rounded-[4cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center pointer-events-auto w-[55cqw] max-w-[300px] relative overflow-hidden" style="height: 12cqh; font-size: 5cqh;">
-                <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">타이틀로</span>
-            </button>
         </div>
 
         <!-- 나가기 모달 -->
@@ -993,8 +1018,8 @@
             const spawnBtn = document.getElementById('spawn-btn');
 
             const normalShadow = 'shadow-lg';
-            const yellowGlow = 'shadow-[0_0_20px_rgba(250,204,21,0.8)]';
-            const blueGlow = 'shadow-[0_0_20px_rgba(56,189,248,0.8)]';
+            const yellowGlow = 'skill-glow-yellow';
+            const blueGlow = 'skill-glow-blue';
             const baseBorder = 'border-[#dca773]';
             const yellowText = 'text-[#fff9c4]';
             const whiteText = 'text-white';
