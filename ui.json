@@ -71,7 +71,7 @@
 "skillBtnBgDisabled": {
 "path": "resources/textures/memo_seet_disable.png",
 "scale": 100
-}
+},
 "exitBtnIcon": {
 "path": "resources/textures/icon_escape.png",
 "scale": 60
