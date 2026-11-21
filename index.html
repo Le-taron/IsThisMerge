@@ -226,11 +226,11 @@
             <h2 class="font-black text-white drop-shadow-2xl leading-none" style="font-size: 10cqh;">GAME OVER</h2>
         </div>
         
-        <!-- 우측 영역: 통계, 점수, 재시작 버튼 -->
+        <!-- 우측 영역: 통계, 점수 -->
         <div class="absolute right-0 top-0 h-full w-[40cqw] flex flex-col pr-[2cqw] pointer-events-auto">
             
-            <!-- 통계 박스 -->
-            <div id="go-stats" class="bg-slate-800/80 rounded-[3cqh] border-2 border-slate-600 p-[2cqh] overflow-y-auto custom-scrollbar opacity-0 transition-opacity duration-500 mt-[15cqh]" style="height: 50cqh; flex-shrink: 0;">
+            <!-- 통계 박스 (높이를 35cqh로 조절하여 줌아웃 필드와 눈높이 일치) -->
+            <div id="go-stats" class="bg-slate-800/80 rounded-[3cqh] border-2 border-slate-600 p-[2cqh] overflow-y-auto custom-scrollbar opacity-0 transition-opacity duration-500 mt-[15cqh]" style="height: 35cqh; flex-shrink: 0;">
                 <div id="stats-container" class="w-full flex flex-col gap-[2cqh]">
                     <!-- JS에서 통계 내용이 삽입됩니다. -->
                 </div>
@@ -241,12 +241,12 @@
                 <span class="text-slate-400 font-bold mb-[0.5cqh]" style="font-size: 3cqh;">최종 점수</span>
                 <span id="final-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 8cqh;">0</span>
             </div>
-            
-            <!-- 재시작 버튼 -->
-            <button id="restart-btn" class="opacity-0 transition-opacity duration-500 mt-auto mb-[4cqh] w-full bg-white text-slate-900 font-black rounded-[4cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center flex-shrink-0" style="height: 12cqh; font-size: 5cqh;">
-                다시 시작
-            </button>
         </div>
+
+        <!-- 재시작 버튼 (하단 중앙 정렬) -->
+        <button id="restart-btn" class="absolute bottom-[8cqh] left-1/2 -translate-x-1/2 opacity-0 transition-opacity duration-500 bg-white text-slate-900 font-black rounded-[4cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center pointer-events-auto w-[55cqw] max-w-[300px]" style="height: 12cqh; font-size: 5cqh;">
+            다시 시작
+        </button>
     </div>
 
     <!-- 도감 오버레이 -->
@@ -514,7 +514,7 @@
             5:  { name: '감람석', base: '#A3E635', point: '#D9F99D', shadow: '#94D626', highlight: '#E4FC70', highlight2: '#EEFD98', highlight3: '#F7FECC' },
             6:  { name: '자수정', base: '#A855F7', point: '#D946EF', shadow: '#7E22CE', highlight: '#E879F9', highlight2: '#F0ABFC', highlight3: '#F5D0FE' },
             7:  { name: '사파이어', base: '#2563EB', point: '#60A5FA', shadow: '#1D4ED8', highlight: '#93C5FD', highlight2: '#BFDBFE', highlight3: '#DBEAFE' },
-            8:  { name: '루비', base: '#F43F5E', point: '#9F1239', shadow: '#E11D48', highlight: '#FB7185', highlight2: '#FDA4AF', highlight3: '#FECDD3' },
+            8:  { name: '루비', base: '#F43F5E', point: '#9F1239', shadow: '#E11D48', highlight: '#E11D48', highlight2: '#FDA4AF', highlight3: '#FECDD3' },
             9:  { name: '에메랄드', base: '#4ADE80', point: '#22C55E', shadow: '#16A34A', highlight: '#86EFAC', highlight2: '#BBF7D0', highlight3: '#DCFCE7' },
             10: { name: '다이아몬드', base: '#F0F9FF', point: '#FBBF24', shadow: '#E0F2FE', highlight: '#FFFFFF', highlight2: '#FFFFFF', highlight3: '#FFFFFF' },
         };
