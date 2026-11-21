@@ -55,50 +55,50 @@
             overflow: visible !important;
         }
 
-        /* 반응형 UI 크기 조절용 클래스 */
+        /* 반응형 UI 크기 조절용 클래스 (6x6 타일 크기 고정 적용) */
         .dynamic-ui-top-left {
-            top: calc(var(--tile-w, 60px) * 0.3);
-            left: calc(var(--tile-w, 60px) * 0.3);
-            height: calc(var(--tile-h, 30px) * 0.9);
+            top: calc(var(--ui-tile-w, 60px) * 0.3);
+            left: calc(var(--ui-tile-w, 60px) * 0.3);
+            height: calc(var(--ui-tile-h, 30px) * 0.9);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
         }
         .dynamic-ui-top-right-group {
-            top: calc(var(--tile-w, 60px) * 0.3);
-            right: calc(var(--tile-w, 60px) * 0.3);
+            top: calc(var(--ui-tile-w, 60px) * 0.3);
+            right: calc(var(--ui-tile-w, 60px) * 0.3);
             display: flex;
-            gap: calc(var(--tile-w, 60px) * 0.15);
+            gap: calc(var(--ui-tile-w, 60px) * 0.15);
         }
         .dynamic-top-btn {
-            width: calc(var(--tile-w, 60px) * 0.48);
-            height: calc(var(--tile-w, 60px) * 0.48);
-            font-size: calc(var(--tile-w, 60px) * 0.24);
-            border-radius: calc(var(--tile-w, 60px) * 0.16);
+            width: calc(var(--ui-tile-w, 60px) * 0.48);
+            height: calc(var(--ui-tile-w, 60px) * 0.48);
+            font-size: calc(var(--ui-tile-w, 60px) * 0.24);
+            border-radius: calc(var(--ui-tile-w, 60px) * 0.16);
             border-width: var(--btn-border, 2px);
         }
 
         /* UI들을 타일 세로의 25%만큼 위로 올림 */
         .dynamic-ui-bottom-left {
-            bottom: calc(var(--tile-w, 60px) * 0.3 + var(--tile-h, 30px) * 0.25);
-            left: calc(var(--tile-w, 60px) * 0.3);
-            gap: calc(var(--tile-w, 60px) * 0.15);
+            bottom: calc(var(--ui-tile-w, 60px) * 0.3 + var(--ui-tile-h, 30px) * 0.25);
+            left: calc(var(--ui-tile-w, 60px) * 0.3);
+            gap: calc(var(--ui-tile-w, 60px) * 0.15);
         }
         .dynamic-ui-bottom-right {
-            bottom: calc(var(--tile-w, 60px) * 0.3 + var(--tile-h, 30px) * 0.25);
-            right: calc(var(--tile-w, 60px) * 0.3);
-            gap: calc(var(--tile-w, 60px) * 0.2);
+            bottom: calc(var(--ui-tile-w, 60px) * 0.3 + var(--ui-tile-h, 30px) * 0.25);
+            right: calc(var(--ui-tile-w, 60px) * 0.3);
+            gap: calc(var(--ui-tile-w, 60px) * 0.2);
         }
         
         .dynamic-ui-score-label { 
-            font-size: calc(var(--tile-h, 30px) * 0.25); 
+            font-size: calc(var(--ui-tile-h, 30px) * 0.25); 
             line-height: 1; 
             color: #f4e4bc; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
             -webkit-text-stroke: 0.02em rgba(0,0,0,0.8);
         }
         .dynamic-ui-score-val { 
-            font-size: calc(var(--tile-h, 30px) * 0.65); 
+            font-size: calc(var(--ui-tile-h, 30px) * 0.65); 
             line-height: 1; 
             color: white;
             -webkit-text-stroke: 0.02em black;
@@ -106,10 +106,10 @@
         }
         
         .dynamic-spawn-btn {
-            height: calc(var(--tile-w, 60px) * 0.6);
-            padding: 0 calc(var(--tile-w, 60px) * 0.3);
-            font-size: calc(var(--tile-w, 60px) * 0.25);
-            border-radius: calc(var(--tile-w, 60px) * 0.3);
+            height: calc(var(--ui-tile-w, 60px) * 0.6);
+            padding: 0 calc(var(--ui-tile-w, 60px) * 0.3);
+            font-size: calc(var(--ui-tile-w, 60px) * 0.25);
+            border-radius: calc(var(--ui-tile-w, 60px) * 0.3);
             border-width: calc(var(--btn-border, 2px) * 0.8); 
             display: flex;
             align-items: center;
@@ -117,50 +117,25 @@
         }
         
         .dynamic-skill-btn {
-            width: calc(var(--tile-w, 60px) * 0.54);
-            height: calc(var(--tile-w, 60px) * 0.54);
-            font-size: calc(var(--tile-w, 60px) * 0.25);
-            border-radius: calc(var(--tile-w, 60px) * 0.15);
+            width: calc(var(--ui-tile-w, 60px) * 0.54);
+            height: calc(var(--ui-tile-w, 60px) * 0.54);
+            font-size: calc(var(--ui-tile-w, 60px) * 0.25);
+            border-radius: calc(var(--ui-tile-w, 60px) * 0.15);
             border-width: var(--btn-border, 2px);
         }
         
         .dynamic-preview-box {
-            width: calc(var(--tile-w, 60px) * 0.45);
-            height: calc(var(--tile-w, 60px) * 0.45);
-            margin-bottom: calc(var(--tile-w, 60px) * -0.05);
+            width: calc(var(--ui-tile-w, 60px) * 0.45);
+            height: calc(var(--ui-tile-w, 60px) * 0.45);
+            margin-bottom: calc(var(--ui-tile-w, 60px) * -0.05);
         }
         .dynamic-next-label { 
-            font-size: calc(var(--tile-w, 60px) * 0.13);
+            font-size: calc(var(--ui-tile-w, 60px) * 0.13);
             margin-top: 0; 
             color: #f4e4bc;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
             -webkit-text-stroke: 0.02em rgba(0,0,0,0.8);
             font-weight: 900;
-        }
-
-        /* 스킬 버튼 둥근 반투명 후광 효과 */
-        .skill-glow-yellow::before {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 220%; height: 220%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(250,204,21,0.45) 0%, rgba(250,204,21,0) 65%);
-            z-index: -2;
-            pointer-events: none;
-        }
-
-        .skill-glow-blue::before {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 220%; height: 220%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(56,189,248,0.45) 0%, rgba(56,189,248,0) 65%);
-            z-index: -2;
-            pointer-events: none;
         }
 
         .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
@@ -216,6 +191,50 @@
             </button>
         </div>
 
+        <!-- 룰 설정 모달 (새 게임 전용) -->
+        <div id="rule-modal" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] flex items-center justify-center pointer-events-auto opacity-0 transition-opacity duration-300">
+            <div class="parchment-theme w-[80%] max-w-3xl aspect-[5/3] rounded-3xl shadow-2xl relative flex flex-col p-[4cqh] border-[#8b5a2b] transform scale-95 transition-transform duration-300" style="border-width: var(--popup-border, 6px);">
+                <h2 class="text-[#5a4231] font-black text-center mb-[2cqh]" style="font-size: 5cqh; -webkit-text-stroke: 0.02em transparent;">새 게임 설정</h2>
+                
+                <div class="flex-1 flex gap-[4cqw] min-h-0">
+                    <!-- Left: Options -->
+                    <div class="flex-1 flex flex-col gap-[2cqh] border-r-2 border-[#dca773]/50 pr-[4cqw] overflow-y-auto">
+                        <button id="rule-mode-btn" class="w-full bg-[#dca773] text-white font-black py-[1.5cqh] rounded-xl shadow-md active:scale-95 transition-all" style="font-size: 3cqh; -webkit-text-stroke: 0.02em transparent;">
+                            모드: 클래식
+                        </button>
+                        
+                        <div id="custom-options" class="hidden flex-col gap-[3cqh] mt-[2cqh]">
+                            <div class="flex flex-col gap-[1cqh]" id="opt-grid" tabindex="0">
+                                <label class="font-bold text-[#5a4231] flex justify-between cursor-pointer" style="font-size: 2.5cqh; -webkit-text-stroke: 0.02em transparent;">
+                                    <span>필드 크기</span>
+                                    <span id="grid-size-val">6 x 6</span>
+                                </label>
+                                <input type="range" id="grid-size-slider" min="4" max="8" step="1" value="6" class="w-full accent-[#8b5a2b] cursor-pointer">
+                            </div>
+                            
+                            <div class="flex items-center justify-between cursor-pointer mt-[1cqh]" id="opt-skill" tabindex="0">
+                                <span class="font-bold text-[#5a4231]" style="font-size: 2.5cqh; -webkit-text-stroke: 0.02em transparent;">스킬 금지</span>
+                                <input type="checkbox" id="skill-disable-check" class="w-[4cqh] h-[4cqh] accent-[#8b5a2b] cursor-pointer pointer-events-none">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Description -->
+                    <div class="flex-1 flex items-center justify-center p-[3cqh] bg-[#5a4231]/5 rounded-xl border border-[#dca773]/40">
+                        <p id="rule-desc" class="text-[#5a4231] font-bold break-keep text-center leading-relaxed" style="font-size: 2.5cqh; -webkit-text-stroke: 0.02em transparent;">
+                            기본적인 6x6 필드에서 스킬을 활용하여 플레이하는 클래식 모드입니다.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Bottom: Start / Cancel -->
+                <div class="flex justify-center gap-[4cqw] mt-[3cqh] shrink-0">
+                    <button id="btn-rule-cancel" class="bg-slate-300 text-slate-800 rounded-xl font-black py-[1.5cqh] px-[5cqw] active:scale-95 transition-transform" style="font-size: 3cqh; -webkit-text-stroke: 0.02em transparent;">취소</button>
+                    <button id="btn-rule-start" class="bg-[#dca773] text-white rounded-xl font-black py-[1.5cqh] px-[8cqw] active:scale-95 transition-transform shadow-md" style="font-size: 3cqh; -webkit-text-stroke: 0.02em transparent;">시작하기</button>
+                </div>
+            </div>
+        </div>
+
         <!-- UI Layer (In-Game) -->
         <div id="ui-layer" class="hidden absolute inset-0 pointer-events-none z-10">
             
@@ -235,24 +254,24 @@
                 </button>
             </div>
 
-            <!-- 하단 좌측 컨트롤 (스킬 버튼) -->
-            <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-left">
+            <!-- 하단 좌측 컨트롤 (스킬 버튼 그룹) -->
+            <div id="skill-group" class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-left transition-opacity duration-300">
                 <!-- 📌 핀 (Select) -->
-                <button id="skill-pin-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                <button id="skill-pin-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn border-[#dca773]" style="overflow: visible;">
                     <span id="skill-pin-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">📌</span>
-                    <div id="skill-pin-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 text-[#fff9c4] text-[calc(var(--tile-w,60px)*0.18)] font-black drop-shadow-md whitespace-nowrap z-20" style="-webkit-text-stroke: 0.04em rgba(0,0,0,0.8);">6</div>
+                    <div id="skill-pin-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 text-[#fff9c4] text-[calc(var(--ui-tile-w,60px)*0.18)] font-black drop-shadow-md whitespace-nowrap z-20" style="-webkit-text-stroke: 0.04em rgba(0,0,0,0.8);">6</div>
                 </button>
 
                 <!-- ⛏️ 곡괭이 (Mining) -->
-                <button id="skill-hammer-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                <button id="skill-hammer-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn border-[#dca773]" style="overflow: visible;">
                     <span id="skill-hammer-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">⛏️</span>
-                    <div id="skill-hammer-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 text-[#fff9c4] text-[calc(var(--tile-w,60px)*0.18)] font-black drop-shadow-md whitespace-nowrap z-20" style="-webkit-text-stroke: 0.04em rgba(0,0,0,0.8);">8</div>
+                    <div id="skill-hammer-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 text-[#fff9c4] text-[calc(var(--ui-tile-w,60px)*0.18)] font-black drop-shadow-md whitespace-nowrap z-20" style="-webkit-text-stroke: 0.04em rgba(0,0,0,0.8);">8</div>
                 </button>
 
                 <!-- 🔁 교체 (Change) -->
-                <button id="skill-swap-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn" style="overflow: visible;">
+                <button id="skill-swap-btn" class="parchment-theme shadow-lg flex items-center justify-center transition-all active:scale-90 relative touch-manipulation dynamic-skill-btn border-[#dca773]" style="overflow: visible;">
                     <span id="skill-swap-icon" class="flex items-center justify-center w-full h-full text-[inherit] relative z-10">🔁</span>
-                    <div id="skill-swap-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 text-[#fff9c4] text-[calc(var(--tile-w,60px)*0.18)] font-black drop-shadow-md whitespace-nowrap z-20" style="-webkit-text-stroke: 0.04em rgba(0,0,0,0.8);">12</div>
+                    <div id="skill-swap-cooldown" class="hidden absolute left-1/2 -translate-x-1/2 translate-y-1/2 bottom-0 text-[#fff9c4] text-[calc(var(--ui-tile-w,60px)*0.18)] font-black drop-shadow-md whitespace-nowrap z-20" style="-webkit-text-stroke: 0.04em rgba(0,0,0,0.8);">12</div>
                 </button>
             </div>
 
@@ -314,7 +333,6 @@
             <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl aspect-[5/3] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-[#8b5a2b]" style="border-width: var(--popup-border, 6px);">
                 <div id="dict-prev-area" class="absolute left-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors"><span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px); -webkit-text-stroke: 0.02em rgba(0,0,0,0.2);">◀</span></div>
                 <div id="dict-next-area" class="absolute right-0 top-0 bottom-0 w-[5%] z-10 flex items-center justify-center cursor-pointer hover:bg-black/5 transition-colors"><span class="text-[#dca773] font-black drop-shadow-md" style="font-size: clamp(12px, 3vh, 24px); -webkit-text-stroke: 0.02em rgba(0,0,0,0.2);">▶</span></div>
-                <!-- 경계선(border-l-2, border-r-2) 제거됨 -->
                 <div id="dict-page-wrapper" class="flex w-full h-full relative mx-[5%] pointer-events-none z-10">
                     <div id="dict-spine-shadow" class="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-r from-[#dca773]/20 via-[#8b5a2b]/20 to-[#dca773]/20 -translate-x-1/2 z-0"></div>
                     <div id="dict-spine-line" class="absolute left-1/2 top-0 bottom-0 w-px bg-[#5a4231]/10 -translate-x-1/2 z-0"></div>
@@ -329,22 +347,22 @@
             <div id="tutorial-content" class="parchment-theme w-[80%] h-[78%] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300" style="border-width: var(--popup-border, 6px);">
                 <!-- 단락 0 -->
                 <div id="tut-page-0" class="tut-page flex flex-col items-center justify-center h-full text-center fade-in pb-10">
-                    <h2 id="tut-title-0" class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">게임 소개</h2>
+                    <h2 id="tut-title-0" class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--ui-tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">게임 소개</h2>
                     <p id="tut-desc-0" class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed break-keep px-2"></p>
                 </div>
                 <!-- 단락 1 -->
                 <div id="tut-page-1" class="tut-page hidden flex flex-col items-center justify-start h-full text-center fade-in pb-8">
-                    <h2 id="tut-title-1" class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">플레이 방법</h2>
-                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full break-keep px-2" style="font-size: calc(var(--tile-w, 60px) * 0.182); color: #5a4231;"></p>
+                    <h2 id="tut-title-1" class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--ui-tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">플레이 방법</h2>
+                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full break-keep px-2" style="font-size: calc(var(--ui-tile-w, 60px) * 0.182); color: #5a4231;"></p>
                     <div class="w-full flex-1 min-h-0 relative flex items-center justify-center overflow-hidden">
                         <canvas id="tutorial-canvas" class="max-w-full max-h-full object-contain"></canvas>
                     </div>
                 </div>
                 <!-- 단락 2 -->
                 <div id="tut-page-2" class="tut-page hidden flex flex-col items-center justify-start h-full fade-in pb-10">
-                    <h2 id="tut-title-2" class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">스킬</h2>
-                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0 break-keep px-2" style="font-size: calc(var(--tile-w, 60px) * 0.117);"></p>
-                    <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--tile-w, 60px) * 0.117);"></div>
+                    <h2 id="tut-title-2" class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--ui-tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">스킬</h2>
+                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0 break-keep px-2" style="font-size: calc(var(--ui-tile-w, 60px) * 0.117);"></p>
+                    <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--ui-tile-w, 60px) * 0.117);"></div>
                 </div>
 
                 <!-- 튜토리얼 네비게이션 버튼 & 인디케이터 -->
@@ -441,7 +459,6 @@
                 const data = await response.json();
                 uiConfig = data.ui || {};
 
-                // Static Backgrounds
                 applyBgTexture(document.getElementById('dictionary-btn'), uiConfig.dictBtn);
                 applyBgTexture(document.getElementById('exit-btn'), uiConfig.exitBtnBg);
                 applyBgTexture(document.getElementById('spawn-btn'), uiConfig.spawnBtn);
@@ -458,14 +475,12 @@
                 applyBgTexture(document.getElementById('btn-title-help'), uiConfig.titleHelpBtn);
                 applyBgTexture(document.getElementById('restart-btn'), uiConfig.titlePlayBtn);
 
-                // Icons
                 applyIconTexture(document.getElementById('dict-btn-icon'), uiConfig.dictBtnIcon, '📖');
                 applyIconTexture(document.getElementById('skill-pin-icon'), uiConfig.skillPinIcon, '📌');
                 applyIconTexture(document.getElementById('skill-hammer-icon'), uiConfig.skillHammerIcon, '⛏️');
                 applyIconTexture(document.getElementById('skill-swap-icon'), uiConfig.skillSwapIcon, '🔁');
                 applyIconTexture(document.getElementById('exit-icon'), uiConfig.exitBtnIcon, '🚪');
 
-                // Logo
                 if (isValidPath(uiConfig.titleLogo)) {
                     const logoText = document.getElementById('title-logo-text');
                     const logoImg = document.getElementById('title-logo-img');
@@ -483,32 +498,46 @@
             }
         }
 
-        async function loadTutorialData() {
+        let ruleDescriptions = {
+            classic: "기본적인 6x6 필드에서 스킬을 활용하여 플레이하는 클래식 모드입니다.",
+            custom: "자신만의 규칙을 설정하여 게임을 플레이하는 커스텀 모드입니다.",
+            gridSize: "필드의 가로세로 크기를 조절합니다. 4x4부터 8x8까지 설정할 수 있습니다.\n크기가 작을수록 공간이 부족해 난이도가 크게 상승합니다.",
+            skillDisable: "스킬 사용을 완전히 금지합니다. 오직 기본 생성과 합성에만 의존하여 플레이어의 순수한 한계를 시험해 보세요!"
+        };
+
+        async function loadTextData() {
             try {
-                const response = await fetch('tutorial.json');
+                const response = await fetch('texts.json');
                 if (!response.ok) throw new Error('Failed to load JSON');
                 const data = await response.json();
                 
-                if (data.pages && data.pages.length > 0) {
-                    if (data.pages[0]) {
-                        document.getElementById('tut-title-0').innerText = data.pages[0].title;
-                        document.getElementById('tut-desc-0').innerText = data.pages[0].description;
+                // 룰 설명문 적용
+                if (data.rules) {
+                    ruleDescriptions = { ...ruleDescriptions, ...data.rules };
+                }
+
+                // 튜토리얼 텍스트 적용
+                if (data.tutorial && data.tutorial.pages && data.tutorial.pages.length > 0) {
+                    const pages = data.tutorial.pages;
+                    if (pages[0]) {
+                        document.getElementById('tut-title-0').innerText = pages[0].title;
+                        document.getElementById('tut-desc-0').innerText = pages[0].description;
                     }
-                    if (data.pages[1]) {
-                        document.getElementById('tut-title-1').innerText = data.pages[1].title;
-                        document.getElementById('tut-desc-1').innerText = data.pages[1].description;
+                    if (pages[1]) {
+                        document.getElementById('tut-title-1').innerText = pages[1].title;
+                        document.getElementById('tut-desc-1').innerText = pages[1].description;
                     }
-                    if (data.pages[2]) {
-                        document.getElementById('tut-title-2').innerText = data.pages[2].title;
-                        document.getElementById('tut-desc-2').innerText = data.pages[2].description;
-                        if (data.pages[2].skills) {
+                    if (pages[2]) {
+                        document.getElementById('tut-title-2').innerText = pages[2].title;
+                        document.getElementById('tut-desc-2').innerText = pages[2].description;
+                        if (pages[2].skills) {
                             const skillContainer = document.getElementById('tut-skills-container');
                             skillContainer.innerHTML = ''; 
-                            data.pages[2].skills.forEach(skill => {
+                            pages[2].skills.forEach(skill => {
                                 const div = document.createElement('div');
                                 div.className = 'flex items-start';
                                 div.innerHTML = `
-                                    <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--tile-w, 60px) * 0.14);">${skill.icon}</span>
+                                    <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--ui-tile-w, 60px) * 0.14);">${skill.icon}</span>
                                     <p class="leading-tight mt-0.5"><span class="font-black">${skill.name}:</span> ${skill.desc}</p>
                                 `;
                                 skillContainer.appendChild(div);
@@ -517,7 +546,7 @@
                     }
                 }
             } catch (error) {
-                console.log('tutorial.json Load Failed:', error);
+                console.log('texts.json Load Failed:', error);
             }
         }
 
@@ -585,7 +614,10 @@
         let appState = 'TITLE'; // TITLE, SAVES, PLAYING
         let currentSaveSlot = null;
 
-        const GRID_SIZE = 6;
+        // 동적 룰 설정 변수
+        let currentGridSize = 6;
+        let skillsDisabled = false;
+
         let grid = [];
         let nextSpawnLevel = 1;
         let selectedCell = null;
@@ -659,6 +691,8 @@
             if (!currentSaveSlot || isGameOver || appState !== 'PLAYING') return;
 
             const saveData = {
+                gridSize: currentGridSize,
+                skillsDisabled: skillsDisabled,
                 gridLevels: grid.map(row => row.map(cell => cell.level)),
                 nextSpawnLevel: nextSpawnLevel,
                 cooldowns: {
@@ -672,12 +706,18 @@
         }
 
         function loadGameState(data) {
+            currentGridSize = data.gridSize || 6;
+            skillsDisabled = data.skillsDisabled || false;
+            
             resetToEmptyBoard();
             
-            for (let r = 0; r < GRID_SIZE; r++) {
-                for (let c = 0; c < GRID_SIZE; c++) {
-                    grid[r][c].level = data.gridLevels[r][c];
-                    grid[r][c].scale = data.gridLevels[r][c] > 0 ? 1 : 0;
+            for (let r = 0; r < currentGridSize; r++) {
+                for (let c = 0; c < currentGridSize; c++) {
+                    // 구버전 세이브 호환성
+                    if(data.gridLevels[r] && data.gridLevels[r][c] !== undefined) {
+                        grid[r][c].level = data.gridLevels[r][c];
+                        grid[r][c].scale = data.gridLevels[r][c] > 0 ? 1 : 0;
+                    }
                 }
             }
             nextSpawnLevel = data.nextSpawnLevel;
@@ -702,7 +742,10 @@
             finalizeStartGame();
         }
 
-        function initNewGame() {
+        function initNewGame(size, disableSkill) {
+            currentGridSize = size;
+            skillsDisabled = disableSkill;
+            
             resetToEmptyBoard();
             
             targetedSpawnCooldown = skillConfigs.select.initialCooldown;
@@ -714,8 +757,8 @@
             
             generateNextSpawn();
             
-            const randR = Math.floor(Math.random() * GRID_SIZE);
-            const randC = Math.floor(Math.random() * GRID_SIZE);
+            const randR = Math.floor(Math.random() * currentGridSize);
+            const randC = Math.floor(Math.random() * currentGridSize);
             grid[randR][randC].level = 1;
             
             discoveredMinerals.add(1);
@@ -727,9 +770,9 @@
 
         function resetToEmptyBoard() {
             grid = [];
-            for (let r = 0; r < GRID_SIZE; r++) {
+            for (let r = 0; r < currentGridSize; r++) {
                 let row = [];
-                for (let c = 0; c < GRID_SIZE; c++) {
+                for (let c = 0; c < currentGridSize; c++) {
                     row.push({ level: 0, scale: 0, bounce: 1, errorFlash: 0 });
                 }
                 grid.push(row);
@@ -756,6 +799,14 @@
         }
 
         function finalizeStartGame() {
+            // 스킬 비활성화 여부에 따른 UI 숨김 처리
+            const skillGroup = document.getElementById('skill-group');
+            if (skillsDisabled) {
+                skillGroup.classList.add('hidden');
+            } else {
+                skillGroup.classList.remove('hidden');
+            }
+
             updateSkillUI();
             updateScoreDisplay();
             resize();
@@ -769,6 +820,96 @@
             document.getElementById('go-score').classList.add('opacity-0');
             document.getElementById('restart-btn').classList.add('opacity-0');
         }
+
+        // ------------------ 룰 설정 UI 로직 ------------------
+        let tempRuleMode = 'CLASSIC';
+        let tempGridSize = 6;
+        let tempSkillsDisabled = false;
+        let pendingSaveSlot = null;
+
+        function showRuleScreen(slotNumber) {
+            pendingSaveSlot = slotNumber;
+            tempRuleMode = 'CLASSIC';
+            tempGridSize = 6;
+            tempSkillsDisabled = false;
+            updateRuleScreenUI();
+
+            const modal = document.getElementById('rule-modal');
+            modal.classList.remove('hidden'); void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        }
+
+        function hideRuleScreen() {
+            const modal = document.getElementById('rule-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function updateRuleScreenUI() {
+            const modeBtn = document.getElementById('rule-mode-btn');
+            const customOpts = document.getElementById('custom-options');
+            const desc = document.getElementById('rule-desc');
+            const gridSlider = document.getElementById('grid-size-slider');
+            const gridVal = document.getElementById('grid-size-val');
+            const skillCheck = document.getElementById('skill-disable-check');
+
+            if (tempRuleMode === 'CLASSIC') {
+                modeBtn.innerText = '모드: 클래식';
+                modeBtn.classList.replace('bg-slate-700', 'bg-[#dca773]');
+                customOpts.classList.add('hidden');
+                desc.innerText = ruleDescriptions.classic;
+            } else {
+                modeBtn.innerText = '모드: 커스텀';
+                modeBtn.classList.replace('bg-[#dca773]', 'bg-slate-700');
+                customOpts.classList.remove('hidden');
+                desc.innerText = ruleDescriptions.custom;
+            }
+
+            gridSlider.value = tempGridSize;
+            gridVal.innerText = `${tempGridSize} x ${tempGridSize}`;
+            skillCheck.checked = tempSkillsDisabled;
+        }
+
+        document.getElementById('rule-mode-btn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            tempRuleMode = tempRuleMode === 'CLASSIC' ? 'CUSTOM' : 'CLASSIC';
+            if (tempRuleMode === 'CLASSIC') {
+                tempGridSize = 6; tempSkillsDisabled = false;
+            }
+            updateRuleScreenUI();
+        });
+
+        document.getElementById('opt-grid').addEventListener('pointerdown', (e) => {
+            document.getElementById('rule-desc').innerText = ruleDescriptions.gridSize;
+        });
+        document.getElementById('grid-size-slider').addEventListener('input', (e) => {
+            tempGridSize = parseInt(e.target.value);
+            document.getElementById('grid-size-val').innerText = `${tempGridSize} x ${tempGridSize}`;
+            document.getElementById('rule-desc').innerText = ruleDescriptions.gridSize;
+        });
+
+        document.getElementById('opt-skill').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            tempSkillsDisabled = !tempSkillsDisabled;
+            document.getElementById('skill-disable-check').checked = tempSkillsDisabled;
+            document.getElementById('rule-desc').innerText = ruleDescriptions.skillDisable;
+        });
+
+        document.getElementById('btn-rule-cancel').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); hideRuleScreen();
+        });
+
+        document.getElementById('btn-rule-start').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            hideRuleScreen();
+            hideSaveScreen(() => {
+                currentSaveSlot = pendingSaveSlot;
+                initNewGame(tempGridSize, tempSkillsDisabled);
+            });
+        });
+
 
         // ------------------ 화면 전환 및 렌더링 ------------------
         function showTitleScreen() {
@@ -817,9 +958,10 @@
                     try {
                         const data = JSON.parse(dataStr);
                         let maxLevel = Math.max(...data.discovered);
+                        const ruleText = (data.gridSize !== 6 || data.skillsDisabled) ? '[커스텀]' : '[클래식]';
                         btn.innerHTML = `
                             <div class="relative z-10 flex justify-between items-end w-full">
-                                <span class="font-black text-[#5a4231] leading-none" style="font-size: 3.5cqh; -webkit-text-stroke: 0.02em transparent;">슬롯 ${i}</span>
+                                <span class="font-black text-[#5a4231] leading-none" style="font-size: 3.5cqh; -webkit-text-stroke: 0.02em transparent;">슬롯 ${i} <span class="text-[2cqh] opacity-70">${ruleText}</span></span>
                                 <span class="font-bold text-[#8b5a2b]" style="font-size: 2.2cqh; -webkit-text-stroke: 0.02em transparent;">이어서 하기</span>
                             </div>
                             <span class="relative z-10 font-bold mt-[1cqh] text-slate-700" style="font-size: 2.5cqh; -webkit-text-stroke: 0.02em transparent;">최대 발견: ${getMineralInfo(maxLevel).name}</span>
@@ -838,7 +980,7 @@
                         </div>
                     `;
                     btn.onclick = () => {
-                        hideSaveScreen(() => { currentSaveSlot = i; initNewGame(); });
+                        showRuleScreen(i);
                     };
                 }
                 if (uiConfig && isValidPath(uiConfig.saveSlotBtn)) applyBgTexture(btn, uiConfig.saveSlotBtn);
@@ -924,6 +1066,7 @@
                 const offsetPercent = (!ignoreTransform && ext && ext.textureOffsetY !== undefined) ? ext.textureOffsetY : 0;
                 
                 const scale = scalePercent / 100;
+                // 인게임 렌더링 시 타일 크기에 비례하도록 보정
                 const localTileH = (typeof tileH !== 'undefined' && typeof tileW !== 'undefined' && tileW > 0) 
                                    ? tileH * (radius / (tileW * 0.32)) : radius * 2.5; 
                 
@@ -993,8 +1136,8 @@
 
         function updateScoreDisplay() {
             let currentBoardScore = 0;
-            for (let r = 0; r < GRID_SIZE; r++) {
-                for (let c = 0; c < GRID_SIZE; c++) {
+            for (let r = 0; r < currentGridSize; r++) {
+                for (let c = 0; c < currentGridSize; c++) {
                     if (grid[r][c] && grid[r][c].level > 0) {
                         currentBoardScore += getMineralInfo(grid[r][c].level).settlementScore;
                     }
@@ -1006,6 +1149,8 @@
         }
 
         function updateSkillUI() {
+            if (skillsDisabled) return; // 금지 상태면 업데이트 생략
+
             const pinBtn = document.getElementById('skill-pin-btn');
             const pinCooldownUI = document.getElementById('skill-pin-cooldown');
             
@@ -1018,8 +1163,6 @@
             const spawnBtn = document.getElementById('spawn-btn');
 
             const normalShadow = 'shadow-lg';
-            const yellowGlow = 'skill-glow-yellow';
-            const blueGlow = 'skill-glow-blue';
             const baseBorder = 'border-[#dca773]';
             const yellowText = 'text-[#fff9c4]';
             const whiteText = 'text-white';
@@ -1031,16 +1174,12 @@
                 pinCooldownUI.className = pinCooldownUI.className.replace(/text-white|text-\[#fff9c4\]/g, targetedIsFirstUse ? yellowText : whiteText);
                 
                 isAwaitingTargetSelection = false;
-                pinBtn.classList.remove(yellowGlow, blueGlow);
                 if(!pinBtn.classList.contains('has-ui-texture')) pinBtn.classList.add(baseBorder, normalShadow);
                 setSkillDisabledState(pinBtn, true);
             } else {
                 pinBtn.classList.remove('pointer-events-none');
                 pinCooldownUI.classList.add('hidden');
-                pinBtn.classList.remove(baseBorder, normalShadow);
-                
-                if (isAwaitingTargetSelection) { pinBtn.classList.remove(yellowGlow); pinBtn.classList.add(blueGlow); }
-                else { pinBtn.classList.remove(blueGlow); pinBtn.classList.add(yellowGlow); }
+                if(!pinBtn.classList.contains('has-ui-texture')) pinBtn.classList.add(baseBorder, normalShadow);
                 setSkillDisabledState(pinBtn, false);
             }
 
@@ -1051,16 +1190,12 @@
                 hammerCooldownUI.className = hammerCooldownUI.className.replace(/text-white|text-\[#fff9c4\]/g, removeIsFirstUse ? yellowText : whiteText);
 
                 isAwaitingRemoveSelection = false;
-                hammerBtn.classList.remove(yellowGlow, blueGlow);
                 if(!hammerBtn.classList.contains('has-ui-texture')) hammerBtn.classList.add(baseBorder, normalShadow);
                 setSkillDisabledState(hammerBtn, true);
             } else {
                 hammerBtn.classList.remove('pointer-events-none');
                 hammerCooldownUI.classList.add('hidden');
-                hammerBtn.classList.remove(baseBorder, normalShadow);
-                
-                if (isAwaitingRemoveSelection) { hammerBtn.classList.remove(yellowGlow); hammerBtn.classList.add(blueGlow); }
-                else { hammerBtn.classList.remove(blueGlow); hammerBtn.classList.add(yellowGlow); }
+                if(!hammerBtn.classList.contains('has-ui-texture')) hammerBtn.classList.add(baseBorder, normalShadow);
                 setSkillDisabledState(hammerBtn, false);
             }
 
@@ -1072,16 +1207,12 @@
 
                 isAwaitingSwapSelection = false;
                 swapFirstTarget = null;
-                swapBtn.classList.remove(yellowGlow, blueGlow);
                 if(!swapBtn.classList.contains('has-ui-texture')) swapBtn.classList.add(baseBorder, normalShadow);
                 setSkillDisabledState(swapBtn, true);
             } else {
                 swapBtn.classList.remove('pointer-events-none');
                 swapCooldownUI.classList.add('hidden');
-                swapBtn.classList.remove(baseBorder, normalShadow);
-                
-                if (isAwaitingSwapSelection) { swapBtn.classList.remove(yellowGlow); swapBtn.classList.add(blueGlow); }
-                else { swapBtn.classList.remove(blueGlow); swapBtn.classList.add(yellowGlow); }
+                if(!swapBtn.classList.contains('has-ui-texture')) swapBtn.classList.add(baseBorder, normalShadow);
                 setSkillDisabledState(swapBtn, false);
             }
 
@@ -1098,20 +1229,24 @@
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
 
-            const targetGridHeight = canvas.height * 0.81;
-            tileH = targetGridHeight / GRID_SIZE;
-            tileW = (tileH / 1.1) * 2; 
+            // 전체 타일맵이 차지하는 높이 공간 고정
+            const totalGridHeight = canvas.height * 0.81;
 
-            container.style.setProperty('--tile-w', `${tileW}px`);
-            container.style.setProperty('--tile-h', `${tileH}px`);
-
-            container.style.setProperty('--btn-border', `${tileW * 0.48 * 0.10}px`);
+            // 1. UI용 6x6 기준 크기 계산 (고정)
+            const uiTileH = totalGridHeight / 6;
+            const uiTileW = (uiTileH / 1.1) * 2;
+            container.style.setProperty('--ui-tile-w', `${uiTileW}px`);
+            container.style.setProperty('--ui-tile-h', `${uiTileH}px`);
+            container.style.setProperty('--btn-border', `${uiTileW * 0.48 * 0.10}px`);
             container.style.setProperty('--popup-border', `${canvas.height * 0.78 * 0.05}px`);
-            container.style.setProperty('--skill-cd-border', `${tileW * 0.54 * 0.1}px`);
+            container.style.setProperty('--skill-cd-border', `${uiTileW * 0.54 * 0.1}px`);
             container.style.setProperty('--stats-border', `${canvas.height * 0.35 * 0.03}px`);
 
+            // 2. 인게임 렌더링용 실제 타일 크기 계산 (동적)
+            tileH = totalGridHeight / currentGridSize;
+            tileW = (tileH / 1.1) * 2; 
+
             originX = canvas.width / 2;
-            const totalGridHeight = GRID_SIZE * tileH;
             originY = (canvas.height - totalGridHeight) / 2 + (tileH * 0.5); 
             
             if (!isGameOverAnimating && !isGameOver) {
@@ -1175,8 +1310,8 @@
 
         function getEmptyCount() {
             let count = 0;
-            for(let r=0; r<GRID_SIZE; r++) {
-                for(let c=0; c<GRID_SIZE; c++) {
+            for(let r=0; r<currentGridSize; r++) {
+                for(let c=0; c<currentGridSize; c++) {
                     if (grid[r][c].level === 0) count++;
                 }
             }
@@ -1186,8 +1321,8 @@
         function spawnItem() {
             if (isGameOver || isAwaitingTargetSelection) return;
             const emptyCells = [];
-            for(let r=0; r<GRID_SIZE; r++) {
-                for(let c=0; c<GRID_SIZE; c++) {
+            for(let r=0; r<currentGridSize; r++) {
+                for(let c=0; c<currentGridSize; c++) {
                     if (grid[r][c].level === 0) emptyCells.push({r, c});
                 }
             }
@@ -1297,9 +1432,11 @@
             const totalSpawns = gameStats.spawnCount + gameStats.skillUsage.pin;
             secOther.grid.appendChild(createRow('생성 횟수', totalSpawns));
             secOther.grid.appendChild(createRow('합성 횟수', gameStats.totalMerges));
-            secOther.grid.appendChild(createRow('📌 지정 스킬', gameStats.skillUsage.pin));
-            secOther.grid.appendChild(createRow('⛏️ 파괴 스킬', gameStats.skillUsage.hammer));
-            secOther.grid.appendChild(createRow('🔁 교체 스킬', gameStats.skillUsage.swap));
+            if (!skillsDisabled) {
+                secOther.grid.appendChild(createRow('📌 지정 스킬', gameStats.skillUsage.pin));
+                secOther.grid.appendChild(createRow('⛏️ 파괴 스킬', gameStats.skillUsage.hammer));
+                secOther.grid.appendChild(createRow('🔁 교체 스킬', gameStats.skillUsage.swap));
+            }
             container.appendChild(secOther.sec);
         }
 
@@ -1308,8 +1445,8 @@
             selectedCell = null;
             
             let finalBoardScore = 0; 
-            for (let r = 0; r < GRID_SIZE; r++) {
-                for (let c = 0; c < GRID_SIZE; c++) {
+            for (let r = 0; r < currentGridSize; r++) {
+                for (let c = 0; c < currentGridSize; c++) {
                     const level = grid[r][c].level;
                     if (level > 0) {
                         gameStats.finalBoardCount[level]++; 
@@ -1498,8 +1635,8 @@
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                 }
 
-                for (let r = 0; r < GRID_SIZE; r++) {
-                    for (let c = 0; c < GRID_SIZE; c++) {
+                for (let r = 0; r < currentGridSize; r++) {
+                    for (let c = 0; c < currentGridSize; c++) {
                         drawTileAndItem(r, c);
                     }
                 }
@@ -1575,18 +1712,8 @@
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.15)';
                 ctx.fill();
 
-                const isSwapFirst = isAwaitingSwapSelection && swapFirstTarget && swapFirstTarget.r === r && swapFirstTarget.c === c;
-                const isSwapCandidate = isAwaitingSwapSelection && isItemHighlighted && !isSwapFirst;
-                const minGlow = radius * 0.10, maxGlow = radius * 0.55;
-                const glowThickness = minGlow + (maxGlow - minGlow) * ((Math.sin(Date.now() * 0.005) + 1) / 2);
-
-                if (isSelected || isAwaitingRemoveSelection || isSwapFirst || isSwapCandidate) {
-                    let grad = ctx.createRadialGradient(x, itemY, radius * 0.8, x, itemY, radius + glowThickness);
-                    let glowColor = isSelected || isSwapFirst ? '255, 255, 255' : isSwapCandidate ? '74, 222, 128' : '249, 115, 22';
-                    grad.addColorStop(0, `rgba(${glowColor}, 0.8)`);
-                    grad.addColorStop(1, `rgba(${glowColor}, 0)`);
-                    ctx.beginPath(); ctx.arc(x, itemY, radius + glowThickness, 0, Math.PI * 2);
-                    ctx.fillStyle = grad; ctx.fill();
+                if (isSelected || isAwaitingRemoveSelection || (isAwaitingSwapSelection && isItemHighlighted)) {
+                    // 글로우 효과 제거 상태
                 }
 
                 drawMineral(ctx, x, itemY, radius, cell.level);
@@ -1605,21 +1732,21 @@
         // 스킬 버튼 이벤트
         document.getElementById('skill-pin-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            if (targetedSpawnCooldown > 0) return;
+            if (targetedSpawnCooldown > 0 || skillsDisabled) return;
             isAwaitingTargetSelection = !isAwaitingTargetSelection;
             if (isAwaitingTargetSelection) { isAwaitingRemoveSelection = false; isAwaitingSwapSelection = false; selectedCell = null; }
             updateSkillUI();
         });
         document.getElementById('skill-hammer-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            if (removeSkillCooldown > 0) return;
+            if (removeSkillCooldown > 0 || skillsDisabled) return;
             isAwaitingRemoveSelection = !isAwaitingRemoveSelection;
             if (isAwaitingRemoveSelection) { isAwaitingTargetSelection = false; isAwaitingSwapSelection = false; selectedCell = null; swapFirstTarget = null; }
             updateSkillUI();
         });
         document.getElementById('skill-swap-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            if (swapSkillCooldown > 0) return;
+            if (swapSkillCooldown > 0 || skillsDisabled) return;
             isAwaitingSwapSelection = !isAwaitingSwapSelection;
             if (isAwaitingSwapSelection) { isAwaitingTargetSelection = false; isAwaitingRemoveSelection = false; selectedCell = null; swapFirstTarget = null; }
             else { swapFirstTarget = null; }
@@ -1693,7 +1820,6 @@
 
             const descBox = document.createElement('div');
             descBox.className = 'mt-3 mb-8 w-[92%] bg-[#5a4231]/5 rounded-xl p-2 sm:p-3 overflow-y-auto flex-1 pointer-events-auto border-[#dca773]/40 z-10 relative';
-            // 바탕박스 세로 길이에 비례하게 테두리 두께 동적 설정
             descBox.style.borderWidth = Math.max(1, popupHeight * 0.004) + 'px';
             
             const descText = document.createElement('p');
@@ -1705,7 +1831,6 @@
             const pageNum = document.createElement('div');
             pageNum.className = 'absolute left-1/2 -translate-x-1/2 font-black text-[#8b5a2b]/50 pointer-events-none z-10';
             pageNum.style.fontSize = `${popupHeight * 0.035}px`; pageNum.style.webkitTextStroke = '0.02em transparent';
-            // 쪽수 텍스트 위치를 폰트 크기 대비 50%만큼 위로 올림
             pageNum.style.bottom = '0.5em';
             pageNum.innerText = `- ${mineralLevel} -`; contentDiv.appendChild(pageNum);
 
@@ -1793,8 +1918,8 @@
             const sy = (e.clientY - rect.top) * scaleY;
 
             let clickedR = -1; let clickedC = -1;
-            for (let r = GRID_SIZE - 1; r >= 0; r--) {
-                for (let c = GRID_SIZE - 1; c >= 0; c--) {
+            for (let r = currentGridSize - 1; r >= 0; r--) {
+                for (let c = currentGridSize - 1; c >= 0; c--) {
                     const {x, y} = getScreenXY(r, c); const cell = grid[r][c];
                     if (cell.level > 0) {
                         const radius = tileW * 0.32 * cell.scale * cell.bounce;
@@ -1868,7 +1993,7 @@
         });
 
         window.onload = async () => {
-            await Promise.all([loadTutorialData(), loadMineralData(), loadSkillData(), loadUIData()]);
+            await Promise.all([loadTextData(), loadMineralData(), loadSkillData(), loadUIData()]);
             resize();
             showTitleScreen();
             requestAnimationFrame(draw);
