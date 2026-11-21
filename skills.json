@@ -1,23 +1,20 @@
 {
 "skills": {
 "select": {
-"iconPath": "resources/textures/icon_select.png",
 "initialCooldown": 4,
 "baseCooldown": 10,
 "initialCooldownType": "merge",
 "baseCooldownType": "summon"
 },
 "mining": {
-"iconPath": "resources/textures/icon_destroy.png",
-"initialCooldown": 8,
-"baseCooldown": 20,
+"initialCooldown": 6,
+"baseCooldown": 18,
 "initialCooldownType": "merge",
 "baseCooldownType": "merge"
 },
 "change": {
-"iconPath": "resources/textures/",
-"initialCooldown": 12,
-"baseCooldown": 30,
+"initialCooldown": 10,
+"baseCooldown": 25,
 "initialCooldownType": "merge",
 "baseCooldownType": "merge"
 }
