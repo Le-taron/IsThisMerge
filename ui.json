@@ -60,6 +60,18 @@
 "path": "resources/textures/icon_swap.png",
 "scale": 60
 },
+"dictBtnIcon": {
+"path": "",
+"scale": 60
+},
+"exitBtnBg": {
+"path": "resources/textures/memo_seet.png",
+"scale": 100
+},
+"skillBtnBgDisabled": {
+"path": "resources/textures/memo_seet_disable.png",
+"scale": 100
+}
 "exitBtnIcon": {
 "path": "resources/textures/icon_escape.png",
 "scale": 60
