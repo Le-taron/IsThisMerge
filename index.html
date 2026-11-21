@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -203,65 +204,53 @@
             </div>
 
             <!-- 하단 우측 컨트롤 (생성 + NEXT) -->
-            <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-right">
-                <div class="flex flex-col items-center justify-end">
-                    <div id="preview-box" class="flex items-center justify-center transition-transform duration-300 transform hover:scale-105 dynamic-preview-box relative overflow-visible">
-                        <canvas id="preview-canvas" class="absolute inset-0 w-full h-full"></canvas>
-                    </div>
-                    <div class="dynamic-next-label tracking-widest leading-none">NEXT</div>
+        <div class="absolute pointer-events-auto flex items-end dynamic-ui-bottom-right">
+            <div class="flex flex-col items-center justify-end">
+                <div id="preview-box" class="flex items-center justify-center transition-transform duration-300 transform hover:scale-105 dynamic-preview-box relative overflow-visible">
+                    <canvas id="preview-canvas" class="absolute inset-0 w-full h-full"></canvas>
                 </div>
-                
-                <button id="spawn-btn" class="parchment-theme border-2 font-bold shadow-lg transition-transform active:scale-90 touch-manipulation dynamic-spawn-btn">
-                    생성
-                </button>
-            </div>
-        </div>
-
-        <!-- 게임 오버 오버레이 (모바일 맞춤형 2열 레이아웃) -->
-        <div id="game-over" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex-col pointer-events-auto transition-opacity duration-500 p-[4cqh] pt-[5cqh]">
-            
-            <!-- 상단 제목 -->
-            <div class="w-full text-center flex-shrink-0 mb-[4cqh]">
-                <h2 class="font-black text-white drop-shadow-2xl leading-none" style="font-size: 10cqh;">GAME OVER</h2>
-                <p class="text-slate-300 font-medium leading-none mt-[2cqh]" style="font-size: 4cqh;">더 이상 빈 칸이 없습니다!</p>
+                <div class="dynamic-next-label tracking-widest leading-none">NEXT</div>
             </div>
             
-            <!-- 메인 컨텐츠 영역 (좌측 통계 / 우측 점수) -->
-            <div class="flex-1 w-full flex flex-row gap-[4cqw] min-h-0 pb-[2cqh]">
-                
-                <!-- 좌측: 통계 박스 -->
-                <div class="flex-1 bg-slate-800/60 rounded-[3cqh] border-2 border-slate-600 p-[3cqh] overflow-y-auto custom-scrollbar relative">
-                    <div id="stats-container" class="w-full flex flex-col gap-[3cqh]">
-                        <!-- JS에서 통계 내용이 삽입됩니다. -->
-                    </div>
-                </div>
-                
-                <!-- 우측: 점수 결산 및 버튼 -->
-                <div class="flex-1 flex flex-col justify-end">
-                    <div class="w-full flex flex-col gap-[3.5cqh] mb-[4cqh]">
-                        <div class="flex justify-between items-center text-slate-300 px-[2cqw]">
-                            <span class="font-bold" style="font-size: 5cqh;">파괴 점수</span>
-                            <span id="destroy-score" class="font-black text-white leading-none" style="font-size: 5cqh;">0</span>
-                        </div>
-                        <div class="flex justify-between items-center text-slate-300 px-[2cqw] border-b-2 border-slate-600 pb-[3.5cqh]">
-                            <span class="font-bold" style="font-size: 5cqh;">잔여 결산</span>
-                            <span id="settlement-score" class="font-black text-white leading-none" style="font-size: 5cqh;">0</span>
-                        </div>
-                        <div class="flex justify-between items-end px-[2cqw]">
-                            <span class="text-slate-400 font-bold mb-[0.5cqh]" style="font-size: 5cqh;">최종 점수</span>
-                            <span id="final-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 7cqh;">0</span>
-                        </div>
-                    </div>
+            <button id="spawn-btn" class="parchment-theme border-2 font-bold shadow-lg transition-transform active:scale-90 touch-manipulation dynamic-spawn-btn">
+                생성
+            </button>
+        </div>
+    </div>
 
-                    <button id="restart-btn" class="w-full bg-white text-slate-900 font-black rounded-[4cqh] shadow-2xl hover:bg-slate-100 active:scale-90 transition-transform flex items-center justify-center flex-shrink-0" style="height: 12cqh; font-size: 5cqh;">
-                        다시 시작
-                    </button>
+    <!-- 게임 오버 오버레이 (새로운 줌아웃 연출 레이아웃) -->
+    <div id="game-over" class="hidden absolute inset-0 z-50 pointer-events-none">
+        
+        <!-- 상단 게임 오버 텍스트 (화면 상단 여백 15% 내에 배치, 높이 10vh) -->
+        <div id="go-title" class="absolute w-full top-[2.5cqh] flex justify-center opacity-0 transition-opacity duration-500">
+            <h2 class="font-black text-white drop-shadow-2xl leading-none" style="font-size: 10cqh;">GAME OVER</h2>
+        </div>
+        
+        <!-- 우측 영역: 통계, 점수, 재시작 버튼 -->
+        <div class="absolute right-0 top-0 h-full w-[40cqw] flex flex-col pr-[2cqw] pointer-events-auto">
+            
+            <!-- 통계 박스 -->
+            <div id="go-stats" class="bg-slate-800/80 rounded-[3cqh] border-2 border-slate-600 p-[2cqh] overflow-y-auto custom-scrollbar opacity-0 transition-opacity duration-500 mt-[15cqh]" style="height: 50cqh; flex-shrink: 0;">
+                <div id="stats-container" class="w-full flex flex-col gap-[2cqh]">
+                    <!-- JS에서 통계 내용이 삽입됩니다. -->
                 </div>
             </div>
+            
+            <!-- 최종 점수 -->
+            <div id="go-score" class="opacity-0 transition-opacity duration-500 mt-[2cqh] flex flex-col items-center justify-center shrink-0">
+                <span class="text-slate-400 font-bold mb-[0.5cqh]" style="font-size: 3cqh;">최종 점수</span>
+                <span id="final-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 8cqh;">0</span>
+            </div>
+            
+            <!-- 재시작 버튼 -->
+            <button id="restart-btn" class="opacity-0 transition-opacity duration-500 mt-auto mb-[4cqh] w-full bg-white text-slate-900 font-black rounded-[4cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center flex-shrink-0" style="height: 12cqh; font-size: 5cqh;">
+                다시 시작
+            </button>
         </div>
+    </div>
 
-        <!-- 도감 오버레이 -->
-        <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
+    <!-- 도감 오버레이 -->
+    <div id="dictionary-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center flex-col pointer-events-auto opacity-0 transition-opacity duration-300">
             <div id="dictionary-content" class="parchment-theme w-[80%] max-w-2xl h-[78%] rounded-2xl sm:rounded-3xl shadow-2xl relative flex transform scale-95 transition-transform duration-300 border-4 border-[#8b5a2b] overflow-hidden" style="border-width: 6px;">
 
                 <!-- 왼쪽 페이지 넘김 영역 -->
@@ -474,6 +463,16 @@
         let isGameOver = false;
         let score = 0; // 이제 파괴(결산 획득) 스킬을 통해서만 오르는 점수
 
+        // 줌아웃 애니메이션 상태 변수
+        let currentBoardScale = 1.0;
+        let currentOriginX = 0;
+        let currentOriginY = 0;
+        let targetBoardScale = 1.0;
+        let targetOriginX = 0;
+        let targetOriginY = 0;
+        let isGameOverAnimating = false;
+        let gameOverAnimStartTime = 0;
+
         let discoveredMinerals = new Set();
 
         // 스킬 상태 변수
@@ -650,6 +649,9 @@
             isGameOver = false;
             score = 0;
             
+            isGameOverAnimating = false;
+            currentBoardScale = 1.0;
+            
             resetStats();
 
             // 스킬 쿨타임 초기화
@@ -673,7 +675,13 @@
             
             const gameOverUI = document.getElementById('game-over');
             gameOverUI.classList.add('hidden');
-            gameOverUI.classList.remove('flex');
+            
+            document.getElementById('ui-layer').classList.remove('hidden');
+            
+            document.getElementById('go-title').classList.add('opacity-0');
+            document.getElementById('go-stats').classList.add('opacity-0');
+            document.getElementById('go-score').classList.add('opacity-0');
+            document.getElementById('restart-btn').classList.add('opacity-0');
             
             generateNextSpawn();
             
@@ -846,13 +854,27 @@
             originX = canvas.width / 2;
             const totalGridHeight = GRID_SIZE * tileH;
             originY = (canvas.height - totalGridHeight) / 2 + (tileH * 0.5); 
+            
+            if (!isGameOverAnimating && !isGameOver) {
+                currentOriginX = originX;
+                currentOriginY = originY;
+                currentBoardScale = 1.0;
+            } else if (isGameOver) {
+                targetOriginX = canvas.width * 0.3;
+                targetOriginY = canvas.height * 0.15 + (tileH * 0.6 / 2);
+                currentOriginX = targetOriginX;
+                currentOriginY = targetOriginY;
+                currentBoardScale = 0.6;
+            }
 
             ctx.imageSmoothingEnabled = false; 
         }
 
         function getScreenXY(r, c) {
-            const x = originX + (c - r) * (tileW / 2);
-            const y = originY + (c + r) * (tileH / 2);
+            const sW = tileW * currentBoardScale;
+            const sH = tileH * currentBoardScale;
+            const x = currentOriginX + (c - r) * (sW / 2);
+            const y = currentOriginY + (c + r) * (sH / 2);
             return { x, y };
         }
 
@@ -952,8 +974,8 @@
             const container = document.getElementById('stats-container');
             container.innerHTML = '';
             
-            const headerSize = '4.5cqh';
-            const valueSize = '3.5cqh';
+            const headerSize = '3cqh';
+            const valueSize = '2.5cqh';
             
             const createSec = (title) => {
                 const sec = document.createElement('div');
@@ -1035,19 +1057,45 @@
             
             const finalTotalScore = score + settlementScore;
             
-            const destroyScoreEl = document.getElementById('destroy-score');
-            const settlementScoreEl = document.getElementById('settlement-score');
             const finalScoreEl = document.getElementById('final-score');
-            
-            if (destroyScoreEl) destroyScoreEl.innerText = score.toLocaleString();
-            if (settlementScoreEl) settlementScoreEl.innerText = settlementScore.toLocaleString();
             if (finalScoreEl) finalScoreEl.innerText = finalTotalScore.toLocaleString();
 
+            // 상호작용 중지 후 0.6초 대기
             setTimeout(() => {
+                document.getElementById('ui-layer').classList.add('hidden'); // UI 제거
+                
+                // 줌아웃 애니메이션 셋팅 (1초 간 60% 크기로 줌아웃)
+                targetOriginX = canvas.width * 0.3;
+                targetOriginY = canvas.height * 0.15 + (tileH * 0.6 / 2);
+                targetBoardScale = 0.6;
+                isGameOverAnimating = true;
+                gameOverAnimStartTime = performance.now();
+                
                 const gameOverUI = document.getElementById('game-over');
                 gameOverUI.classList.remove('hidden');
-                gameOverUI.classList.add('flex');
-            }, 300);
+                
+                // GAME OVER 텍스트 등장
+                document.getElementById('go-title').classList.remove('opacity-0');
+                
+                // 1초(줌아웃) + 0.5초 대기
+                setTimeout(() => {
+                    // 통계 박스 부드럽게 등장
+                    document.getElementById('go-stats').classList.remove('opacity-0');
+                    
+                    // 1초 뒤에 최종 점수 등장
+                    setTimeout(() => {
+                        document.getElementById('go-score').classList.remove('opacity-0');
+                        
+                        // 0.8초 뒤에 재시작 버튼 등장
+                        setTimeout(() => {
+                            document.getElementById('restart-btn').classList.remove('opacity-0');
+                        }, 800);
+                        
+                    }, 1000);
+                    
+                }, 1500);
+                
+            }, 600);
         }
 
         function handleCellInteraction(r, c) {
@@ -1108,18 +1156,21 @@
         }
 
         function spawnParticles(x, y, color, baseCount = 8, speedMultiplier = 1, sizeMultiplier = 1) {
+            const sW = tileW * currentBoardScale;
+            const sH = tileH * currentBoardScale;
             const count = baseCount + Math.floor(Math.random() * 3);
             for (let i = 0; i < count; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const speed = (Math.random() * (tileW * 0.04) + (tileW * 0.02)) * speedMultiplier;
+                const speed = (Math.random() * (sW * 0.04) + (sW * 0.02)) * speedMultiplier;
                 particles.push({
                     x: x, y: y,
                     vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed - (tileH * 0.02),
+                    vy: Math.sin(angle) * speed - (sH * 0.02),
                     alpha: 1, life: 0,
                     maxLife: Math.random() * 15 + 10,
-                    radius: (Math.random() * (tileW * 0.015) + (tileW * 0.01)) * sizeMultiplier,
-                    color: color
+                    radius: (Math.random() * (sW * 0.015) + (sW * 0.01)) * sizeMultiplier,
+                    color: color,
+                    sH: sH
                 });
             }
         }
@@ -1131,7 +1182,7 @@
                 p.y += p.vy;
                 p.vx *= 0.80;
                 p.vy *= 0.80;
-                p.vy += tileH * 0.004; 
+                p.vy += (p.sH || tileH) * 0.004; 
                 p.life++;
                 
                 if (p.maxLife - p.life < 5) p.alpha = Math.max(0, (p.maxLife - p.life) / 5);
@@ -1161,6 +1212,9 @@
 
         function updateAndDrawFloatingTexts() {
             const now = performance.now();
+            const sH = tileH * currentBoardScale;
+            const sW = tileW * currentBoardScale;
+            
             for (let i = floatingTexts.length - 1; i >= 0; i--) {
                 const ft = floatingTexts[i];
                 const elapsed = now - ft.startTime;
@@ -1171,7 +1225,7 @@
                 }
                 
                 const progress = elapsed / ft.duration;
-                const floatDistance = tileH * 0.4;
+                const floatDistance = sH * 0.4;
                 let currentY = ft.y;
                 
                 if (progress <= 0.2) {
@@ -1188,7 +1242,7 @@
                 
                 ctx.save();
                 ctx.globalAlpha = alpha;
-                const fontSize = tileW * 0.25;
+                const fontSize = sW * 0.25;
                 ctx.font = `900 ${fontSize}px 'Inter', sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -1205,6 +1259,20 @@
         }
 
         function draw() {
+            if (isGameOverAnimating) {
+                const now = performance.now();
+                let p = (now - gameOverAnimStartTime) / 1000;
+                if (p > 1) {
+                    p = 1;
+                    isGameOverAnimating = false;
+                }
+                const ease = 1 - Math.pow(1 - p, 3); // Cubic ease-out
+                
+                currentBoardScale = 1.0 + (0.6 - 1.0) * ease;
+                currentOriginX = originX + (targetOriginX - originX) * ease;
+                currentOriginY = originY + (targetOriginY - originY) * ease;
+            }
+
             ctx.fillStyle = '#3a3246';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1214,9 +1282,59 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
+            // 1. 모든 타일과 광물 먼저 그리기
             for (let r = 0; r < GRID_SIZE; r++) {
                 for (let c = 0; c < GRID_SIZE; c++) {
                     drawTileAndItem(r, c);
+                }
+            }
+
+            // 2. UI 요소인 단계 표시 텍스트를 가장 최상단에 렌더링
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const cell = grid[r][c];
+                    if (cell.level > 0) {
+                        const {x, y} = getScreenXY(r, c);
+                        const sW = tileW * currentBoardScale;
+                        const sH = tileH * currentBoardScale;
+                        
+                        // 스킬 필터 시인성을 맞추기 위한 어둡기 조건 복제
+                        let isItemHighlighted = false;
+                        if (isAwaitingRemoveSelection) isItemHighlighted = true;
+                        else if (isAwaitingSwapSelection) {
+                            if (!swapFirstTarget) isItemHighlighted = true;
+                            else if (swapFirstTarget.r === r && swapFirstTarget.c === c) isItemHighlighted = true;
+                            else if (cell.level !== grid[swapFirstTarget.r][swapFirstTarget.c].level) isItemHighlighted = true;
+                        }
+
+                        if (isSkillActive && !isItemHighlighted) ctx.filter = 'brightness(65%)';
+                        else ctx.filter = 'none';
+
+                        ctx.save();
+                        // 텍스트 크기 기존 대비 80% 확대
+                        const levelFontSize = sH * 0.225;
+                        ctx.font = `900 ${levelFontSize}px 'Inter', sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        // 텍스트 가로 위치
+                        const textX = x + sW * 0.20;
+                        // 텍스트 Y 위치를 타일 하단에서 타일 세로 길이의 40%만큼 위로 올림
+                        const textY = (y + sH / 2) - (sH * 0.4);
+                        
+                        // 텍스트 윤곽선
+                        ctx.lineWidth = levelFontSize * 0.2;
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+                        ctx.lineJoin = 'round';
+                        ctx.strokeText(cell.level, textX, textY);
+                        
+                        // 텍스트 채우기
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText(cell.level, textX, textY);
+                        
+                        ctx.restore();
+                        ctx.filter = 'none'; // 필터 초기화
+                    }
                 }
             }
 
@@ -1229,6 +1347,8 @@
 
         function drawTileAndItem(r, c) {
             const {x, y} = getScreenXY(r, c);
+            const sW = tileW * currentBoardScale;
+            const sH = tileH * currentBoardScale;
             const isSelected = selectedCell && selectedCell.r === r && selectedCell.c === c;
             const cell = grid[r][c];
             const isSkillActive = isAwaitingTargetSelection || isAwaitingRemoveSelection || isAwaitingSwapSelection;
@@ -1250,16 +1370,16 @@
             }
 
             ctx.beginPath();
-            ctx.moveTo(x, y - tileH / 2);
-            ctx.lineTo(x + tileW / 2, y);
-            ctx.lineTo(x, y + tileH / 2);
-            ctx.lineTo(x - tileW / 2, y);
+            ctx.moveTo(x, y - sH / 2);
+            ctx.lineTo(x + sW / 2, y);
+            ctx.lineTo(x, y + sH / 2);
+            ctx.lineTo(x - sW / 2, y);
             ctx.closePath();
 
             ctx.fillStyle = (r + c) % 2 === 0 ? '#554a63' : '#5f536e';
             ctx.fill();
             ctx.strokeStyle = '#473d54';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2 * currentBoardScale;
             ctx.lineJoin = 'round';
             ctx.stroke();
 
@@ -1283,15 +1403,15 @@
                     if (cell.errorFlash < 0) cell.errorFlash = 0;
                 }
 
-                const baseRadius = tileW * 0.32;
+                const baseRadius = sW * 0.32;
                 const radius = baseRadius * cell.scale * cell.bounce;
                 
                 if (radius <= 0.1) return;
 
-                const itemY = y + tileH / 2 - radius * 1.15;
+                const itemY = y + sH / 2 - radius * 1.15;
 
                 ctx.beginPath();
-                ctx.ellipse(x, y + tileH * 0.1, radius, radius * 0.5, 0, 0, Math.PI * 2);
+                ctx.ellipse(x, y + sH * 0.1, radius, radius * 0.5, 0, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.15)';
                 ctx.fill();
 
@@ -1911,3 +2031,4 @@
     </script>
 </body>
 </html>
+```
