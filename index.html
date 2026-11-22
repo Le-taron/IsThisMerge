@@ -387,9 +387,45 @@
     <script>
         // ------------------ 외부 데이터 연동 (비동기) ------------------
         let uiConfig = {};
+        
+        let soundConfig = {};
+        const loadedSounds = {};
 
         function isValidPath(config) {
             return config && config.path && config.path.trim() !== "" && config.path.trim() !== "resources/textures/";
+        }
+
+        async function loadSoundData() {
+            try {
+                const response = await fetch('sounds.json');
+                if (!response.ok) throw new Error('Failed to load JSON');
+                const data = await response.json();
+                soundConfig = data.sounds || {};
+
+                for (const key in soundConfig) {
+                    const soundData = soundConfig[key];
+                    if (soundData && soundData.path && soundData.path.trim() !== "") {
+                        const audio = new Audio(soundData.path);
+                        audio.volume = soundData.volume !== undefined ? soundData.volume : 1.0;
+                        loadedSounds[key] = audio;
+                    }
+                }
+            } catch (error) {
+                console.log('sounds.json Load Failed:', error);
+            }
+        }
+
+        function playSound(key) {
+            const audio = loadedSounds[key];
+            if (audio) {
+                // cloneNode를 사용하여 사운드가 겹쳐서 자연스럽게 재생되도록 처리
+                const clone = audio.cloneNode();
+                clone.volume = audio.volume;
+                clone.play().catch(e => {
+                    // 브라우저의 자동재생 방지 정책으로 인한 오류 무시
+                    console.log('Audio play failed:', e);
+                });
+            }
         }
 
         function applyBgTexture(el, config, disabledConfig = null, activeConfig = null) {
@@ -1873,12 +1909,27 @@
 
         document.getElementById('dictionary-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
+            playSound('dictOpen'); // 도감 열기 효과음
             maxSpreads = Math.ceil(MAX_LEVEL / 2); dictCurrentSpread = 0;
             dictModal.classList.remove('hidden'); void dictModal.offsetWidth; renderDictionary();
             dictModal.classList.remove('opacity-0'); dictContent.classList.remove('scale-95'); dictContent.classList.add('scale-100');
         });
-        document.getElementById('dict-prev-area').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dictCurrentSpread > 0) { dictCurrentSpread--; renderDictionary(); }});
-        document.getElementById('dict-next-area').addEventListener('pointerdown', (e) => { e.preventDefault(); if (dictCurrentSpread < maxSpreads - 1) { dictCurrentSpread++; renderDictionary(); }});
+        document.getElementById('dict-prev-area').addEventListener('pointerdown', (e) => { 
+            e.preventDefault(); 
+            if (dictCurrentSpread > 0) { 
+                playSound('dictPageTurn'); // 페이지 넘기기 효과음
+                dictCurrentSpread--; 
+                renderDictionary(); 
+            }
+        });
+        document.getElementById('dict-next-area').addEventListener('pointerdown', (e) => { 
+            e.preventDefault(); 
+            if (dictCurrentSpread < maxSpreads - 1) { 
+                playSound('dictPageTurn'); // 페이지 넘기기 효과음
+                dictCurrentSpread++; 
+                renderDictionary(); 
+            }
+        });
         dictModal.addEventListener('pointerdown', (e) => { if (e.target === dictModal) { e.preventDefault(); dictModal.classList.add('opacity-0'); dictContent.classList.remove('scale-100'); dictContent.classList.add('scale-95'); setTimeout(() => dictModal.classList.add('hidden'), 300); }});
 
         const tutModal = document.getElementById('tutorial-modal');
@@ -2018,7 +2069,7 @@
         });
 
         window.onload = async () => {
-            await Promise.all([loadTextData(), loadMineralData(), loadSkillData(), loadUIData()]);
+            await Promise.all([loadTextData(), loadMineralData(), loadSkillData(), loadUIData(), loadSoundData()]);
             resize();
             showTitleScreen();
             requestAnimationFrame(draw);
