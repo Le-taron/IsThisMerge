@@ -1,0 +1,12 @@
+{
+"sounds": {
+"dictOpen": {
+"path": "resources/sounds/open_book.wav",
+"volume": 1.0
+},
+"dictPageTurn": {
+"path": "resources/sounds/turn_book.wav",
+"volume": 1.0
+}
+}
+}
