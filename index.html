@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Is This Merge?</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -154,6 +157,13 @@
         .custom-scrollbar::-webkit-scrollbar { width: 1.5cqh; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 1cqh; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 1cqh; }
+
+        /* 데스크톱 키보드 및 모바일 가상 자판 입력 허용 */
+        .allow-input {
+            user-select: text;
+            -webkit-user-select: text;
+            touch-action: manipulation;
+        }
     </style>
 </head>
 <body>
@@ -161,18 +171,24 @@
 
         <!-- 타이틀 화면 -->
         <div id="title-screen" class="absolute inset-0 bg-[#1a1525] z-50 flex flex-col items-center justify-center pointer-events-auto transition-opacity duration-300">
-            <div id="title-logo-container" class="mb-[15cqh] flex items-center justify-center relative w-full h-[25cqh]">
+            <div id="title-logo-container" class="mb-[5cqh] flex items-center justify-center relative w-full h-[25cqh]">
                 <h1 id="title-logo-text" class="font-black text-transparent bg-clip-text bg-gradient-to-b from-[#fde047] to-[#dca773] drop-shadow-2xl text-center leading-none" style="font-size: 14cqh; -webkit-text-stroke: 0.02em #5a4231;">
                     Is This<br>Merge?
                 </h1>
                 <img id="title-logo-img" class="hidden absolute object-contain" style="image-rendering: pixelated; max-width: 100%; max-height: 100%;">
             </div>
             
-            <div class="flex flex-col gap-[4cqh] w-[60cqw] max-w-[400px]">
-                <button id="btn-title-play" class="parchment-theme font-black rounded-[3cqh] shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center border-[#dca773] relative overflow-hidden" style="height: 12cqh; font-size: 5cqh; border-width: 0.6cqh;">
+            <div class="flex flex-col gap-[2.2cqh] w-[60cqw] max-w-[400px]">
+                <button id="btn-title-play" class="parchment-theme font-black rounded-[3cqh] shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center border-[#dca773] relative overflow-hidden" style="height: 10cqh; font-size: 4cqh; border-width: 0.6cqh;">
                     <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">플레이</span>
                 </button>
-                <button id="btn-title-help" class="parchment-theme font-black rounded-[3cqh] shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center border-[#dca773] relative overflow-hidden" style="height: 12cqh; font-size: 5cqh; border-width: 0.6cqh;">
+                <button id="btn-title-history" class="parchment-theme font-black rounded-[3cqh] shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center border-[#dca773] relative overflow-hidden" style="height: 10cqh; font-size: 4cqh; border-width: 0.6cqh;">
+                    <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">플레이 기록</span>
+                </button>
+                <button id="btn-title-ranking" class="parchment-theme font-black rounded-[3cqh] shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center border-[#dca773] relative overflow-hidden" style="height: 10cqh; font-size: 4cqh; border-width: 0.6cqh;">
+                    <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">랭킹</span>
+                </button>
+                <button id="btn-title-help" class="parchment-theme font-black rounded-[3cqh] shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center justify-center border-[#dca773] relative overflow-hidden" style="height: 10cqh; font-size: 4cqh; border-width: 0.6cqh;">
                     <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">게임 방법</span>
                 </button>
             </div>
@@ -189,6 +205,93 @@
             <button id="btn-save-back" class="mt-[8cqh] text-white/70 font-bold hover:text-white transition-colors" style="font-size: 4cqh;">
                 돌아가기
             </button>
+        </div>
+
+        <!-- 플레이 기록 목록 화면 -->
+        <div id="history-screen" class="hidden absolute inset-0 bg-[#1a1525] z-50 flex flex-col items-center py-[4cqh] px-[4cqw] pointer-events-auto opacity-0 transition-opacity duration-300">
+            <h2 class="font-black text-white drop-shadow-lg mb-[2.5cqh] shrink-0" style="font-size: 6.5cqh; -webkit-text-stroke: 0.02em black;">플레이 기록</h2>
+            
+            <!-- 상단 부문 구분 탭 -->
+            <div class="flex gap-[2cqw] w-[85cqw] max-w-[720px] mb-[1.5cqh] shrink-0">
+                <button id="tab-history-classic" class="flex-1 parchment-theme font-black py-[1.6cqh] rounded-2xl border-[#dca773] shadow-md transition-all active:scale-95" style="font-size: 3.2cqh; border-width: 0.4cqh;">
+                    클래식 부문
+                </button>
+                <button id="tab-history-custom" class="flex-1 bg-slate-800/80 text-white/70 font-black py-[1.6cqh] rounded-2xl border-slate-600 shadow-md transition-all active:scale-95" style="font-size: 3.2cqh; border-width: 0.4cqh;">
+                    커스텀 부문
+                </button>
+            </div>
+            
+            <div id="history-sort-info" class="w-[85cqw] max-w-[720px] text-right text-slate-400 font-bold mb-[1.5cqh] shrink-0" style="font-size: 2.2cqh;">
+                최고 점수 순 · 최대 20개 저장
+            </div>
+
+            <!-- 기록 리스트 영역 -->
+            <div id="history-list-container" class="w-[85cqw] max-w-[720px] flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col gap-[1.8cqh] pr-[1cqw]">
+                <!-- JS에서 동적 생성 -->
+            </div>
+
+            <button id="btn-history-back" class="mt-[3cqh] text-white/70 font-bold hover:text-white transition-colors shrink-0" style="font-size: 3.8cqh;">
+                돌아가기
+            </button>
+        </div>
+
+        <!-- 온라인 랭킹 화면 -->
+        <div id="ranking-screen" class="hidden absolute inset-0 bg-[#1a1525] z-50 flex flex-col items-center py-[4cqh] px-[4cqw] pointer-events-auto opacity-0 transition-opacity duration-300">
+            <h2 class="font-black text-white drop-shadow-lg mb-[2.5cqh] shrink-0" style="font-size: 6.5cqh; -webkit-text-stroke: 0.02em black;">랭킹</h2>
+            
+            <div class="w-[85cqw] max-w-[720px] flex items-center justify-between text-slate-400 font-bold mb-[1.5cqh] shrink-0" style="font-size: 2.2cqh;">
+                <span>클래식 모드 · 상위 50명</span>
+                <button id="btn-ranking-refresh" class="text-white/80 hover:text-white active:scale-95 transition-all px-[1.5cqw] py-[0.5cqh] rounded-lg bg-slate-800/80 border border-slate-600">
+                    새로고침
+                </button>
+            </div>
+
+            <!-- 랭킹 리스트 영역 -->
+            <div id="ranking-list-container" class="w-[85cqw] max-w-[720px] flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col gap-[1.8cqh] pr-[1cqw]">
+                <!-- JS에서 동적 생성 -->
+            </div>
+
+            <button id="btn-ranking-back" class="mt-[3cqh] text-white/70 font-bold hover:text-white transition-colors shrink-0" style="font-size: 3.8cqh;">
+                돌아가기
+            </button>
+        </div>
+
+        <!-- 플레이 기록 상세 보기 (게임 오버 레이아웃 기반) -->
+        <div id="history-detail-modal" class="hidden absolute inset-0 z-[65] pointer-events-auto opacity-0 transition-opacity duration-300">
+            <canvas id="history-board-canvas" class="absolute inset-0 w-full h-full z-0"></canvas>
+            
+            <div class="relative z-10 w-full h-full pointer-events-none">
+                <!-- 상단 헤더 -->
+                <div class="absolute w-full top-[2.5cqh] flex flex-col items-center justify-center">
+                    <h2 id="history-detail-title" class="font-black text-white drop-shadow-2xl leading-none" style="font-size: 7.5cqh; -webkit-text-stroke: 0.02em black;">CLASSIC RECORD</h2>
+                    <span id="history-detail-date" class="text-slate-300 font-bold mt-[1cqh]" style="font-size: 2.4cqh; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);"></span>
+                </div>
+
+                <!-- 우측 통계 및 룰 정보 패널 -->
+                <div class="absolute right-0 top-0 h-full w-[42cqw] flex flex-col pr-[2.5cqw] pb-[4.5cqh] pt-[14cqh] pointer-events-auto">
+                    <!-- 커스텀 부문 전용 룰 옵션 표시 박스 -->
+                    <div id="history-detail-rules" class="hidden parchment-theme rounded-[2cqh] border-[#dca773] px-[2cqw] py-[1.4cqh] mb-[1.5cqh] shrink-0 shadow-lg" style="border-width: 0.35cqh;">
+                        <div class="font-black text-[#8b5a2b] mb-[0.4cqh]" style="font-size: 2.1cqh;">적용된 커스텀 룰</div>
+                        <div id="history-detail-rules-text" class="font-bold text-[#5a4231]" style="font-size: 2.4cqh;"></div>
+                    </div>
+
+                    <!-- 통계 박스 -->
+                    <div class="bg-slate-800/85 rounded-[3cqh] border-slate-600 p-[2cqh] overflow-y-auto custom-scrollbar flex-1 min-h-0" style="border-width: var(--stats-border, 2px);">
+                        <div id="history-stats-container" class="w-full flex flex-col gap-[2cqh]"></div>
+                    </div>
+
+                    <!-- 최종 점수 -->
+                    <div class="mt-[1.8cqh] flex flex-col items-center justify-center shrink-0">
+                        <span class="text-slate-300 font-bold mb-[0.3cqh]" style="font-size: 2.6cqh; -webkit-text-stroke: 0.02em rgba(0,0,0,0.5);">최종 점수</span>
+                        <span id="history-detail-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 7cqh; -webkit-text-stroke: 0.02em black;">0</span>
+                    </div>
+
+                    <!-- 목록으로 돌아가기 버튼 -->
+                    <button id="btn-history-detail-close" class="mt-[2cqh] self-center bg-white text-slate-900 font-black rounded-[2.5cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center w-[85%] max-w-[240px] shrink-0 transition-transform" style="height: 8.5cqh; font-size: 3.5cqh;">
+                        목록으로
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- 룰 설정 모달 (새 게임 전용) -->
@@ -221,7 +324,7 @@
                     
                     <!-- Right: Description -->
                     <div class="flex-1 flex items-center justify-center p-[3cqh] bg-[#5a4231]/5 rounded-xl border border-[#dca773]/40">
-                        <p id="rule-desc" class="text-[#5a4231] font-bold break-keep text-center leading-relaxed" style="font-size: 2.5cqh; -webkit-text-stroke: 0.02em transparent;">
+                        <p id="rule-desc" class="text-[#5a4231] font-bold break-keep whitespace-pre-line text-center leading-relaxed" style="font-size: 2.5cqh; -webkit-text-stroke: 0.02em transparent;">
                             기본적인 6x6 필드에서 스킬을 활용하여 플레이하는 클래식 모드입니다.
                         </p>
                     </div>
@@ -305,9 +408,46 @@
                     <span id="final-score" class="leading-none font-black text-yellow-400 drop-shadow-md" style="font-size: 8cqh; -webkit-text-stroke: 0.02em black;">0</span>
                 </div>
                 
-                <button id="restart-btn" class="mt-auto self-center opacity-0 transition-opacity duration-500 bg-white text-slate-900 font-black rounded-[3cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center pointer-events-auto w-[90%] max-w-[250px] relative overflow-hidden shrink-0" style="height: 10cqh; font-size: 4cqh;">
-                    <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">타이틀로</span>
-                </button>
+                <div id="go-actions" class="mt-auto w-full flex items-center justify-center gap-[1.5cqw] opacity-0 transition-opacity duration-500 shrink-0">
+                    <button id="btn-register-ranking" class="hidden flex-1 bg-[#dca773] text-white font-black rounded-[3cqh] shadow-2xl hover:brightness-105 active:scale-90 flex items-center justify-center pointer-events-auto relative overflow-hidden transition-all" style="height: 10cqh; font-size: 3.2cqh;">
+                        <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">랭킹 등록</span>
+                    </button>
+                    <button id="restart-btn" class="flex-1 bg-white text-slate-900 font-black rounded-[3cqh] shadow-2xl hover:bg-slate-100 active:scale-90 flex items-center justify-center pointer-events-auto max-w-[250px] relative overflow-hidden transition-all" style="height: 10cqh; font-size: 3.2cqh;">
+                        <span class="relative z-10" style="-webkit-text-stroke: 0.02em transparent;">타이틀로</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 랭킹 등록 모달 (닉네임 입력) -->
+        <div id="ranking-register-modal" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-[75] flex items-center justify-center pointer-events-auto opacity-0 transition-opacity duration-300">
+            <div id="ranking-register-content" class="parchment-theme p-[4cqh] rounded-3xl flex flex-col items-center shadow-2xl border-[#dca773] transform scale-95 transition-transform duration-300 w-[76cqw] max-w-[440px] relative" style="border-width: 0.6cqh;">
+                <h3 class="font-black text-[#5a4231] mb-[1cqh]" style="font-size: 4.5cqh; -webkit-text-stroke: 0.02em transparent;">랭킹 등록</h3>
+                <p id="ranking-register-score-text" class="font-bold text-[#8b5a2b] mb-[2.5cqh]" style="font-size: 2.8cqh;">최종 점수: 0점</p>
+
+                <form id="ranking-register-form" class="w-full flex flex-col items-center">
+                    <input
+                        id="ranking-nickname-input"
+                        type="text"
+                        inputmode="text"
+                        enterkeyhint="done"
+                        maxlength="12"
+                        autocomplete="nickname"
+                        placeholder="닉네임 입력 (1~12자)"
+                        class="allow-input w-full bg-white text-[#5a4231] font-bold rounded-xl border-2 border-[#dca773] px-[2.5cqw] py-[1.6cqh] text-center focus:outline-none focus:border-[#8b5a2b] shadow-inner"
+                        style="font-size: 3cqh;"
+                    />
+                    <p id="ranking-register-msg" class="min-h-[3cqh] mt-[1.2cqh] mb-[1.5cqh] font-bold text-center text-red-600 break-keep" style="font-size: 2.2cqh;"></p>
+
+                    <div class="flex w-full gap-[3cqw]">
+                        <button type="button" id="btn-ranking-cancel" class="flex-1 bg-slate-300 text-slate-800 rounded-xl font-black py-[1.8cqh] active:scale-95 transition-transform" style="font-size: 3.2cqh;">
+                            취소
+                        </button>
+                        <button type="submit" id="btn-ranking-submit" class="flex-1 bg-[#dca773] text-white rounded-xl font-black py-[1.8cqh] active:scale-95 transition-transform shadow-md" style="font-size: 3.2cqh;">
+                            등록
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -348,12 +488,12 @@
                 <!-- 단락 0 -->
                 <div id="tut-page-0" class="tut-page flex flex-col items-center justify-center h-full text-center fade-in pb-10">
                     <h2 id="tut-title-0" class="font-black mb-3 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--ui-tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">게임 소개</h2>
-                    <p id="tut-desc-0" class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed break-keep px-2"></p>
+                    <p id="tut-desc-0" class="text-[clamp(11px,3.5vw,20px)] font-bold text-[#5a4231] leading-relaxed break-keep px-2">동굴 안에서 고가의 광물을 최대한 많이 발견하세요!</p>
                 </div>
                 <!-- 단락 1 -->
                 <div id="tut-page-1" class="tut-page hidden flex flex-col items-center justify-start h-full text-center fade-in pb-8">
                     <h2 id="tut-title-1" class="font-black mb-2 text-[#5a4231] drop-shadow-sm shrink-0 mt-1" style="font-size: calc(var(--ui-tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">플레이 방법</h2>
-                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full break-keep px-2" style="font-size: calc(var(--ui-tile-w, 60px) * 0.182); color: #5a4231;"></p>
+                    <p id="tut-desc-1" class="font-black mb-2 shrink-0 w-full break-keep px-2" style="font-size: calc(var(--ui-tile-w, 60px) * 0.182); color: #5a4231;">인접한 두 광물을 선택해 더 좋은 광물을 발견하세요!</p>
                     <div class="w-full flex-1 min-h-0 relative flex items-center justify-center overflow-hidden">
                         <canvas id="tutorial-canvas" class="max-w-full max-h-full object-contain"></canvas>
                     </div>
@@ -361,8 +501,30 @@
                 <!-- 단락 2 -->
                 <div id="tut-page-2" class="tut-page hidden flex flex-col items-center justify-start h-full fade-in pb-10">
                     <h2 id="tut-title-2" class="font-black mb-1 sm:mb-2 text-[#5a4231] drop-shadow-sm text-center w-full shrink-0 mt-1" style="font-size: calc(var(--ui-tile-w, 60px) * 0.195); -webkit-text-stroke: 0.02em rgba(0,0,0,0.1);">스킬</h2>
-                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0 break-keep px-2" style="font-size: calc(var(--ui-tile-w, 60px) * 0.117);"></p>
-                    <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--ui-tile-w, 60px) * 0.117);"></div>
+                    <p id="tut-desc-2" class="font-bold text-[#5a4231] mb-2 text-center w-full shrink-0 break-keep px-2" style="font-size: calc(var(--ui-tile-w, 60px) * 0.117);">스킬 버튼을 눌러서 능력을 사용하세요!</p>
+                    <div id="tut-skills-container" class="flex flex-col justify-center gap-1.5 sm:gap-2.5 text-[#5a4231] w-full flex-1 min-h-0 overflow-y-auto font-bold p-2 sm:p-4" style="font-size: calc(var(--ui-tile-w, 60px) * 0.117);">
+                        <div class="flex items-center gap-2 sm:gap-3 bg-[#5a4231]/10 rounded-xl px-3 py-2 border border-[#dca773]/40">
+                            <span class="text-[1.4em] shrink-0">📌</span>
+                            <div class="flex flex-col text-left">
+                                <span class="font-black text-[#5a4231]">지정</span>
+                                <span class="font-bold text-[#8b5a2b] text-[0.9em] break-keep">다음 광물을 원하는 위치에 놓을 수 있다.</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-3 bg-[#5a4231]/10 rounded-xl px-3 py-2 border border-[#dca773]/40">
+                            <span class="text-[1.4em] shrink-0">⛏️</span>
+                            <div class="flex flex-col text-left">
+                                <span class="font-black text-[#5a4231]">파괴</span>
+                                <span class="font-bold text-[#8b5a2b] text-[0.9em] break-keep">원하는 광물을 제거할 수 있다.</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-3 bg-[#5a4231]/10 rounded-xl px-3 py-2 border border-[#dca773]/40">
+                            <span class="text-[1.4em] shrink-0">🔁</span>
+                            <div class="flex flex-col text-left">
+                                <span class="font-black text-[#5a4231]">교체</span>
+                                <span class="font-bold text-[#8b5a2b] text-[0.9em] break-keep">서로 다른 두 광물의 위치를 맞바꿀 수 있다.</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 튜토리얼 네비게이션 버튼 & 인디케이터 -->
@@ -385,11 +547,52 @@
     </div>
 
     <script>
+        // ------------------ Firebase 랭킹 설정 ------------------
+        // Firebase 콘솔에서 발급받은 본인의 firebaseConfig 객체로 아래 값을 교체해 주세요.
+        const firebaseConfig = {
+    apiKey: "AIzaSyDbjxX0f7HEW76SFsBgw23AfLn5R0sDEaI",
+    authDomain: "isthismerge-d1568.firebaseapp.com",
+    projectId: "isthismerge-d1568",
+    storageBucket: "isthismerge-d1568.firebasestorage.app",
+    messagingSenderId: "1086307366548",
+    appId: "1:1086307366548:web:61e24e368448beb739e681"
+  };
+        
+        let db = null;
+        let isFirebaseReady = false;
+
+        function initFirebase() {
+            try {
+                if (typeof firebase === 'undefined') {
+                    console.log('Firebase SDK not loaded.');
+                    return;
+                }
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
+                    console.log('Firebase config is not configured yet.');
+                    return;
+                }
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+                isFirebaseReady = true;
+            } catch (error) {
+                console.log('Firebase Init Failed:', error);
+                isFirebaseReady = false;
+            }
+        }
+
         // ------------------ 외부 데이터 연동 (비동기) ------------------
         let uiConfig = {};
-        
         let soundConfig = {};
         const loadedSounds = {};
+
+        let ruleDescriptions = {
+            classic: "기본적인 6x6 필드에서 스킬을 활용하여 플레이하는 클래식 모드입니다.",
+            custom: "자신만의 규칙을 설정하여 게임을 플레이하는 커스텀 모드입니다.",
+            gridSize: "필드의 가로세로 크기를 조절합니다. 4x4부터 8x8까지 설정할 수 있습니다.\n크기가 작을수록 공간이 부족해 난이도가 크게 상승합니다.",
+            skillDisable: "스킬 사용을 완전히 금지합니다. 오직 기본 생성과 합성에만 의존하여 플레이어의 순수한 한계를 시험해 보세요!"
+        };
 
         function isValidPath(config) {
             return config && config.path && config.path.trim() !== "" && config.path.trim() !== "resources/textures/";
@@ -418,11 +621,9 @@
         function playSound(key) {
             const audio = loadedSounds[key];
             if (audio) {
-                // cloneNode를 사용하여 사운드가 겹쳐서 자연스럽게 재생되도록 처리
                 const clone = audio.cloneNode();
                 clone.volume = audio.volume;
                 clone.play().catch(e => {
-                    // 브라우저의 자동재생 방지 정책으로 인한 오류 무시
                     console.log('Audio play failed:', e);
                 });
             }
@@ -503,6 +704,16 @@
                 const data = await response.json();
                 uiConfig = data.ui || {};
 
+                if (isValidPath(uiConfig.titleLogo)) {
+                    const logoImg = document.getElementById('title-logo-img');
+                    const logoText = document.getElementById('title-logo-text');
+                    logoImg.src = uiConfig.titleLogo.path;
+                    logoImg.style.width = `${uiConfig.titleLogo.scale}%`;
+                    logoImg.style.height = `${uiConfig.titleLogo.scale}%`;
+                    logoImg.classList.remove('hidden');
+                    logoText.classList.add('hidden');
+                }
+
                 applyBgTexture(document.getElementById('dictionary-btn'), uiConfig.dictBtn);
                 applyBgTexture(document.getElementById('exit-btn'), uiConfig.exitBtnBg);
                 applyBgTexture(document.getElementById('spawn-btn'), uiConfig.spawnBtn);
@@ -516,83 +727,668 @@
                 applyBgTexture(document.getElementById('btn-exit-yes'), uiConfig.exitConfirmBtn);
                 applyBgTexture(document.getElementById('btn-exit-no'), uiConfig.exitCancelBtn);
                 applyBgTexture(document.getElementById('btn-title-play'), uiConfig.titlePlayBtn);
+                applyBgTexture(document.getElementById('btn-title-history'), uiConfig.titleHistoryBtn);
+                applyBgTexture(document.getElementById('btn-title-ranking'), uiConfig.titleRankingBtn);
                 applyBgTexture(document.getElementById('btn-title-help'), uiConfig.titleHelpBtn);
                 applyBgTexture(document.getElementById('restart-btn'), uiConfig.titlePlayBtn);
 
-                applyIconTexture(document.getElementById('dict-btn-icon'), uiConfig.dictBtnIcon, '📖');
                 applyIconTexture(document.getElementById('skill-pin-icon'), uiConfig.skillPinIcon, '📌');
                 applyIconTexture(document.getElementById('skill-hammer-icon'), uiConfig.skillHammerIcon, '⛏️');
                 applyIconTexture(document.getElementById('skill-swap-icon'), uiConfig.skillSwapIcon, '🔁');
                 applyIconTexture(document.getElementById('exit-icon'), uiConfig.exitBtnIcon, '🚪');
-
-                if (isValidPath(uiConfig.titleLogo)) {
-                    const logoText = document.getElementById('title-logo-text');
-                    const logoImg = document.getElementById('title-logo-img');
-                    const img = new Image();
-                    img.src = uiConfig.titleLogo.path;
-                    img.onload = () => {
-                        logoText.classList.add('hidden');
-                        logoImg.classList.remove('hidden');
-                        logoImg.src = uiConfig.titleLogo.path;
-                        logoImg.style.width = `${uiConfig.titleLogo.scale}%`;
-                    };
-                }
+                applyIconTexture(document.getElementById('dict-btn-icon'), uiConfig.dictBtnIcon, '📖');
             } catch (error) {
                 console.log('ui.json Load Failed:', error);
             }
         }
-
-        let ruleDescriptions = {
-            classic: "기본적인 6x6 필드에서 스킬을 활용하여 플레이하는 클래식 모드입니다.",
-            custom: "자신만의 규칙을 설정하여 게임을 플레이하는 커스텀 모드입니다.",
-            gridSize: "필드의 가로세로 크기를 조절합니다. 4x4부터 8x8까지 설정할 수 있습니다.\n크기가 작을수록 공간이 부족해 난이도가 크게 상승합니다.",
-            skillDisable: "스킬 사용을 완전히 금지합니다. 오직 기본 생성과 합성에만 의존하여 플레이어의 순수한 한계를 시험해 보세요!"
-        };
 
         async function loadTextData() {
             try {
                 const response = await fetch('texts.json');
                 if (!response.ok) throw new Error('Failed to load JSON');
                 const data = await response.json();
-                
-                // 룰 설명문 적용
+
                 if (data.rules) {
                     ruleDescriptions = { ...ruleDescriptions, ...data.rules };
                 }
 
-                // 튜토리얼 텍스트 적용
-                if (data.tutorial && data.tutorial.pages && data.tutorial.pages.length > 0) {
-                    const pages = data.tutorial.pages;
-                    if (pages[0]) {
-                        document.getElementById('tut-title-0').innerText = pages[0].title;
-                        document.getElementById('tut-desc-0').innerText = pages[0].description;
-                    }
-                    if (pages[1]) {
-                        document.getElementById('tut-title-1').innerText = pages[1].title;
-                        document.getElementById('tut-desc-1').innerText = pages[1].description;
-                    }
-                    if (pages[2]) {
-                        document.getElementById('tut-title-2').innerText = pages[2].title;
-                        document.getElementById('tut-desc-2').innerText = pages[2].description;
-                        if (pages[2].skills) {
-                            const skillContainer = document.getElementById('tut-skills-container');
-                            skillContainer.innerHTML = ''; 
-                            pages[2].skills.forEach(skill => {
-                                const div = document.createElement('div');
-                                div.className = 'flex items-start';
-                                div.innerHTML = `
-                                    <span class="mr-1.5 sm:mr-2 leading-none mt-0.5" style="font-size: calc(var(--ui-tile-w, 60px) * 0.14);">${skill.icon}</span>
-                                    <p class="leading-tight mt-0.5"><span class="font-black">${skill.name}:</span> ${skill.desc}</p>
-                                `;
-                                skillContainer.appendChild(div);
-                            });
+                if (data.tutorial && Array.isArray(data.tutorial.pages)) {
+                    data.tutorial.pages.forEach((page, index) => {
+                        const titleEl = document.getElementById(`tut-title-${index}`);
+                        const descEl = document.getElementById(`tut-desc-${index}`);
+                        if (titleEl && page.title) titleEl.innerText = page.title;
+                        if (descEl && page.description) descEl.innerText = page.description;
+
+                        if (index === 2 && Array.isArray(page.skills)) {
+                            const skillsContainer = document.getElementById('tut-skills-container');
+                            if (skillsContainer) {
+                                skillsContainer.innerHTML = '';
+                                page.skills.forEach(skill => {
+                                    const row = document.createElement('div');
+                                    row.className = 'flex items-center gap-2 sm:gap-3 bg-[#5a4231]/10 rounded-xl px-3 py-2 border border-[#dca773]/40';
+                                    row.innerHTML = `
+                                        <span class="text-[1.4em] shrink-0">${skill.icon || ''}</span>
+                                        <div class="flex flex-col text-left">
+                                            <span class="font-black text-[#5a4231]">${skill.name || ''}</span>
+                                            <span class="font-bold text-[#8b5a2b] text-[0.9em] break-keep">${skill.desc || ''}</span>
+                                        </div>
+                                    `;
+                                    skillsContainer.appendChild(row);
+                                });
+                            }
                         }
-                    }
+                    });
                 }
             } catch (error) {
                 console.log('texts.json Load Failed:', error);
             }
         }
+
+        // ------------------ 플레이 기록 시스템 ------------------
+        const HISTORY_STORAGE_KEY = 'merge_play_history';
+        let currentHistoryTab = 'classic';
+        let currentDetailRecord = null;
+
+        function getPlayHistory() {
+            try {
+                const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+                if (!raw) return { classic: [], custom: [] };
+                const parsed = JSON.parse(raw);
+                return {
+                    classic: Array.isArray(parsed.classic) ? parsed.classic : [],
+                    custom: Array.isArray(parsed.custom) ? parsed.custom : []
+                };
+            } catch (e) {
+                console.log('Failed to parse play history:', e);
+                return { classic: [], custom: [] };
+            }
+        }
+
+        function savePlayRecord(finalTotalScore) {
+            const history = getPlayHistory();
+            const isClassic = (currentGridSize === 6 && !skillsDisabled);
+            const record = {
+                id: Date.now(),
+                timestamp: Date.now(),
+                mode: isClassic ? 'classic' : 'custom',
+                score: finalTotalScore,
+                gridSize: currentGridSize,
+                skillsDisabled: skillsDisabled,
+                board: grid.map(row => row.map(cell => cell.level)),
+                stats: JSON.parse(JSON.stringify(gameStats))
+            };
+
+            if (isClassic) {
+                history.classic.push(record);
+                history.classic.sort((a, b) => b.score - a.score);
+                history.classic = history.classic.slice(0, 20);
+            } else {
+                history.custom.unshift(record);
+                history.custom = history.custom.slice(0, 20);
+            }
+
+            try {
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+            } catch (e) {
+                console.log('Failed to save play history:', e);
+            }
+        }
+
+        function formatRecordDate(ts) {
+            const d = new Date(ts);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
+        }
+
+        function getHighestMineralLevel(record) {
+            let maxLvl = 1;
+            if (record.board) {
+                for (let r = 0; r < record.board.length; r++) {
+                    for (let c = 0; c < record.board[r].length; c++) {
+                        if (record.board[r][c] > maxLvl) maxLvl = record.board[r][c];
+                    }
+                }
+            }
+            if (record.stats && record.stats.discoveryCount) {
+                for (const key in record.stats.discoveryCount) {
+                    const lvl = Number(key);
+                    if (record.stats.discoveryCount[lvl] > 0 && lvl > maxLvl) {
+                        maxLvl = lvl;
+                    }
+                }
+            }
+            return maxLvl;
+        }
+
+        function showHistoryScreen() {
+            appState = 'HISTORY';
+            currentHistoryTab = 'classic';
+            document.getElementById('title-screen').classList.add('opacity-0');
+
+            setTimeout(() => {
+                document.getElementById('title-screen').classList.add('hidden');
+                const historyScreen = document.getElementById('history-screen');
+                historyScreen.classList.remove('hidden');
+                updateHistoryTabsUI();
+                renderHistoryList();
+                void historyScreen.offsetWidth;
+                historyScreen.classList.remove('opacity-0');
+            }, 300);
+        }
+
+        function hideHistoryScreen(callback) {
+            const historyScreen = document.getElementById('history-screen');
+            historyScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                historyScreen.classList.add('hidden');
+                if (callback) callback();
+            }, 300);
+        }
+
+        function updateHistoryTabsUI() {
+            const classicTab = document.getElementById('tab-history-classic');
+            const customTab = document.getElementById('tab-history-custom');
+            const sortInfo = document.getElementById('history-sort-info');
+
+            if (currentHistoryTab === 'classic') {
+                classicTab.className = 'flex-1 parchment-theme font-black py-[1.6cqh] rounded-2xl border-[#dca773] shadow-md transition-all active:scale-95';
+                customTab.className = 'flex-1 bg-slate-800/80 text-white/70 font-black py-[1.6cqh] rounded-2xl border-slate-600 shadow-md transition-all active:scale-95';
+                sortInfo.innerText = '최고 점수 순 · 최대 20개 저장';
+            } else {
+                customTab.className = 'flex-1 parchment-theme font-black py-[1.6cqh] rounded-2xl border-[#dca773] shadow-md transition-all active:scale-95';
+                classicTab.className = 'flex-1 bg-slate-800/80 text-white/70 font-black py-[1.6cqh] rounded-2xl border-slate-600 shadow-md transition-all active:scale-95';
+                sortInfo.innerText = '최신 순 · 최대 20개 저장';
+            }
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('history-list-container');
+            container.innerHTML = '';
+            const history = getPlayHistory();
+            const records = currentHistoryTab === 'classic' ? history.classic : history.custom;
+
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center text-white/50 font-bold" style="font-size: 3.2cqh;">
+                        아직 저장된 플레이 기록이 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            records.forEach((record, index) => {
+                const maxLvl = getHighestMineralLevel(record);
+                const maxMineralName = getMineralInfo(maxLvl).name;
+                const dateStr = formatRecordDate(record.timestamp);
+
+                const card = document.createElement('button');
+                card.className = 'w-full parchment-theme rounded-2xl px-[3cqw] py-[2cqh] border-[#dca773] shadow-lg flex items-center justify-between text-left hover:brightness-105 active:scale-[0.99] transition-all shrink-0';
+                card.style.borderWidth = '0.4cqh';
+
+                let badgeColor = 'bg-[#5a4231] text-white';
+                if (currentHistoryTab === 'classic') {
+                    if (index === 0) badgeColor = 'bg-yellow-500 text-slate-900';
+                    else if (index === 1) badgeColor = 'bg-slate-300 text-slate-900';
+                    else if (index === 2) badgeColor = 'bg-amber-700 text-white';
+                }
+
+                const ruleBadgeHtml = record.mode === 'custom'
+                    ? `<span class="bg-[#8b5a2b]/15 text-[#5a4231] px-[1.2cqw] py-[0.3cqh] rounded-lg font-extrabold" style="font-size: 2cqh;">${record.gridSize}x${record.gridSize} · 스킬 ${record.skillsDisabled ? '금지' : '허용'}</span>`
+                    : '';
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-[2.5cqw]">
+                        <div class="${badgeColor} font-black rounded-xl flex items-center justify-center shrink-0 shadow-sm" style="width: 6.5cqh; height: 6.5cqh; font-size: 2.8cqh;">
+                            #${index + 1}
+                        </div>
+                        <div class="flex flex-col gap-[0.5cqh]">
+                            <div class="flex items-center gap-[1.5cqw] flex-wrap">
+                                <span class="font-black text-[#5a4231] leading-none" style="font-size: 3.6cqh;">${record.score.toLocaleString()}점</span>
+                                ${ruleBadgeHtml}
+                            </div>
+                            <div class="font-bold text-[#8b5a2b]" style="font-size: 2.2cqh;">
+                                최고 광물: ${maxMineralName} · ${dateStr}
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-[#8b5a2b] font-black ml-[2cqw]" style="font-size: 3cqh;">▶</span>
+                `;
+
+                card.onclick = () => openHistoryDetail(record, index + 1);
+                container.appendChild(card);
+            });
+        }
+
+        function drawHistoryBoard(record) {
+            const hCanvas = document.getElementById('history-board-canvas');
+            const container = document.getElementById('game-container');
+            if (!hCanvas || !container || !record) return;
+
+            hCanvas.width = container.clientWidth;
+            hCanvas.height = container.clientHeight;
+            const hCtx = hCanvas.getContext('2d', { alpha: false });
+            hCtx.imageSmoothingEnabled = false;
+
+            hCtx.fillStyle = '#3a3246';
+            hCtx.fillRect(0, 0, hCanvas.width, hCanvas.height);
+
+            const rGridSize = record.gridSize || 6;
+            const totalGridHeight = hCanvas.height * 0.81;
+            const rTileH = totalGridHeight / rGridSize;
+            const rTileW = (rTileH / 1.1) * 2;
+            const boardScale = 0.6;
+
+            const bOriginX = hCanvas.width * 0.29;
+            const bOriginY = hCanvas.height * 0.17 + (rTileH * boardScale / 2);
+            const sW = rTileW * boardScale;
+            const sH = rTileH * boardScale;
+
+            for (let r = 0; r < rGridSize; r++) {
+                for (let c = 0; c < rGridSize; c++) {
+                    const x = bOriginX + (c - r) * (sW / 2);
+                    const y = bOriginY + (c + r) * (sH / 2);
+
+                    hCtx.beginPath();
+                    hCtx.moveTo(x, y - sH / 2);
+                    hCtx.lineTo(x + sW / 2, y);
+                    hCtx.lineTo(x, y + sH / 2);
+                    hCtx.lineTo(x - sW / 2, y);
+                    hCtx.closePath();
+
+                    hCtx.fillStyle = (r + c) % 2 === 0 ? '#554a63' : '#5f536e';
+                    hCtx.fill();
+                    hCtx.strokeStyle = '#473d54';
+                    hCtx.lineWidth = 2 * boardScale;
+                    hCtx.lineJoin = 'round';
+                    hCtx.stroke();
+
+                    const level = (record.board && record.board[r]) ? record.board[r][c] : 0;
+                    if (level > 0) {
+                        const radius = sW * 0.32;
+                        const itemY = y + sH / 2 - radius * 1.15;
+
+                        hCtx.beginPath();
+                        hCtx.ellipse(x, y + sH * 0.1, radius, radius * 0.5, 0, 0, Math.PI * 2);
+                        hCtx.fillStyle = 'rgba(15, 23, 42, 0.15)';
+                        hCtx.fill();
+
+                        drawMineral(hCtx, x, itemY, radius, level);
+                    }
+                }
+            }
+        }
+
+        function openHistoryDetail(record, rankNum, playerName = null) {
+            currentDetailRecord = record;
+            const modal = document.getElementById('history-detail-modal');
+            const titleEl = document.getElementById('history-detail-title');
+            const dateEl = document.getElementById('history-detail-date');
+            const rulesBox = document.getElementById('history-detail-rules');
+            const rulesText = document.getElementById('history-detail-rules-text');
+            const scoreEl = document.getElementById('history-detail-score');
+
+            if (playerName) {
+                titleEl.innerText = `#${rankNum} ${playerName}`;
+            } else {
+                titleEl.innerText = record.mode === 'classic'
+                    ? `CLASSIC #${rankNum}`
+                    : `CUSTOM #${rankNum}`;
+            }
+            dateEl.innerText = record.timestamp ? formatRecordDate(record.timestamp) : '';
+
+            if (record.mode === 'custom') {
+                rulesBox.classList.remove('hidden');
+                rulesText.innerText = `필드 크기: ${record.gridSize} x ${record.gridSize}  |  스킬 금지: ${record.skillsDisabled ? '예 (금지)' : '아니오 (허용)'}`;
+            } else {
+                rulesBox.classList.add('hidden');
+            }
+
+            renderStats(
+                document.getElementById('history-stats-container'),
+                record.stats || { spawnCount: 0, totalMerges: 0, skillUsage: { pin: 0, hammer: 0, swap: 0 }, miningCount: {}, discoveryCount: {}, finalBoardCount: {} },
+                record.skillsDisabled
+            );
+            scoreEl.innerText = (record.score || 0).toLocaleString();
+
+            modal.classList.remove('hidden');
+            drawHistoryBoard(record);
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+        }
+
+        function closeHistoryDetail() {
+            const modal = document.getElementById('history-detail-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentDetailRecord = null;
+            }, 300);
+        }
+
+        document.getElementById('btn-title-history').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); showHistoryScreen();
+        });
+
+        document.getElementById('tab-history-classic').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (currentHistoryTab !== 'classic') {
+                currentHistoryTab = 'classic';
+                updateHistoryTabsUI();
+                renderHistoryList();
+            }
+        });
+
+        document.getElementById('tab-history-custom').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (currentHistoryTab !== 'custom') {
+                currentHistoryTab = 'custom';
+                updateHistoryTabsUI();
+                renderHistoryList();
+            }
+        });
+
+        document.getElementById('btn-history-back').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); hideHistoryScreen(() => { showTitleScreen(); });
+        });
+
+        document.getElementById('btn-history-detail-close').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); closeHistoryDetail();
+        });
+
+        // ------------------ 온라인 랭킹 시스템 ------------------
+        const LAST_NICKNAME_KEY = 'merge_last_nickname';
+        let lastClassicGameResult = null;
+        let isCurrentGameRegistered = false;
+        let isSubmittingRanking = false;
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function reconstructBoardFromFlat(boardFlat, size = 6) {
+            if (!Array.isArray(boardFlat) || boardFlat.length !== size * size) return null;
+            const board = [];
+            for (let r = 0; r < size; r++) {
+                board.push(boardFlat.slice(r * size, (r + 1) * size));
+            }
+            return board;
+        }
+
+        function showRankingScreen() {
+            appState = 'RANKING';
+            document.getElementById('title-screen').classList.add('opacity-0');
+
+            setTimeout(() => {
+                document.getElementById('title-screen').classList.add('hidden');
+                const rankingScreen = document.getElementById('ranking-screen');
+                rankingScreen.classList.remove('hidden');
+                void rankingScreen.offsetWidth;
+                rankingScreen.classList.remove('opacity-0');
+                loadRankingList();
+            }, 300);
+        }
+
+        function hideRankingScreen(callback) {
+            const rankingScreen = document.getElementById('ranking-screen');
+            rankingScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                rankingScreen.classList.add('hidden');
+                if (callback) callback();
+            }, 300);
+        }
+
+        async function loadRankingList() {
+            const container = document.getElementById('ranking-list-container');
+            if (!isFirebaseReady || !db) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center justify-center text-white/70 font-bold text-center px-[4cqw] gap-[1.5cqh]" style="font-size: 2.8cqh;">
+                        <span>Firebase 설정(firebaseConfig)이 아직 입력되지 않았습니다.</span>
+                        <span class="text-white/50" style="font-size: 2.2cqh;">index.html 내 firebaseConfig에 본인 프로젝트 정보를 입력해 주세요.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center text-white/60 font-bold" style="font-size: 3.2cqh;">
+                    랭킹을 불러오는 중...
+                </div>
+            `;
+
+            try {
+                const snapshot = await db.collection('rankings')
+                    .orderBy('score', 'desc')
+                    .limit(50)
+                    .get();
+
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="w-full h-full flex items-center justify-center text-white/50 font-bold" style="font-size: 3.2cqh;">
+                            아직 등록된 랭킹 기록이 없습니다.
+                        </div>
+                    `;
+                    return;
+                }
+
+                const records = [];
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    records.push({
+                        id: doc.id,
+                        name: d.name || '익명',
+                        score: typeof d.score === 'number' ? d.score : 0,
+                        timestamp: d.timestamp || 0,
+                        gridSize: d.gridSize || 6,
+                        skillsDisabled: false,
+                        mode: 'classic',
+                        maxMineral: d.maxMineral || 1,
+                        board: reconstructBoardFromFlat(d.boardFlat, d.gridSize || 6),
+                        stats: d.stats || null
+                    });
+                });
+
+                // 동점일 경우 먼저 달성한 기록을 상위로 정렬
+                records.sort((a, b) => {
+                    if (b.score !== a.score) return b.score - a.score;
+                    return (a.timestamp || 0) - (b.timestamp || 0);
+                });
+
+                container.innerHTML = '';
+                records.forEach((record, index) => {
+                    const maxLvl = record.maxMineral || getHighestMineralLevel(record);
+                    const maxMineralName = getMineralInfo(maxLvl).name;
+                    const dateStr = record.timestamp ? formatRecordDate(record.timestamp) : '';
+                    const hasDetail = Boolean(record.board && record.stats);
+
+                    const card = document.createElement(hasDetail ? 'button' : 'div');
+                    card.className = 'w-full parchment-theme rounded-2xl px-[3cqw] py-[2cqh] border-[#dca773] shadow-lg flex items-center justify-between text-left transition-all shrink-0'
+                        + (hasDetail ? ' hover:brightness-105 active:scale-[0.99] cursor-pointer' : '');
+                    card.style.borderWidth = '0.4cqh';
+
+                    let badgeColor = 'bg-[#5a4231] text-white';
+                    if (index === 0) badgeColor = 'bg-yellow-500 text-slate-900';
+                    else if (index === 1) badgeColor = 'bg-slate-300 text-slate-900';
+                    else if (index === 2) badgeColor = 'bg-amber-700 text-white';
+
+                    const subText = dateStr
+                        ? `최고 광물: ${escapeHtml(maxMineralName)} · ${dateStr}`
+                        : `최고 광물: ${escapeHtml(maxMineralName)}`;
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-[2.5cqw] min-w-0 flex-1">
+                            <div class="${badgeColor} font-black rounded-xl flex items-center justify-center shrink-0 shadow-sm" style="width: 6.5cqh; height: 6.5cqh; font-size: 2.8cqh;">
+                                #${index + 1}
+                            </div>
+                            <div class="flex flex-col gap-[0.5cqh] min-w-0">
+                                <span class="font-black text-[#5a4231] leading-none truncate" style="font-size: 3.4cqh;">${escapeHtml(record.name)}</span>
+                                <span class="font-bold text-[#8b5a2b] truncate" style="font-size: 2.1cqh;">${subText}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-[1.8cqw] shrink-0 ml-[2cqw]">
+                            <span class="font-black text-[#5a4231] text-right leading-none" style="font-size: 3.5cqh;">${record.score.toLocaleString()}점</span>
+                            ${hasDetail ? '<span class="text-[#8b5a2b] font-black" style="font-size: 2.8cqh;">▶</span>' : ''}
+                        </div>
+                    `;
+
+                    if (hasDetail) {
+                        card.onclick = () => openHistoryDetail(record, index + 1, record.name);
+                    }
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.log('Ranking load failed:', error);
+                container.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center justify-center text-red-300 font-bold text-center px-[4cqw] gap-[1cqh]" style="font-size: 2.8cqh;">
+                        <span>랭킹을 불러오지 못했습니다.</span>
+                        <span class="text-white/50" style="font-size: 2.1cqh;">네트워크 연결 및 Firestore 보안 규칙을 확인해 주세요.</span>
+                    </div>
+                `;
+            }
+        }
+
+        function openRankingRegisterModal() {
+            if (!lastClassicGameResult || isCurrentGameRegistered) return;
+            const modal = document.getElementById('ranking-register-modal');
+            const content = document.getElementById('ranking-register-content');
+            const scoreText = document.getElementById('ranking-register-score-text');
+            const input = document.getElementById('ranking-nickname-input');
+            const msg = document.getElementById('ranking-register-msg');
+            const submitBtn = document.getElementById('btn-ranking-submit');
+
+            scoreText.innerText = `최종 점수: ${lastClassicGameResult.score.toLocaleString()}점`;
+            msg.innerText = '';
+            msg.className = 'min-h-[3cqh] mt-[1.2cqh] mb-[1.5cqh] font-bold text-center text-red-600 break-keep';
+            submitBtn.disabled = false;
+            submitBtn.innerText = '등록';
+
+            try {
+                const savedNick = localStorage.getItem(LAST_NICKNAME_KEY);
+                if (savedNick) input.value = savedNick;
+            } catch (e) {}
+
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+
+            // 데스크톱 및 모바일 자판 자동 포커스
+            setTimeout(() => {
+                input.focus();
+            }, 80);
+        }
+
+        function closeRankingRegisterModal() {
+            const modal = document.getElementById('ranking-register-modal');
+            const content = document.getElementById('ranking-register-content');
+            const input = document.getElementById('ranking-nickname-input');
+            input.blur();
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        async function submitRankingScore(e) {
+            e.preventDefault();
+            if (isSubmittingRanking || isCurrentGameRegistered || !lastClassicGameResult) return;
+
+            const input = document.getElementById('ranking-nickname-input');
+            const msg = document.getElementById('ranking-register-msg');
+            const submitBtn = document.getElementById('btn-ranking-submit');
+            const nickname = input.value.trim();
+
+            if (nickname.length < 1 || nickname.length > 12) {
+                msg.innerText = '닉네임은 1~12자로 입력해 주세요.';
+                input.focus();
+                return;
+            }
+
+            if (!isFirebaseReady || !db) {
+                msg.innerText = 'Firebase 설정이 필요합니다. (firebaseConfig 확인)';
+                return;
+            }
+
+            isSubmittingRanking = true;
+            submitBtn.disabled = true;
+            submitBtn.innerText = '등록 중...';
+            msg.innerText = '';
+
+            try {
+                const payload = {
+                    name: nickname,
+                    score: Number(lastClassicGameResult.score),
+                    timestamp: Date.now(),
+                    gridSize: 6,
+                    maxMineral: lastClassicGameResult.maxMineral,
+                    boardFlat: lastClassicGameResult.boardFlat,
+                    stats: lastClassicGameResult.stats
+                };
+
+                await db.collection('rankings').add(payload);
+
+                try {
+                    localStorage.setItem(LAST_NICKNAME_KEY, nickname);
+                } catch (err) {}
+
+                isCurrentGameRegistered = true;
+                const regBtn = document.getElementById('btn-register-ranking');
+                regBtn.disabled = true;
+                regBtn.classList.add('opacity-50', 'pointer-events-none');
+                regBtn.querySelector('span').innerText = '등록 완료';
+
+                msg.className = 'min-h-[3cqh] mt-[1.2cqh] mb-[1.5cqh] font-bold text-center text-green-700 break-keep';
+                msg.innerText = '랭킹에 성공적으로 등록되었습니다!';
+
+                setTimeout(() => {
+                    closeRankingRegisterModal();
+                }, 800);
+            } catch (error) {
+                console.log('Ranking submit failed:', error);
+                msg.className = 'min-h-[3cqh] mt-[1.2cqh] mb-[1.5cqh] font-bold text-center text-red-600 break-keep';
+                msg.innerText = '랭킹 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+                submitBtn.disabled = false;
+                submitBtn.innerText = '등록';
+            } finally {
+                isSubmittingRanking = false;
+            }
+        }
+
+        document.getElementById('btn-title-ranking').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); showRankingScreen();
+        });
+
+        document.getElementById('btn-ranking-back').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); hideRankingScreen(() => { showTitleScreen(); });
+        });
+
+        document.getElementById('btn-ranking-refresh').addEventListener('pointerdown', (e) => {
+            e.preventDefault(); loadRankingList();
+        });
+
+        // 모바일 가상 키보드 포커스 호환을 위해 click 이벤트 사용
+        document.getElementById('btn-register-ranking').addEventListener('click', () => {
+            openRankingRegisterModal();
+        });
+
+        document.getElementById('btn-ranking-cancel').addEventListener('click', () => {
+            closeRankingRegisterModal();
+        });
+
+        document.getElementById('ranking-register-form').addEventListener('submit', submitRankingScore);
+
+        document.getElementById('ranking-nickname-input').addEventListener('pointerdown', (e) => {
+            e.stopPropagation();
+        });
 
         let externalMinerals = {};
         const preloadedTextures = {};
@@ -655,7 +1451,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
 
-        let appState = 'TITLE'; // TITLE, SAVES, PLAYING
+        let appState = 'TITLE'; // TITLE, SAVES, HISTORY, RANKING, PLAYING
         let currentSaveSlot = null;
 
         // 동적 룰 설정 변수
@@ -757,7 +1553,6 @@
             
             for (let r = 0; r < currentGridSize; r++) {
                 for (let c = 0; c < currentGridSize; c++) {
-                    // 구버전 세이브 호환성
                     if(data.gridLevels[r] && data.gridLevels[r][c] !== undefined) {
                         grid[r][c].level = data.gridLevels[r][c];
                         grid[r][c].scale = data.gridLevels[r][c] > 0 ? 1 : 0;
@@ -843,13 +1638,20 @@
         }
 
         function finalizeStartGame() {
-            // 스킬 비활성화 여부에 따른 UI 숨김 처리
             const skillGroup = document.getElementById('skill-group');
             if (skillsDisabled) {
                 skillGroup.classList.add('hidden');
             } else {
                 skillGroup.classList.remove('hidden');
             }
+
+            lastClassicGameResult = null;
+            isCurrentGameRegistered = false;
+            const regBtn = document.getElementById('btn-register-ranking');
+            regBtn.disabled = false;
+            regBtn.classList.remove('opacity-50', 'pointer-events-none');
+            regBtn.classList.add('hidden');
+            regBtn.querySelector('span').innerText = '랭킹 등록';
 
             updateSkillUI();
             updateScoreDisplay();
@@ -862,7 +1664,7 @@
             document.getElementById('go-title').classList.add('opacity-0');
             document.getElementById('go-stats').classList.add('opacity-0');
             document.getElementById('go-score').classList.add('opacity-0');
-            document.getElementById('restart-btn').classList.add('opacity-0');
+            document.getElementById('go-actions').classList.add('opacity-0');
         }
 
         // ------------------ 룰 설정 UI 로직 ------------------
@@ -954,7 +1756,6 @@
             });
         });
 
-
         // ------------------ 화면 전환 및 렌더링 ------------------
         function showTitleScreen() {
             appState = 'TITLE';
@@ -962,6 +1763,9 @@
             
             document.getElementById('ui-layer').classList.add('hidden');
             document.getElementById('save-screen').classList.add('hidden');
+            document.getElementById('history-screen').classList.add('hidden');
+            document.getElementById('ranking-screen').classList.add('hidden');
+            document.getElementById('ranking-register-modal').classList.add('hidden');
             document.getElementById('game-over').classList.add('hidden');
             
             const titleScreen = document.getElementById('title-screen');
@@ -1110,7 +1914,6 @@
                 const offsetPercent = (!ignoreTransform && ext && ext.textureOffsetY !== undefined) ? ext.textureOffsetY : 0;
                 
                 const scale = scalePercent / 100;
-                // 인게임 렌더링 시 타일 크기에 비례하도록 보정
                 const localTileH = (typeof tileH !== 'undefined' && typeof tileW !== 'undefined' && tileW > 0) 
                                    ? tileH * (radius / (tileW * 0.32)) : radius * 2.5; 
                 
@@ -1193,7 +1996,7 @@
         }
 
         function updateSkillUI() {
-            if (skillsDisabled) return; // 금지 상태면 업데이트 생략
+            if (skillsDisabled) return;
 
             const pinBtn = document.getElementById('skill-pin-btn');
             const pinCooldownUI = document.getElementById('skill-pin-cooldown');
@@ -1273,7 +2076,6 @@
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
 
-            // 전체 타일맵이 차지하는 높이 공간 고정
             const totalGridHeight = canvas.height * 0.81;
 
             // 1. UI용 6x6 기준 크기 계산 (고정)
@@ -1303,6 +2105,10 @@
                 currentOriginX = targetOriginX;
                 currentOriginY = targetOriginY;
                 currentBoardScale = 0.6;
+            }
+
+            if (currentDetailRecord) {
+                drawHistoryBoard(currentDetailRecord);
             }
 
             ctx.imageSmoothingEnabled = false; 
@@ -1404,8 +2210,7 @@
             }
         }
 
-        function renderStats() {
-            const container = document.getElementById('stats-container');
+        function renderStats(container = document.getElementById('stats-container'), statsData = gameStats, isSkillsOff = skillsDisabled) {
             container.innerHTML = '';
             
             const headerSize = '3cqh';
@@ -1446,7 +2251,7 @@
 
             const sett = createSec('정산');
             for (let i = 1; i <= MAX_LEVEL; i++) {
-                const totalCount = gameStats.finalBoardCount[i] + gameStats.miningCount[i];
+                const totalCount = (statsData.finalBoardCount[i] || 0) + (statsData.miningCount[i] || 0);
                 if (totalCount > 0) {
                     const pts = totalCount * getMineralInfo(i).settlementScore;
                     sett.grid.appendChild(createRow(`${getMineralInfo(i).name} (x${totalCount})`, pts.toLocaleString()));
@@ -1456,8 +2261,8 @@
             
             const secMine = createSec('채굴');
             for (let i = 1; i <= MAX_LEVEL; i++) {
-                if (gameStats.miningCount[i] > 0) {
-                    const cnt = gameStats.miningCount[i];
+                if ((statsData.miningCount[i] || 0) > 0) {
+                    const cnt = statsData.miningCount[i];
                     const pts = cnt * getMineralInfo(i).settlementScore;
                     secMine.grid.appendChild(createRow(getMineralInfo(i).name, `${cnt}회 (${pts.toLocaleString()})`));
                 }
@@ -1466,20 +2271,20 @@
             
             const secDiscovery = createSec('발견');
             for (let i = 1; i <= MAX_LEVEL; i++) {
-                if (gameStats.discoveryCount[i] > 0) {
-                    secDiscovery.grid.appendChild(createRow(getMineralInfo(i).name, gameStats.discoveryCount[i]));
+                if ((statsData.discoveryCount[i] || 0) > 0) {
+                    secDiscovery.grid.appendChild(createRow(getMineralInfo(i).name, statsData.discoveryCount[i]));
                 }
             }
             if (secDiscovery.grid.children.length > 0) container.appendChild(secDiscovery.sec);
 
             const secOther = createSec('기타');
-            const totalSpawns = gameStats.spawnCount + gameStats.skillUsage.pin;
+            const totalSpawns = (statsData.spawnCount || 0) + ((statsData.skillUsage && statsData.skillUsage.pin) || 0);
             secOther.grid.appendChild(createRow('생성 횟수', totalSpawns));
-            secOther.grid.appendChild(createRow('합성 횟수', gameStats.totalMerges));
-            if (!skillsDisabled) {
-                secOther.grid.appendChild(createRow('📌 지정 스킬', gameStats.skillUsage.pin));
-                secOther.grid.appendChild(createRow('⛏️ 파괴 스킬', gameStats.skillUsage.hammer));
-                secOther.grid.appendChild(createRow('🔁 교체 스킬', gameStats.skillUsage.swap));
+            secOther.grid.appendChild(createRow('합성 횟수', statsData.totalMerges || 0));
+            if (!isSkillsOff && statsData.skillUsage) {
+                secOther.grid.appendChild(createRow('📌 지정 스킬', statsData.skillUsage.pin || 0));
+                secOther.grid.appendChild(createRow('⛏️ 파괴 스킬', statsData.skillUsage.hammer || 0));
+                secOther.grid.appendChild(createRow('🔁 교체 스킬', statsData.skillUsage.swap || 0));
             }
             container.appendChild(secOther.sec);
         }
@@ -1504,6 +2309,32 @@
             const finalScoreEl = document.getElementById('final-score');
             if (finalScoreEl) finalScoreEl.innerText = finalTotalScore.toLocaleString();
 
+            savePlayRecord(finalTotalScore);
+
+            // 클래식 모드 전용 랭킹 등록 데이터 준비 및 버튼 표시 제어
+            const isClassic = (currentGridSize === 6 && !skillsDisabled);
+            const regBtn = document.getElementById('btn-register-ranking');
+            if (isClassic) {
+                const board2D = grid.map(row => row.map(cell => cell.level));
+                const statsCopy = JSON.parse(JSON.stringify(gameStats));
+                lastClassicGameResult = {
+                    score: finalTotalScore,
+                    gridSize: currentGridSize,
+                    skillsDisabled: false,
+                    board: board2D,
+                    boardFlat: board2D.flat(),
+                    maxMineral: getHighestMineralLevel({ board: board2D, stats: statsCopy }),
+                    stats: statsCopy
+                };
+                isCurrentGameRegistered = false;
+                regBtn.disabled = false;
+                regBtn.classList.remove('hidden', 'opacity-50', 'pointer-events-none');
+                regBtn.querySelector('span').innerText = '랭킹 등록';
+            } else {
+                lastClassicGameResult = null;
+                regBtn.classList.add('hidden');
+            }
+
             if (currentSaveSlot) {
                 localStorage.removeItem(`merge_save_${currentSaveSlot}`);
             }
@@ -1526,7 +2357,7 @@
                     setTimeout(() => {
                         document.getElementById('go-score').classList.remove('opacity-0');
                         setTimeout(() => {
-                            document.getElementById('restart-btn').classList.remove('opacity-0');
+                            document.getElementById('go-actions').classList.remove('opacity-0');
                         }, 800);
                     }, 1000);
                 }, 1500);
@@ -1761,9 +2592,9 @@
 
                     if (isAwaitingSwapSelection && swapFirstTarget) {
                         if (swapFirstTarget.r === r && swapFirstTarget.c === c) {
-                            baseAlpha = 0.8; // 첫 번째 선택 대상 (강한 하얀색)
+                            baseAlpha = 0.8;
                         } else {
-                            r_col = 96; g_col = 165; b_col = 250; baseAlpha = 0.7; // 두 번째 선택 가능 대상 (파란색)
+                            r_col = 96; g_col = 165; b_col = 250; baseAlpha = 0.7;
                         }
                     }
 
@@ -1909,7 +2740,7 @@
 
         document.getElementById('dictionary-btn').addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            playSound('dictOpen'); // 도감 열기 효과음
+            playSound('dictOpen');
             maxSpreads = Math.ceil(MAX_LEVEL / 2); dictCurrentSpread = 0;
             dictModal.classList.remove('hidden'); void dictModal.offsetWidth; renderDictionary();
             dictModal.classList.remove('opacity-0'); dictContent.classList.remove('scale-95'); dictContent.classList.add('scale-100');
@@ -1917,7 +2748,7 @@
         document.getElementById('dict-prev-area').addEventListener('pointerdown', (e) => { 
             e.preventDefault(); 
             if (dictCurrentSpread > 0) { 
-                playSound('dictPageTurn'); // 페이지 넘기기 효과음
+                playSound('dictPageTurn');
                 dictCurrentSpread--; 
                 renderDictionary(); 
             }
@@ -1925,7 +2756,7 @@
         document.getElementById('dict-next-area').addEventListener('pointerdown', (e) => { 
             e.preventDefault(); 
             if (dictCurrentSpread < maxSpreads - 1) { 
-                playSound('dictPageTurn'); // 페이지 넘기기 효과음
+                playSound('dictPageTurn');
                 dictCurrentSpread++; 
                 renderDictionary(); 
             }
@@ -2069,6 +2900,7 @@
         });
 
         window.onload = async () => {
+            initFirebase();
             await Promise.all([loadTextData(), loadMineralData(), loadSkillData(), loadUIData(), loadSoundData()]);
             resize();
             showTitleScreen();
