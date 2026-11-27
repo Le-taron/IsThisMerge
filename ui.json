@@ -5,15 +5,15 @@
 "scale": 100
 },
 "titlePlayBtn": {
-"path": "resources/textures/btn_long.png",
+"path": "resources/textures/btn_titles.png",
 "scale": 100
 },
 "titleHelpBtn": {
-"path": "resources/textures/btn_long.png",
+"path": "resources/textures/btn_titles.png",
 "scale": 100
 },
 "saveSlotBtn": {
-"path": "resources/textures/btn_long.png",
+"path": "resources/textures/btn_titles.png",
 "scale": 100
 },
 "saveDelBtn": {
@@ -25,7 +25,7 @@
 "scale": 100
 },
 "spawnBtn": {
-"path": "resources/textures/btn_long.png",
+"path": "resources/textures/btn_titles.png",
 "scale": 100
 },
 "skillBtnBg": {
