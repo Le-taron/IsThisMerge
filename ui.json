@@ -5,15 +5,15 @@
 "scale": 100
 },
 "titlePlayBtn": {
-"path": "",
+"path": "resources/textures/btn_long.png",
 "scale": 100
 },
 "titleHelpBtn": {
-"path": "",
+"path": "resources/textures/btn_long.png",
 "scale": 100
 },
 "saveSlotBtn": {
-"path": "",
+"path": "resources/textures/btn_long.png",
 "scale": 100
 },
 "saveDelBtn": {
@@ -25,7 +25,7 @@
 "scale": 100
 },
 "spawnBtn": {
-"path": "",
+"path": "resources/textures/btn_long.png",
 "scale": 100
 },
 "skillBtnBg": {
@@ -49,15 +49,15 @@
 "scale": 100
 },
 "skillPinIcon": {
-"path": "resources/textures/icon_select.png",
+"path": "resources/textures/skill_select.png",
 "scale": 60
 },
 "skillHammerIcon": {
-"path": "",
+"path": "resources/textures/skill_mining.png",
 "scale": 60
 },
 "skillSwapIcon": {
-"path": "resources/textures/icon_swap.png",
+"path": "resources/textures/skill_swap.png",
 "scale": 60
 },
 "exitBtnIcon": {
